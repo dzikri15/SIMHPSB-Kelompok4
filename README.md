@@ -9,7 +9,7 @@
 # 🌾 SIMHPSB
 ### Sistem Informasi Monitoring Hasil Panen dan Stok Beras Berbasis Web
 
-*Tugas Besar Rekayasa Sistem Informasi — Kelas A1 Kelompok 4*
+*Tugas Besar Rekayasa Sistem Informasi — Kelas-A1 Kelompok 4*
 *Program Studi Sistem Informasi — Universitas Kebangsaan Republik Indonesia (UKRI) 2025*
 
 </div>
