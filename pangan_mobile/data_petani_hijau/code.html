@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#d9e7cb",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#dce5dc",
+                    "primary-fixed-dim": "#a2d39c",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#54634d",
+                    "surface-container": "#eff5f0",
+                    "inverse-on-surface": "#eff2ef",
+                    "on-primary-container": "#002107",
+                    "inverse-surface": "#2d322e",
+                    "surface-container-low": "#f5fbf6",
+                    "on-primary-fixed-variant": "#234e23",
+                    "on-secondary-fixed": "#111e15",
+                    "on-surface": "#191d1a",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#dce5dc",
+                    "surface": "#f8fbf8",
+                    "primary-fixed": "#bdf0b7",
+                    "secondary": "#546356",
+                    "on-background": "#191d1a",
+                    "background": "#f8fbf8",
+                    "outline-variant": "#c1c8c2",
+                    "on-error": "#ffffff",
+                    "primary": "#1b4332",
+                    "on-tertiary-container": "#121f0e",
+                    "tertiary-fixed-dim": "#bdccb0",
+                    "error-dim": "#ffb4ab",
+                    "secondary-fixed-dim": "#c1c9c1",
+                    "surface-container-high": "#e9efea",
+                    "tertiary-dim": "#bdccb0",
+                    "surface-tint": "#3c693c",
+                    "tertiary-container": "#d9e7cb",
+                    "on-error-container": "#410002",
+                    "primary-container": "#bdf0b7",
+                    "on-secondary-fixed-variant": "#3c4b3f",
+                    "surface-variant": "#dfe4df",
+                    "surface-bright": "#f8fbf8",
+                    "on-secondary-container": "#121f15",
+                    "on-primary-fixed": "#002107",
+                    "surface-container-highest": "#e3e9e4",
+                    "on-tertiary-fixed-variant": "#3d4b37",
+                    "outline": "#717973",
+                    "inverse-primary": "#a2d39c",
+                    "primary-dim": "#a2d39c",
+                    "secondary-dim": "#bcc7bd",
+                    "on-tertiary-fixed": "#121f0e",
+                    "surface-dim": "#d9dfda",
+                    "error-container": "#93000a",
+                    "on-surface-variant": "#414942",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Public Sans"],
+                    "body": ["Public Sans"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#f5fbf6]/80 dark:bg-[#012d1d]/80 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="Foto Profil Petugas" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6zsSv-Nzb6abQAvhCNEkYj3rZr8-iTgADM1hXsoLq3jOBl_uVxu8TOli_XHDU8IEPoOJKrrEoIuL5dBLOgH66745I9EMn6NM79duqzzVPXVE3NVYT6jhBbs9OExO1Yy4GFTyzcAA3nBg_3v0sUIGQ_lagwXpT85GTxk235Yk8rv_f44FzUrc-l-KzPiO02DzwbmVwkAOZSOPve2vleLMTKTlY-SaB6oI8bQJc1cuX0Nhu4vfWQWV9FL8eCEhlp7BhowaThmaqMSo"/>
+</div>
+<h1 class="text-xl font-black text-[#012d1d] dark:text-[#eff5f0] tracking-tighter">SIMHPSB</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#eff5f0] dark:hover:bg-[#1b4332] transition-colors text-[#012d1d] dark:text-[#f5fbf6] active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-6 max-w-5xl mx-auto">
+<!-- Screen Header -->
+<div class="flex flex-col gap-4 mb-8">
+<div>
+<h2 class="text-[2.25rem] font-black tracking-[-0.02em] text-on-surface leading-tight">Data Petani</h2>
+<p class="text-on-surface-variant font-medium">Kelola informasi demografi dan lokasi lahan petani binaan.</p>
+</div>
+<button class="bg-[#1b4332] text-white px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-xl shadow-[#1b4332]/10 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">person_add</span>
+<span>Tambah Petani</span>
+</button>
+</div>
+<!-- Search & Filter Area -->
+<div class="bg-surface-container-low rounded-[1.5rem] p-4 mb-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-highest border-none rounded-2xl py-4 pl-12 pr-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/20 transition-all outline-none h-14" placeholder="Cari nama petani atau lokasi..." type="text"/>
+</div>
+</div>
+<!-- Farmer List -->
+<div class="space-y-4">
+<!-- Farmer Card 1 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-all rounded-[1.5rem] p-5 flex items-center gap-4 border border-transparent hover:border-outline-variant">
+<div class="w-14 h-14 rounded-2xl bg-primary-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-3xl material-symbols-fill">agriculture</span>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="text-lg font-bold text-on-surface truncate">Budi Santoso</h3>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="text-sm font-medium truncate">Desa Sukamaju, Blok Cakra</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Farmer Card 2 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-all rounded-[1.5rem] p-5 flex items-center gap-4 border border-transparent hover:border-outline-variant">
+<div class="w-14 h-14 rounded-2xl bg-tertiary-container flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined text-3xl material-symbols-fill">agriculture</span>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="text-lg font-bold text-on-surface truncate">Siti Aminah</h3>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="text-sm font-medium truncate">Kecamatan Caringin, Lahan 02</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Farmer Card 3 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-all rounded-[1.5rem] p-5 flex items-center gap-4 border border-transparent hover:border-outline-variant">
+<div class="w-14 h-14 rounded-2xl bg-secondary-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-3xl material-symbols-fill">agriculture</span>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="text-lg font-bold text-on-surface truncate">Ahmad Subarjo</h3>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="text-sm font-medium truncate">Desa Mulyoagung, Sektor Barat</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Farmer Card 4 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-all rounded-[1.5rem] p-5 flex items-center gap-4 border border-transparent hover:border-outline-variant">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-3xl material-symbols-fill">agriculture</span>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="text-lg font-bold text-on-surface truncate">Dewi Lestari</h3>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="text-sm font-medium truncate">Lereng Merbabu, Pos 4</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Farmer Card 5 -->
+<div class="group bg-surface-container-low hover:bg-surface-container-high transition-all rounded-[1.5rem] p-5 flex items-center gap-4 border border-transparent hover:border-outline-variant">
+<div class="w-14 h-14 rounded-2xl bg-primary-container flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-3xl material-symbols-fill">agriculture</span>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="text-lg font-bold text-on-surface truncate">Herman Yusuf</h3>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="text-sm font-medium truncate">Sentul Gardenia, Blok G1</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-outline hover:bg-surface-container-highest hover:text-primary active:scale-90 transition-all">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Load More -->
+<div class="mt-8 text-center pb-20">
+<button class="text-primary font-bold px-8 py-3 rounded-xl hover:bg-primary/5 transition-colors">
+            Tampilkan Lebih Banyak
+        </button>
+</div>
+</main>
+<!-- BottomNavBar (Shared Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-white/90 dark:bg-[#012d1d]/90 backdrop-blur-xl">
+<a class="flex flex-col items-center justify-center text-[#717973] dark:text-[#c1c8c2] px-5 py-2 hover:text-[#1b4332] dark:hover:text-white" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Beranda</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#012d1d] dark:bg-[#1b4332] text-white rounded-2xl px-5 py-2 scale-105 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined mb-1 material-symbols-fill">groups</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Petani</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#717973] dark:text-[#c1c8c2] px-5 py-2 hover:text-[#1b4332] dark:hover:text-white" href="#">
+<span class="material-symbols-outlined mb-1">agriculture</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Panen</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#717973] dark:text-[#c1c8c2] px-5 py-2 hover:text-[#1b4332] dark:hover:text-white" href="#">
+<span class="material-symbols-outlined mb-1">warehouse</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest">Gudang</span>
+</a>
+</nav>
+</body></html>
