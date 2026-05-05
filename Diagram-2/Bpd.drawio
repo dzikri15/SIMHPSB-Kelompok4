@@ -1,0 +1,248 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram name="Page-1" id="lyY_SV2oEDkZtHu8qDxz">
+    <mxGraphModel dx="1869" dy="1285" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-55" value="Resolve Alert" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-33" target="oA-tEPtMzF2lWqo7eJYF-26">
+          <mxGeometry x="-0.0959" y="-10" relative="1" as="geometry">
+            <mxPoint x="10" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-65" value="Data untuk Laporan" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;dashed=1;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-26" target="oA-tEPtMzF2lWqo7eJYF-34">
+          <mxGeometry x="0.3651" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="930" y="1075" />
+              <mxPoint x="930" y="1123" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-47" value="Catat Panen" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-17" target="oA-tEPtMzF2lWqo7eJYF-22">
+          <mxGeometry x="-0.1409" y="-2" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-42" value="Input ke Sistem" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" target="oA-tEPtMzF2lWqo7eJYF-20">
+          <mxGeometry x="-0.4493" relative="1" as="geometry">
+            <mxPoint x="550" y="458" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="710" y="458" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-1" value="Business Process Diagram — SIMHPSB" style="text;fontStyle=1;fontSize=18;fillColor=none;strokeColor=none;fontColor=#1E3A5F;align=center;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="700" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-2" value="PETANI / PENGEPUL" style="swimlane;startSize=35;fillColor=#DBEAFE;strokeColor=#3B82F6;fontStyle=1;fontSize=13;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="55" width="270" height="1145" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-8" value="Tanam &amp; Rawat Padi/Jagung&#xa;(Okt–Mar musim hujan / kemarau jagung)&#xa;~1 hektar, estimasi 3–4 ton/musim" style="rounded=1;fillColor=#1D4ED8;fontColor=#ffffff;strokeColor=#1E3A5F;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-2">
+          <mxGeometry x="50" y="115" width="195" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-7" value="" style="ellipse;fillColor=none;strokeColor=#1F2937;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-2">
+          <mxGeometry x="132.5" y="55" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-36" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-2" source="oA-tEPtMzF2lWqo7eJYF-7" target="oA-tEPtMzF2lWqo7eJYF-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-9" value="Panen Gabah" style="rounded=1;fillColor=#1D4ED8;fontColor=#ffffff;strokeColor=#1E3A5F;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-2">
+          <mxGeometry x="75" y="205" width="145" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-37" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-2" source="oA-tEPtMzF2lWqo7eJYF-8" target="oA-tEPtMzF2lWqo7eJYF-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-10" value="Tawarkan Gabah ke Gudang" style="rounded=1;fillColor=#1D4ED8;fontColor=#ffffff;strokeColor=#1E3A5F;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-2">
+          <mxGeometry x="62.5" y="290" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-38" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-2" source="oA-tEPtMzF2lWqo7eJYF-9" target="oA-tEPtMzF2lWqo7eJYF-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-11" value="Terima Pembayaran Gabah&#xa;(Rp 760.000 / 100 kg)" style="rounded=1;fillColor=#1D4ED8;fontColor=#ffffff;strokeColor=#1E3A5F;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-2">
+          <mxGeometry x="62.5" y="415" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-12" value="Lihat Data Panen &amp; Harga Beli&#xa;(via Akun Petani Mitra)" style="rounded=1;fillColor=#1D4ED8;fontColor=#ffffff;strokeColor=#1E3A5F;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-2">
+          <mxGeometry x="62.5" y="505" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-62" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-2" source="oA-tEPtMzF2lWqo7eJYF-11" target="oA-tEPtMzF2lWqo7eJYF-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-3" value="PETUGAS / PEMILIK GUDANG" style="swimlane;startSize=35;fillColor=#DCFCE7;strokeColor=#16A34A;fontStyle=1;fontSize=13;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="290" y="55" width="270" height="1145" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-13" value="Terima &amp; Timbang Gabah" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="60" y="245" width="190" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-14" value="Input Data Pembelian Gabah di Sistem&#xa;(petani, jumlah kg, tanggal, harga)" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="55" y="375" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-40" style="edgeStyle=orthogonalEdgeStyle;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-3" source="oA-tEPtMzF2lWqo7eJYF-13" target="oA-tEPtMzF2lWqo7eJYF-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-19" value="Catat &amp; Proses Distribusi Beras&#xa;(stok keluar ke MBG/Toko)" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="55" y="925" width="190" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-18" value="Simpan Beras Siap Edar&#xa;(kapasitas maks 1.000 kg)" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="55" y="765" width="190" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-57" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-3" source="oA-tEPtMzF2lWqo7eJYF-18" target="oA-tEPtMzF2lWqo7eJYF-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-16" value="Kirim ke Penggilingan&#xa;(ongkos giling Rp 700/kg)" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="55" y="555" width="190" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-15" value="Simpan Gabah di Gudang&#xa;(kapasitas maks 2.000 kg)" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="55" y="465" width="190" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-45" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-3" source="oA-tEPtMzF2lWqo7eJYF-15" target="oA-tEPtMzF2lWqo7eJYF-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-17" value="Input Data Hasil Giling di Sistem&#xa;(tonase gabah → konversi beras)" style="rounded=1;fillColor=#15803D;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-3">
+          <mxGeometry x="50" y="665" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-46" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-3" source="oA-tEPtMzF2lWqo7eJYF-16" target="oA-tEPtMzF2lWqo7eJYF-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-49" value="Konfirmasi Beras Masuk" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-3" source="oA-tEPtMzF2lWqo7eJYF-17" target="oA-tEPtMzF2lWqo7eJYF-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-4" value="SISTEM SIMHPSB" style="swimlane;startSize=35;fillColor=#F0FDF4;strokeColor=#15803D;fontStyle=1;fontSize=13;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="560" y="55" width="270" height="1145" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-67" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeWidth=3;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="130" y="1095" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-20" value="Validasi &amp; Simpan Data Petani&#xa;(FR-01, FR-02, FR-03)" style="rounded=1;fillColor=#16A34A;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="40" y="145" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-22" value="Konversi Otomatis Gabah → Beras&#xa;estimasi_beras = tonase × 0.615&#xa;POST /api/panen (FR-04, FR-05)" style="rounded=1;fillColor=#16A34A;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="40" y="495" width="220" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-23" value="Update Stok Beras Real-time&#xa;POST /api/stok {masuk, beras}&#xa;(FR-08, FR-10)" style="rounded=1;fillColor=#16A34A;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="40" y="615" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-48" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-4" source="oA-tEPtMzF2lWqo7eJYF-22" target="oA-tEPtMzF2lWqo7eJYF-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-26" value="Catat Distribusi &amp; Update Stok Keluar&#xa;POST /api/distribusi&#xa;Hitung HPP &amp; Margin Otomatis&#xa;GET /api/harga/hpp (FR-14, FR-25)" style="rounded=1;fillColor=#16A34A;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="30" y="980" width="230" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-25" value="Buat Alert &amp; Push Notifikasi&#xa;INSERT alert_log (FR-19, FR-20)" style="rounded=1;fillColor=#EA580C;fontColor=#ffffff;strokeColor=#C2410C;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="40" y="855" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-24" value="Cek Stok &lt; Batas Minimum?" style="rhombus;fillColor=#DC2626;fontColor=#ffffff;strokeColor=#9B1C1C;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="62.5" y="720" width="175" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-50" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-4" source="oA-tEPtMzF2lWqo7eJYF-23" target="oA-tEPtMzF2lWqo7eJYF-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-51" value="YA" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;fontColor=#DC2626;fontStyle=1;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-4" source="oA-tEPtMzF2lWqo7eJYF-24" target="oA-tEPtMzF2lWqo7eJYF-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-21" value="Update Stok Gabah Real-time&#xa;POST /api/stok {masuk, gabah}&#xa;(FR-07, FR-08)" style="rounded=1;fillColor=#16A34A;fontColor=#ffffff;strokeColor=#0D5C47;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-4">
+          <mxGeometry x="40" y="305" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-43" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-4" source="oA-tEPtMzF2lWqo7eJYF-20" target="oA-tEPtMzF2lWqo7eJYF-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-63" value="Konfigurasi Harga" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-4" source="oA-tEPtMzF2lWqo7eJYF-21" target="oA-tEPtMzF2lWqo7eJYF-20">
+          <mxGeometry x="-0.2243" relative="1" as="geometry">
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-66" style="edgeStyle=orthogonalEdgeStyle;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-4" source="oA-tEPtMzF2lWqo7eJYF-26" target="oA-tEPtMzF2lWqo7eJYF-67">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="50" y="1055" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-5" value="PELANGGAN (MBG / Toko Mitra)" style="swimlane;startSize=30;fillColor=#EDE9FE;strokeColor=#7C3AED;fontStyle=1;fontSize=13;horizontal=0;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="830" y="55" width="270" height="1145" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-27" value="Kirim Order Beras&#xa;MBG: 155 kg/dapur/hari (× 3 dapur)&#xa;Toko Rudi, Barokah: tidak rutin" style="rounded=1;fillColor=#7C3AED;fontColor=#ffffff;strokeColor=#5B21B6;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-5">
+          <mxGeometry x="40" y="800" width="215" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-28" value="Terima &amp; Verifikasi Beras" style="rounded=1;fillColor=#7C3AED;fontColor=#ffffff;strokeColor=#5B21B6;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-5">
+          <mxGeometry x="60" y="920" width="185" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-29" value="Konfirmasi Penerimaan" style="rounded=1;fillColor=#7C3AED;fontColor=#ffffff;strokeColor=#5B21B6;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-5">
+          <mxGeometry x="60" y="1015" width="185" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-60" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-5" source="oA-tEPtMzF2lWqo7eJYF-28" target="oA-tEPtMzF2lWqo7eJYF-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-6" value="ADMIN" style="swimlane;startSize=35;fillColor=#FEF3C7;strokeColor=#D97706;fontStyle=1;fontSize=13;horizontal=0;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="55" width="270" height="1145" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-32" value="Atur Konfigurasi Harga&#xa;PUT /api/harga (FR-11 s.d. FR-14)&#xa;Harga Beli / Giling / Jual" style="rounded=1;fillColor=#B45309;fontColor=#ffffff;strokeColor=#92400E;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-6">
+          <mxGeometry x="50" y="435" width="185" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-31" value="Pantau Dashboard Real-time&#xa;Stok vs Target 9.000 kg/bln&#xa;Grafik tren panen &amp; margin&#xa;(FR-15 s.d. FR-18)" style="rounded=1;fillColor=#B45309;fontColor=#ffffff;strokeColor=#92400E;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-6">
+          <mxGeometry x="50" y="577.5" width="185" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-30" value="Terima Notifikasi Alert Stok&#xa;(via Dashboard / Push Notif)" style="rounded=1;fillColor=#B45309;fontColor=#ffffff;strokeColor=#92400E;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-6">
+          <mxGeometry x="50" y="865" width="185" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-33" value="Tandai Alert &#39;Sudah Ditangani&#39;&#xa;PUT /api/alert/{id}/resolve&#xa;(FR-22)" style="rounded=1;fillColor=#B45309;fontColor=#ffffff;strokeColor=#92400E;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-6">
+          <mxGeometry x="50" y="955" width="185" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-54" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="oA-tEPtMzF2lWqo7eJYF-6" source="oA-tEPtMzF2lWqo7eJYF-30" target="oA-tEPtMzF2lWqo7eJYF-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-34" value="Generate Laporan Periodik&#xa;GET /api/laporan/panen|stok|margin&#xa;Ekspor PDF / Excel (FR-23 s.d. FR-26)" style="rounded=1;fillColor=#B45309;fontColor=#ffffff;strokeColor=#92400E;fontSize=11;" vertex="1" parent="oA-tEPtMzF2lWqo7eJYF-6">
+          <mxGeometry x="50" y="1035" width="185" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-39" value="Serahkan Gabah" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-10" target="oA-tEPtMzF2lWqo7eJYF-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-41" value="Bayar Gabah" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-14" target="oA-tEPtMzF2lWqo7eJYF-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-44" value="Konfirmasi Stok Masuk" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-21" target="oA-tEPtMzF2lWqo7eJYF-15">
+          <mxGeometry x="0.2384" relative="1" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-52" value="TIDAK" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;fontColor=#16A34A;fontStyle=1;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-24" target="oA-tEPtMzF2lWqo7eJYF-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-53" value="Kirim Notifikasi" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-25" target="oA-tEPtMzF2lWqo7eJYF-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-59" value="Kirim Beras" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-19" target="oA-tEPtMzF2lWqo7eJYF-28">
+          <mxGeometry x="0.6044" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-61" value="Konfirmasi" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-29" target="oA-tEPtMzF2lWqo7eJYF-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-64" value="Update Dashboard" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;dashed=1;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-22" target="oA-tEPtMzF2lWqo7eJYF-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-68" value="" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-32" target="oA-tEPtMzF2lWqo7eJYF-21">
+          <mxGeometry x="-0.2243" relative="1" as="geometry">
+            <mxPoint x="1150" y="525" as="sourcePoint" />
+            <mxPoint x="710" y="415" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="710" y="510" />
+            </Array>
+            <mxPoint x="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-56" value="Order" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-27" target="oA-tEPtMzF2lWqo7eJYF-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-58" value="Catat Distribusi" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-19" target="oA-tEPtMzF2lWqo7eJYF-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="oA-tEPtMzF2lWqo7eJYF-72" value="" style="edgeStyle=orthogonalEdgeStyle;fontSize=10;" edge="1" parent="1" source="oA-tEPtMzF2lWqo7eJYF-23" target="oA-tEPtMzF2lWqo7eJYF-17">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="600" y="700" as="sourcePoint" />
+            <mxPoint x="440" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
