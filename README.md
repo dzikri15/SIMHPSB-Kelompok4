@@ -91,7 +91,23 @@ SIMHPSB-Kelompok4/
 
 ---
 
-## 🚀 Cara Menjalankan (Local Development)
+## � Screenshot Web & Mobile
+
+### Web App (`pangan_web`)
+
+![Web Dashboard](pangan_web/foto/dashboard.png)
+![Web Alert](pangan_web/foto/alert.png)
+
+### Mobile App (`pangan_mobile`)
+
+![Mobile Beranda](pangan_mobile/beranda_hijau/screen.png)
+![Mobile Login](pangan_mobile/login_hijau/screen.png)
+
+> Lihat screenshot lengkap di folder `pangan_web/foto/` dan `pangan_mobile/`.
+
+---
+
+## �🚀 Cara Menjalankan (Local Development)
 
 ### Prasyarat
 - Docker & Docker Compose terinstall
