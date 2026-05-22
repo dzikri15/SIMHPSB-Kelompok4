@@ -11,7 +11,8 @@ class HargaController extends Controller
     public function index()
     {
         $konfigurasi = KonfigurasiHarga::orderBy('berlaku_mulai', 'desc')->get();
-        return view('admin.harga.index', compact('konfigurasi'));
+        $activeConfig = $konfigurasi->firstWhere('is_active', true);
+        return view('admin.harga.index', compact('konfigurasi', 'activeConfig'));
     }
 
     public function create()
@@ -82,6 +83,19 @@ class HargaController extends Controller
 
         $harga->delete();
         return redirect()->back()->with('success', 'Konfigurasi Harga berhasil dihapus');
+    }
+
+    public function updateRasio(Request $request, KonfigurasiHarga $harga)
+    {
+        $validated = $request->validate([
+            'rasio_konversi' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $harga->update($validated);
+
+        return redirect()
+            ->route('admin.harga.index')
+            ->with('success', 'Rasio Konversi Gabah → Beras berhasil disimpan');
     }
 
     public function activate(KonfigurasiHarga $harga)

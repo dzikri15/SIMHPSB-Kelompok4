@@ -56,6 +56,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         Route::get('harga/{harga}/edit', [HargaController::class, 'edit'])->name('harga.edit');
         Route::put('harga/{harga}', [HargaController::class, 'update'])->name('harga.update');
         Route::delete('harga/{harga}', [HargaController::class, 'destroy'])->name('harga.destroy');
+        Route::patch('harga/{harga}/rasio', [HargaController::class, 'updateRasio'])->name('harga.updateRasio');
         Route::patch('harga/{harga}/activate', [HargaController::class, 'activate'])->name('harga.activate');
     });
 
