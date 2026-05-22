@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # Laravel Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simhpsb_app
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./storage/logs:/app/storage/logs
+    depends_on:
+      - db
+      - redis
+    environment:
+      - APP_NAME=SIMHPSB
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8000
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-simhpsb}
+      - DB_USERNAME=${DB_USERNAME:-laravel}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+    networks:
+      - simhpsb_network
+    expose:
+      - 9000
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: simhpsb_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-simhpsb}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./simhpsb_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - simhpsb_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: simhpsb_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - simhpsb_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 20s
+      retries: 10
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: simhpsb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/app
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - app
+    networks:
+      - simhpsb_network
+
+  # Queue Worker (optional, for processing jobs)
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simhpsb_queue
+    restart: unless-stopped
+    working_dir: /app
+    command: php artisan queue:work redis --sleep=3 --tries=3
+    volumes:
+      - ./:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - APP_NAME=SIMHPSB
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-simhpsb}
+      - DB_USERNAME=${DB_USERNAME:-laravel}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=null
+      - REDIS_PORT=6379
+    networks:
+      - simhpsb_network
+
+networks:
+  simhpsb_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  redis_data:
+    driver: local
