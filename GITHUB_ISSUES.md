@@ -157,9 +157,9 @@ Sistem Informasi Monitoring Hasil Panen dan Stok Beras
 
 | No | Judul Issue | Label | PIC | Priority | Sprint | Status |
 |----|-------------|-------|-----|----------|--------|--------|
-| #59 | Buat docker-compose.yml (Laravel + MySQL + Redis + Nginx) | devops | dzikri15 | High | Sprint 3 | Todo |
-| #60 | Buat Dockerfile untuk aplikasi Laravel | devops | dzikri15 | High | Sprint 3 | Todo |
-| #61 | Konfigurasi Redis cache dan queue | devops | dzikri15 | Medium | Sprint 3 | Todo |
+| #59 | Buat docker-compose.yml (Laravel + MySQL + Redis + Nginx) | devops | dzikri15 | High | Sprint 3 | ✅ Done |
+| #60 | Buat Dockerfile untuk aplikasi Laravel | devops | dzikri15 | High | Sprint 3 | ✅ Done |
+| #61 | Konfigurasi Redis cache dan queue | devops | dzikri15 | Medium | Sprint 3 | ✅ Done |
 | #62 | Update README lengkap + screenshot + cara deploy | documentation | dzikri15 | Medium | Sprint 5 | Todo |
 | #63 | Buat BACKEND.md dokumentasi API lengkap | documentation | dzikri15 | Medium | Sprint 3 | ✅ Done |
 
