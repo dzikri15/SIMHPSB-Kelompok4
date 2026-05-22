@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('gudang_id')->constrained('gudang')->onDelete('cascade');
             $table->decimal('jumlah_stok', 10, 2); // dalam kg
             $table->decimal('batas_minimum', 10, 2)->default(1000); // kg
-            $table->date('tanggal_update');
+            $table->dateTime('tanggal_update');
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
