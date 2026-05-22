@@ -23,8 +23,9 @@ RUN apt-get update && apt-get install -y \
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files
+# Copy application files so artisan exists for composer post-install scripts
 COPY composer.json composer.lock ./
+COPY . ./
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Stage 2: Production image
@@ -34,10 +35,10 @@ WORKDIR /app
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libpng6 \
-    libjpeg62-turbo \
-    libfreetype6 \
-    libzip4 \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip pdo pdo_mysql pcntl \
     && pecl install redis \
