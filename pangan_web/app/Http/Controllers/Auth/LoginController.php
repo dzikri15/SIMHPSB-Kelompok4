@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -30,19 +31,38 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email',
+            'identifier' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        $identifier = $request->input('identifier');
+        $userQuery = User::query();
 
-            return redirect()->intended(route('admin.dashboard'));
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            $userQuery->where('email', $identifier);
+        } else {
+            $lowerIdentifier = mb_strtolower($identifier, 'UTF-8');
+            $userQuery->where(function ($query) use ($identifier, $lowerIdentifier) {
+                $query->where('name', $identifier)
+                      ->orWhereRaw('LOWER(name) = ?', [$lowerIdentifier])
+                      ->orWhereHas('petani', function ($query) use ($identifier, $lowerIdentifier) {
+                          $query->where('nama', $identifier)
+                                ->orWhereRaw('LOWER(nama) = ?', [$lowerIdentifier]);
+                      });
+            });
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')],
-        ]);
+        $user = $userQuery->first();
+
+        if (!$user || !Auth::attempt(['email' => $user->email, 'password' => $request->input('password')], $request->boolean('remember'))) {
+            throw ValidationException::withMessages([
+                'identifier' => [trans('auth.failed')],
+            ]);
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     /**

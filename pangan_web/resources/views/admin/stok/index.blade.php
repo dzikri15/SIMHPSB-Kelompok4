@@ -93,7 +93,7 @@
                 @forelse($transaksis ?? [] as $i => $t)
                     <tr>
                         <td style="color:var(--text-muted);font-size:12px;">{{ $i+1 }}</td>
-                        <td>{{ $t->tanggal }}</td>
+                        <td>{{ $t->tanggal ? \Carbon\Carbon::parse($t->tanggal)->format('Y-m-d H:i') : '-' }}</td>
                         <td>
                             <span class="badge badge-{{ $t->jenis == 'masuk' ? 'green' : 'red' }}">
                                 <i class="fas fa-{{ $t->jenis == 'masuk' ? 'arrow-down' : 'arrow-up' }}"></i>
@@ -178,8 +178,9 @@
                         <input type="number" name="jumlah" placeholder="0" required min="1">
                     </div>
                     <div class="form-group">
-                        <label>Tanggal <span style="color:var(--red-500)">*</span></label>
-                        <input type="date" name="tanggal" required value="{{ date('Y-m-d') }}">
+                        <label>Tanggal</label>
+                        <input id="tanggalTransaksi" type="datetime-local" name="tanggal" value="{{ date('Y-m-d\TH:i') }}">
+                        <div class="form-hint">Waktu akan terisi otomatis saat menyimpan jika Anda tidak mengubahnya.</div>
                     </div>
                 </div>
 
@@ -244,5 +245,35 @@ function toggleTujuan() {
     tujuan.style.display = jenis === 'keluar' ? 'block' : 'none';
     warning.style.display = jenis === 'keluar' ? 'flex' : 'none';
 }
+
+function getCurrentLocalDatetime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function ensureTanggalIsSet() {
+    const tanggalInput = document.getElementById('tanggalTransaksi');
+    if (!tanggalInput) {
+        return;
+    }
+    if (!tanggalInput.value) {
+        tanggalInput.value = getCurrentLocalDatetime();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action="{{ route('admin.stok.store') }}"]');
+    ensureTanggalIsSet();
+    if (form) {
+        form.addEventListener('submit', function() {
+            ensureTanggalIsSet();
+        });
+    }
+});
 </script>
 @endpush

@@ -1,192 +1,320 @@
-# 📋 GitHub Issues — SIMHPSB Kelompok 4
+# 📋 SIMHPSB — GitHub Issues & Sprint Planning
 
-Daftar 15+ issue yang sesuai dengan repo dan roadmap pengembangan proyek.
-
----
-
-## ✅ Cleanup & Setup
-
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #1 | **Gabungkan folder Diagram-2 ke folder Diagram** | cleanup | dzikri15 | Backlog |
-| #2 | **Hapus file `.DS_Store` dan perbaiki `.gitignore`** | cleanup | dzikri15 | Backlog |
-| #3 | **Update README — sesuaikan struktur repo dan path** | documentation | dzikri15 | Backlog |
+Sistem Informasi Monitoring Hasil Panen dan Stok Beras  
+**Kelompok 4 | Rekayasa Sistem Informasi A1 | UKRI**
 
 ---
 
-## 🗄️ Database & Migration
+## 👥 Pembagian Tim
 
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #4 | **Buat migrasi tabel `petani` dan `lahan` di `pangan_web`** | backend | dzikri15 | Backlog |
-| #5 | **Buat migrasi tabel `panen` di `pangan_web`** | backend | dzikri15 | Backlog |
-| #6 | **Buat migrasi tabel `stok_beras` dan `gudang` di `pangan_web`** | backend | dzikri15 | Backlog |
-| #7 | **Buat migrasi tabel `harga`, `alert`, dan `distribusi` di `pangan_web`** | backend | dzikri15 | Backlog |
-
----
-
-## 🔐 Backend — Authentication & API
-
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #8 | **Implementasi JWT Auth API (login, register, logout)** | backend | dzikri15 | Backlog |
-| #9 | **Buat Model `Petani`, `Lahan`, `Panen`, `Stok`, `Harga`, `Alert`** | backend | dzikri15 | Backlog |
-| #10 | **Buat REST API endpoint untuk data petani dan lahan** | backend | dzikri15 | Backlog |
-| #11 | **Buat REST API endpoint untuk pencatatan panen + konversi gabah→beras** | backend | dzikri15 | Backlog |
-| #12 | **Buat REST API endpoint untuk monitoring stok gudang** | backend | dzikri15 | Backlog |
-| #13 | **Buat REST API endpoint untuk manajemen harga dan kalkulasi HPP/margin** | backend | dzikri15 | Backlog |
+| Anggota | GitHub | Peran |
+|---------|--------|-------|
+| Muhammad Dzikri Sagara | dzikri15 | PM + Backend + DevOps |
+| Fahri | NoahMikhailovna | Frontend Web + Mobile Flutter |
+| Alamsyah | - | Diagram + QA Web + Manual Book Web |
+| Difa | - | Diagram + QA Web + Manual Book Web |
+| Devina | - | Diagram + QA Mobile + Manual Book Mobile |
+| Agusta | - | QA Mobile + Manual Book Mobile + Testing |
 
 ---
 
-## 📱 Mobile App
+## 🏷️ Label yang Digunakan
 
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #14 | **Setup project Flutter di `pangan_mobile` dan integrasi Dio + JWT** | mobile | fakhry | Backlog |
-| #15 | **Buat UI login & register Flutter** | mobile | fakhry | Backlog |
-| #16 | **Buat UI dashboard dan monitoring stok di Flutter** | mobile | fakhry | Backlog |
-| #17 | **Buat UI form pencatatan panen di Flutter** | mobile | fakhry | Backlog |
-| #18 | **Integrasi Flutter ke API auth, petani, panen, dan stok** | mobile | fakhry | Backlog |
-| #18a | **Testing UI/UX mobile dan kompatibilitas device** | testing | agusta | Backlog |
-
----
-
-## 🖥️ Frontend Web (pangan_web)
-
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #19 | **Buat halaman admin dashboard** | frontend | fakhry | Backlog |
-| #20 | **Buat halaman manajemen petani dan lahan** | frontend | fakhry | Backlog |
-| #21 | **Buat halaman pencatatan dan riwayat panen** | frontend | fakhry | Backlog |
-| #22 | **Buat halaman monitoring stok gudang** | frontend | fakhry | Backlog |
-| #23 | **Buat halaman manajemen harga dan konfigurasi HPP** | frontend | fakhry | Backlog |
-| #24 | **Buat halaman alert stok dan konfigurasi batas minimum** | frontend | fakhry | Backlog |
-| #25 | **Buat halaman laporan panen, stok, dan margin (export PDF/Excel)** | frontend | fakhry | Backlog |
+| Label | Warna | Keterangan |
+|-------|-------|------------|
+| backend | 🔵 Biru | Laravel API, database, server |
+| mobile | 🟢 Hijau | Flutter, Dart |
+| frontend | 🟡 Kuning | Laravel Blade, HTML, CSS, JS |
+| database | 🟠 Orange | Migration, model, seeder |
+| devops | 🔴 Merah | Docker, Redis, deployment |
+| diagram | 🟣 Ungu | UML, ERD, draw.io |
+| documentation | ⚪ Abu | README, manual book, laporan |
+| testing | 🩷 Pink | QA, test case, bug fixing |
+| setup | ⬛ Hitam | Setup awal project |
 
 ---
 
-## 🔧 DevOps & Infrastructure
+## 📌 Sprint Planning
 
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #26 | **Buat `docker-compose.yml` untuk Laravel + MySQL + Redis + Nginx** | devops | dzikri15 | Backlog |
-| #27 | **Buat `Dockerfile` untuk aplikasi Laravel** | devops | dzikri15 | Backlog |
-| #28 | **Konfigurasi Redis cache dan queue** | devops | dzikri15 | Backlog |
-
----
-
-## 📚 Documentation & Testing
-
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #29 | **Lengkapi dokumentasi API dengan request/response contoh** | documentation | paiton | Backlog |
-| #30 | **Buat dokumentasi setup lokal dan deployment** | documentation | paiton | Backlog |
-| #30a | **Buat dokumentasi user guide untuk admin (manual penggunaan)** | documentation | paiton | Backlog |
-| #30b | **Buat dokumentasi user guide untuk mobile app** | documentation | paiton | Backlog |
-| #31 | **Tambahkan unit test untuk Model (User, Petani, Panen, Stok)** | testing | agusta | Backlog |
-| #31a | **Tambahkan feature test untuk API endpoint backend** | testing | agusta | Backlog |
-| #31b | **Tambahkan integration test untuk workflow lengkap (auth → panen → stok)** | testing | agusta | Backlog |
-| #32 | **Tambahkan screenshot dan demo video ke README** | documentation | difa | Backlog |
+| Sprint | Periode | Fokus |
+|--------|---------|-------|
+| Sprint 1 | 3 Mei — 17 Mei 2026 | Setup, diagram, UI web & mobile HTML |
+| Sprint 2 | 18 Mei — 24 Mei 2026 | Backend auth & database + konversi Flutter |
+| Sprint 3 | 25 Mei — 31 Mei 2026 | Backend API + integrasi Flutter |
+| Sprint 4 | 1 Jun — 7 Jun 2026 | QA Web + QA Mobile |
+| Sprint 5 | 8 Jun — 14 Jun 2026 | Manual book + dokumentasi akhir + video |
 
 ---
 
-## 📊 Diagram & UML
-
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #33 | **Validasi dan finalisasi Class Diagram** | diagram | difa | Backlog |
-| #34 | **Validasi dan finalisasi ERD** | diagram | devina | Backlog |
-| #35 | **Validasi dan finalisasi Sequence Diagram (Login & Stok Alert)** | diagram | alamsyah | Backlog |
-| #36 | **Validasi dan finalisasi Use Case, Activity, Deployment Diagram** | diagram | alamsyah | Backlog |
+## 🗂️ Issues Lengkap
 
 ---
 
-## 🏆 Final QA & Release
+### 🔧 Cleanup & Setup
 
-| No | Judul Issue | Label | PIC | Status |
-|---|---|---|---|---|
-| #37 | **Code review dan refactoring backend API** | review | agusta | Backlog |
-| #37a | **Code review dan testing frontend web** | review | agusta | Backlog |
-| #37b | **Code review dan testing mobile app** | review | agusta | Backlog |
-| #38 | **Testing integrasi end-to-end (web + mobile)** | testing | agusta | Backlog |
-| #38a | **Performance testing dan optimization** | testing | agusta | Backlog |
-| #39 | **Persiapan dokumentasi final dan deployment staging** | documentation | paiton | Backlog |
-| #39a | **Buat checklist pre-deployment dan release notes** | documentation | paiton | Backlog |
-| #39b | **Buat SOP (Standard Operating Procedure) untuk admin dan petugas** | documentation | paiton | Backlog |
-
----
-
-## 📊 Breakdown Issue Terrevisi
-
-| Kategori | Jumlah | Detail |
-|---|---|---|
-| Cleanup & Setup | 3 | Merge diagram, hapus `.DS_Store`, update README |
-| Database & Migration | 4 | Migrasi petani, lahan, panen, stok, harga, alert |
-| Backend Auth & API | 6 | JWT, model, endpoint petani, panen, stok, harga |
-| Mobile App | 6 | Setup Flutter, UI login, dashboard, form panen, integrasi API, testing |
-| Frontend Web | 7 | Dashboard, petani, panen, stok, harga, alert, laporan |
-| DevOps & Infrastructure | 3 | Docker Compose, Dockerfile, Redis |
-| Documentation & Testing | 8 | API doc, setup guide, unit test, screenshot, user guide (paiton & agusta) |
-| Diagram & UML | 4 | Validasi Class, ERD, Sequence, Use Case |
-| Final QA & Release | 8 | Code review, end-to-end testing, deployment, SOP (agusta & paiton) |
-| **Total** | **49** | **Roadmap lengkap dengan distribusi tim seimbang** |
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #1 | Upload dokumen SRS SIMHPSB v2.2 | documentation | dzikri15 | High | Sprint 1 | ✅ Done |
+| #2 | Buat README awal project SIMHPSB | documentation | dzikri15 | High | Sprint 1 | ✅ Done |
+| #3 | Upload Component & Deployment Diagram | diagram | dzikri15 | Medium | Sprint 1 | ✅ Done |
+| #4 | Upload Sequence Diagram Login & Stok Alert | diagram | dzikri15 | Medium | Sprint 1 | ✅ Done |
+| #5 | Hapus file .DS_Store dari folder Diagram | setup | dzikri15 | Low | Sprint 1 | ✅ Done |
+| #6 | Gabungkan folder Diagram-2 ke folder Diagram | setup | dzikri15 | Low | Sprint 1 | ✅ Done |
+| #7 | Tambah .gitignore untuk ignore .DS_Store & .env | setup | dzikri15 | Medium | Sprint 1 | ✅ Done |
 
 ---
 
-## 🎯 Label yang digunakan
+### 📊 Diagram & UML
 
-- `backend` — Pengembangan API, Model, Migration, Logic
-- `frontend` — UI Web Blade, CSS, JavaScript
-- `mobile` — Pengembangan Flutter, UI Mobile
-- `documentation` — README, API Doc, Setup Guide
-- `diagram` — UML, ERD, Design
-- `devops` — Docker, Infrastructure
-- `testing` — Unit/Feature Test, QA
-- `cleanup` — Organisasi repo, .gitignore
-- `review` — Code review, Validation
-
----
-
-## 🔍 PIC (Person In Charge) — Distribusi Tugas
-
-- **dzikri15** — Muhammad Dzikri Sagara 
-  - Tugas: Backend API, Migration, DevOps (Docker/Redis), Project Management
-  - Issue: #1, #3, #4, #5, #6, #7, #8, #9, #10, #11, #12, #13, #26, #27, #28
-  - **Total: 15 issue**
-
-- **fakhry** — Fakhry Ahmad Fauzan 
-  - Tugas: Frontend Web, Mobile UI Design
-  - Issue: #14, #15, #16, #17, #18, #19, #20, #21, #22, #23, #24, #25
-  - **Total: 12 issue**
-
-- **agusta** — Agusta Firman Firdaus 
-  - Tugas: QA, Testing, Code Review, Performance
-  - Issue: #18a, #31, #31a, #31b, #37, #37a, #37b, #38, #38a
-  - **Total: 9 issue**
-
-- **paiton** — Paiton Wenda 
-  - Tugas: Documentation, User Guide, SOP, Release Management
-  - Issue: #29, #30, #30a, #30b, #39, #39a, #39b
-  - **Total: 7 issue**
-
-- **difa** — Difa Nisa Lutfiah 
-  - Tugas: Diagram validation, screenshot, analisis
-  - Issue: #32, #33
-  - **Total: 2 issue**
-
-- **devina** — Devina Ayuliani 
-  - Tugas: ERD dan database design validation
-  - Issue: #34
-  - **Total: 1 issue**
-
-- **alamsyah** — Muhammad Alamsyah 
-  - Tugas: UML Diagram (Use Case, Activity, Sequence, Deployment)
-  - Issue: #35, #36
-  - **Total: 2 issue**
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #8 | Buat Class Diagram SIMHPSB | diagram | difa | High | Sprint 1 | ✅ Done |
+| #9 | Buat ERD SIMHPSB | diagram | devina | High | Sprint 1 | ✅ Done |
+| #10 | Buat Business Process Diagram (BPD) | diagram | alamsyah | High | Sprint 1 | ✅ Done |
+| #11 | Buat Use Case Diagram | diagram | alamsyah | High | Sprint 1 | ✅ Done |
+| #12 | Buat Activity Diagram | diagram | alamsyah | Medium | Sprint 1 | ✅ Done |
+| #13 | Validasi dan finalisasi semua diagram | diagram | difa | Medium | Sprint 2 | Todo |
 
 ---
 
-**Catatan:** 
-- Issue ini bisa langsung di-input ke GitHub Projects
-- Status awal semua issue adalah `Backlog` dan akan dipindahkan ke `To Do` sesuai prioritas sprint
-- Setiap issue bisa memiliki sub-task atau linked PR
+### 🖥️ Frontend Web — Laravel Blade (Fahri)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #14 | Setup folder & struktur project pangan_web | setup | fahri | High | Sprint 1 | ✅ Done |
+| #15 | Buat halaman login & register web | frontend | fahri | High | Sprint 1 | ✅ Done |
+| #16 | Buat halaman admin dashboard web | frontend | fahri | High | Sprint 1 | ✅ Done |
+| #17 | Buat halaman manajemen petani & lahan web | frontend | fahri | High | Sprint 1 | ✅ Done |
+| #18 | Buat halaman pencatatan & riwayat panen web | frontend | fahri | High | Sprint 1 | ✅ Done |
+| #19 | Buat halaman monitoring stok gudang web | frontend | fahri | High | Sprint 1 | ✅ Done |
+| #20 | Buat halaman manajemen harga & HPP web | frontend | fahri | Medium | Sprint 1 | ✅ Done |
+| #21 | Buat halaman alert stok minimum web | frontend | fahri | Medium | Sprint 1 | ✅ Done |
+| #22 | Buat halaman laporan export PDF/Excel web | frontend | fahri | Medium | Sprint 1 | ✅ Done |
+
+---
+
+### 📱 Mobile Flutter (Fahri)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #23 | Upload folder pangan_mobile ke repo | setup | fahri | High | Sprint 1 | ✅ Done |
+| #24 | Buat UI login & dashboard Flutter (HTML) | mobile | fahri | High | Sprint 1 | ✅ Done |
+| #25 | Buat UI petani, lahan, panen Flutter (HTML) | mobile | fahri | High | Sprint 1 | ✅ Done |
+| #26 | Buat UI stok, alert, laporan Flutter (HTML) | mobile | fahri | Medium | Sprint 1 | ✅ Done |
+| #27 | Setup project Flutter dart (struktur folder & pubspec.yaml) | mobile | fahri | High | Sprint 2 | In Progress |
+| #28 | Konversi halaman login HTML ke Flutter dart | mobile | fahri | High | Sprint 2 | Todo |
+| #29 | Konversi halaman dashboard HTML ke Flutter dart | mobile | fahri | High | Sprint 2 | Todo |
+| #30 | Konversi halaman petani & lahan HTML ke Flutter dart | mobile | fahri | High | Sprint 2 | Todo |
+| #31 | Konversi halaman panen HTML ke Flutter dart | mobile | fahri | High | Sprint 2 | Todo |
+| #32 | Konversi halaman stok & alert HTML ke Flutter dart | mobile | fahri | Medium | Sprint 2 | Todo |
+| #33 | Konversi halaman laporan HTML ke Flutter dart | mobile | fahri | Medium | Sprint 2 | Todo |
+| #34 | Setup bottom navigation bar & routing antar screen | mobile | fahri | Medium | Sprint 2 | Todo |
+| #35 | Buat model dart (User, Petani, Lahan, Panen, StokBeras) | mobile | fahri | High | Sprint 3 | Todo |
+| #36 | Implementasi JWT auth Flutter (login, logout, simpan token) | mobile | fahri | High | Sprint 3 | Todo |
+| #37 | Integrasi Flutter ke API Auth Laravel | mobile | fahri | High | Sprint 3 | Todo |
+| #38 | Integrasi Flutter ke API petani & lahan | mobile | fahri | High | Sprint 3 | Todo |
+| #39 | Integrasi Flutter ke API panen & stok | mobile | fahri | High | Sprint 3 | Todo |
+| #40 | Integrasi Flutter ke API alert & laporan | mobile | fahri | Medium | Sprint 3 | Todo |
+| #41 | Handling error & token expired (auto redirect login) | mobile | fahri | Medium | Sprint 3 | Todo |
+
+---
+
+### 🗄️ Database & Migration (Dzikri)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #42 | Buat migrasi tabel users | database | dzikri15 | High | Sprint 2 | ✅ Done |
+| #43 | Buat migrasi tabel petani dan lahan | database | dzikri15 | High | Sprint 2 | ✅ Done |
+| #44 | Buat migrasi tabel panen | database | dzikri15 | High | Sprint 2 | ✅ Done |
+| #45 | Buat migrasi tabel stok_beras dan gudang | database | dzikri15 | High | Sprint 2 | ✅ Done |
+| #46 | Buat migrasi tabel harga, alert, distribusi | database | dzikri15 | High | Sprint 2 | ✅ Done |
+| #47 | Buat Model (Petani, Lahan, Panen, Stok, Harga, Alert) | database | dzikri15 | High | Sprint 2 | ✅ Done |
+| #48 | Buat DatabaseSeeder untuk data dummy | database | dzikri15 | Medium | Sprint 2 | Todo |
+| #91 | Buat RoleAndPermissionSeeder untuk data user dan role | database | dzikri15 | Medium | Sprint 2 | Todo |
+| #93 | Buat konfigurasi harga & migrasi tabel konfigurasi harga | database | dzikri15 | High | Sprint 3 | Todo |
+
+---
+
+### 🔐 Backend Auth & API (Dzikri)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #49 | Setup Laravel 12 environment & konfigurasi | backend | dzikri15 | High | Sprint 2 | ✅ Done |
+| #50 | Implementasi JWT Auth API (login, register, logout) | backend | dzikri15 | High | Sprint 2 | ✅ Done |
+| #51 | Buat REST API endpoint data petani & lahan | backend | dzikri15 | High | Sprint 2 | In Progress |
+| #52 | Buat REST API endpoint pencatatan panen + konversi gabah | backend | dzikri15 | High | Sprint 3 | Todo |
+| #90 | Buat REST API endpoint monitoring stok gudang | backend | dzikri15 | High | Sprint 3 | Todo |
+| #54 | Buat REST API endpoint manajemen harga & kalkulasi HPP | backend | dzikri15 | Medium | Sprint 3 | Done |
+| #55 | Buat REST API endpoint alert stok minimum | backend | dzikri15 | Medium | Sprint 3 | Todo |
+| #56 | Buat REST API endpoint distribusi | backend | dzikri15 | Medium | Sprint 3 | Todo |
+| #57 | Registrasi middleware JWT di bootstrap/app.php | backend | dzikri15 | High | Sprint 2 | Todo |
+| #58 | Konfigurasi CORS untuk Flutter & web | backend | dzikri15 | High | Sprint 2 | Todo |
+| #92 | Buat API Controllers baru untuk endpoint backend | backend | dzikri15 | High | Sprint 3 | Todo |
+
+---
+
+### ⚙️ DevOps & Infrastructure (Dzikri)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #59 | Buat docker-compose.yml (Laravel + MySQL + Redis + Nginx) | devops | dzikri15 | High | Sprint 3 | Todo |
+| #60 | Buat Dockerfile untuk aplikasi Laravel | devops | dzikri15 | High | Sprint 3 | Todo |
+| #61 | Konfigurasi Redis cache dan queue | devops | dzikri15 | Medium | Sprint 3 | Todo |
+| #62 | Update README lengkap + screenshot + cara deploy | documentation | dzikri15 | Medium | Sprint 5 | Todo |
+| #63 | Buat BACKEND.md dokumentasi API lengkap | documentation | dzikri15 | Medium | Sprint 3 | ✅ Done |
+
+---
+
+### 🧪 QA & Testing Web (Alamsyah & Difa)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #64 | Buat test case fitur login & register web | testing | alamsyah | High | Sprint 4 | Todo |
+| #65 | Buat test case input data panen web | testing | alamsyah | High | Sprint 4 | Todo |
+| #66 | Buat test case monitoring stok gudang web | testing | alamsyah | Medium | Sprint 4 | Todo |
+| #67 | Buat test case manajemen petani & lahan web | testing | difa | Medium | Sprint 4 | Todo |
+| #68 | Buat test case halaman harga & HPP web | testing | difa | Medium | Sprint 4 | Todo |
+| #69 | Buat test case alert stok & distribusi web | testing | difa | Low | Sprint 4 | Todo |
+| #70 | Bug fixing hasil QA web | testing | dzikri15 | High | Sprint 4 | Todo |
+| #71 | Verifikasi semua fitur web sebelum demo | testing | alamsyah | High | Sprint 4 | Todo |
+
+---
+
+### 🧪 QA & Testing Mobile (Devina & Agusta)
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #72 | Buat test case fitur login & register mobile | testing | devina | High | Sprint 4 | Todo |
+| #73 | Buat test case input data panen mobile | testing | devina | High | Sprint 4 | Todo |
+| #74 | Buat test case monitoring stok mobile | testing | devina | Medium | Sprint 4 | Todo |
+| #75 | Buat test case manajemen petani & lahan mobile | testing | agusta | Medium | Sprint 4 | Todo |
+| #76 | Buat test case alert stok mobile | testing | agusta | Low | Sprint 4 | Todo |
+| #77 | Testing UI/UX & kompatibilitas device Android | testing | agusta | Medium | Sprint 4 | Todo |
+| #78 | Bug fixing hasil QA mobile | testing | fahri | High | Sprint 4 | Todo |
+| #79 | Verifikasi semua fitur mobile sebelum demo | testing | devina | High | Sprint 4 | Todo |
+
+---
+
+### 📖 Manual Book & Dokumentasi Akhir
+
+| No | Judul Issue | Label | PIC | Priority | Sprint | Status |
+|----|-------------|-------|-----|----------|--------|--------|
+| #80 | Buat manual book web — panduan login & dashboard | documentation | alamsyah | High | Sprint 5 | Todo |
+| #81 | Buat manual book web — panduan input panen & stok | documentation | alamsyah | High | Sprint 5 | Todo |
+| #82 | Buat manual book web — panduan manajemen harga & laporan | documentation | difa | Medium | Sprint 5 | Todo |
+| #83 | Buat manual book web — panduan manajemen petani & lahan | documentation | difa | Medium | Sprint 5 | Todo |
+| #84 | Buat manual book mobile — panduan login & dashboard | documentation | devina | High | Sprint 5 | Todo |
+| #85 | Buat manual book mobile — panduan input panen & stok | documentation | devina | High | Sprint 5 | Todo |
+| #86 | Buat manual book mobile — panduan manajemen petani & lahan | documentation | agusta | Medium | Sprint 5 | Todo |
+| #87 | Buat manual book mobile — panduan alert & notifikasi | documentation | agusta | Medium | Sprint 5 | Todo |
+| #88 | Buat Laporan Akhir bab 1-2 (latar belakang & perancangan) | documentation | devina | High | Sprint 5 | Todo |
+| #89 | Buat Laporan Akhir bab 3-4 (implementasi & pengujian) | documentation | alamsyah | High | Sprint 5 | Todo |
+| #90 | Buat video presentasi YouTube | documentation | semua | High | Sprint 5 | Todo |
+
+---
+
+## 📊 Kanban Board
+
+| Backlog | Ready | In Progress | In Review | Done |
+|---------|-------|-------------|-----------|------|
+| #13 Validasi diagram | #27 Setup Flutter dart | #51 API petani & lahan | | ✅ #1 Upload SRS |
+| #35 Model dart | #28 Konversi login dart | #57 Middleware JWT | | ✅ #2 README |
+| #36 JWT auth Flutter | #29 Konversi dashboard dart | #58 Konfigurasi CORS | | ✅ #3 Component Diagram |
+| #37 Integrasi API auth | #48 DatabaseSeeder | | | ✅ #4 Sequence Diagram |
+| #38 Integrasi API petani | | | | ✅ #5 Hapus .DS_Store |
+| #39 Integrasi API panen | | | | ✅ #6 Gabung Diagram |
+| #40 Integrasi API alert | | | | ✅ #7 .gitignore |
+| #41 Handling error | | | | ✅ #8 Class Diagram |
+| #52 API panen | | | | ✅ #9 ERD |
+| #53 API stok | | | | ✅ #10 BPD |
+| #54 API harga | | | | ✅ #11 Use Case |
+| #55 API alert | | | | ✅ #12 Activity Diagram |
+| #56 API distribusi | | | | ✅ #14-#26 UI Web & Mobile |
+| #59 Docker compose | | | | ✅ #42-#47 Migration & Model |
+| #60 Dockerfile | | | | ✅ #49 Setup Laravel |
+| #61 Redis | | | | ✅ #50 JWT Auth |
+| #64-#79 QA | | | | ✅ #63 BACKEND.md |
+| #80-#90 Docs | | | | |
+
+---
+
+## 📅 Sprint Detail
+
+### Sprint 1 — 3 Mei s/d 17 Mei 2026 ✅ SELESAI
+**Fokus:** Setup repo, diagram, UI web & mobile HTML
+
+| Issue | Judul | PIC |
+|-------|-------|-----|
+| #1-#7 | Setup, README, Diagram dzikri | dzikri15 |
+| #8 | Class Diagram | difa |
+| #9 | ERD | devina |
+| #10-#12 | BPD, Use Case, Activity | alamsyah |
+| #14-#22 | UI Web lengkap | fahri |
+| #23-#26 | UI Mobile HTML | fahri |
+
+---
+
+### Sprint 2 — 18 Mei s/d 24 Mei 2026 🔄 BERJALAN
+**Fokus:** Backend database + auth + konversi Flutter HTML → Dart
+
+| Issue | Judul | PIC |
+|-------|-------|-----|
+| #42-#48 | Migration, Model, Seeder | dzikri15 |
+| #49-#51 | Setup Laravel, JWT, API petani | dzikri15 |
+| #57-#58 | Middleware JWT, CORS | dzikri15 |
+| #27-#34 | Setup Flutter dart + konversi semua screen | fahri |
+| #13 | Validasi diagram | difa |
+
+---
+
+### Sprint 3 — 25 Mei s/d 31 Mei 2026
+**Fokus:** Backend API lengkap + integrasi Flutter
+
+| Issue | Judul | PIC |
+|-------|-------|-----|
+| #52-#56 | API panen, stok, harga, alert, distribusi | dzikri15 |
+| #59-#61 | Docker, Redis | dzikri15 |
+| #35-#41 | Model dart, JWT Flutter, integrasi API | fahri |
+
+---
+
+### Sprint 4 — 1 Jun s/d 7 Jun 2026
+**Fokus:** QA & testing web + mobile (digabung)
+
+| Issue | Judul | PIC |
+|-------|-------|-----|
+| #64-#69 | Test case semua fitur web | alamsyah, difa |
+| #70-#71 | Bug fixing & verifikasi web | dzikri15, alamsyah |
+| #72-#77 | Test case semua fitur mobile | devina, agusta |
+| #78-#79 | Bug fixing & verifikasi mobile | fahri, devina |
+
+---
+
+### Sprint 5 — 8 Jun s/d 14 Jun 2026
+**Fokus:** Manual book, laporan akhir, video presentasi
+
+| Issue | Judul | PIC |
+|-------|-------|-----|
+| #80-#83 | Manual book web | alamsyah, difa |
+| #84-#87 | Manual book mobile | devina, agusta |
+| #88-#89 | Laporan akhir | devina, alamsyah |
+| #62 | Update README final | dzikri15 |
+| #90 | Video presentasi YouTube | semua |
+
+---
+
+## 📈 Ringkasan Issue per Anggota
+
+| Anggota | Jumlah Issue | Sprint |
+|---------|-------------|--------|
+| dzikri15 | 33 issue | 1-6 |
+| fahri | 28 issue | 1-3, 5 |
+| alamsyah | 10 issue | 1, 4, 6 |
+| difa | 8 issue | 1, 4, 6 |
+| devina | 8 issue | 1, 5, 6 |
+| agusta | 7 issue | 5-6 |
+| **Total** | **94 issue** | |
+
+---
+
+*SIMHPSB — Kelompok 4 | Rekayasa Sistem Informasi A1 | UKRI 2026*

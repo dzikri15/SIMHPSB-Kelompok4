@@ -51,25 +51,38 @@
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--surface-2);
-            color: var(--text-primary);
-            min-height: 100vh;
+        .modal {
+            background: var(--surface);
+            border-radius: 16px;
+            width: calc(100% - 40px);
+            max-width: 720px;
+            box-shadow: var(--shadow-lg);
+            transform: scale(.96) translateY(10px);
+            transition: transform .2s;
+            max-height: calc(100vh - 80px);
+            box-sizing: border-box;
             display: flex;
+            flex-direction: column;
+            overflow: hidden; /* outer container hides overflow, inner body scrolls */
         }
 
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: var(--sidebar-w);
-            min-height: 100vh;
-            background: var(--green-900);
+        .modal-body {
+            padding: 18px 20px;
+            overflow: auto; /* enable internal scrolling */
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto; /* grow to fill available space */
+        }
+
+        .modal-footer {
+            flex-shrink: 0; /* keep footer visible */
+        }
             display: flex;
             flex-direction: column;
             position: fixed;
-            top: 0; left: 0;
+            top: 0; left: 0; bottom: 0;
             z-index: 100;
             transition: transform .3s ease;
+            overflow: hidden;
         }
 
         .sidebar-logo {
@@ -98,6 +111,7 @@
 
         .sidebar-nav {
             flex: 1;
+            min-height: 0;
             padding: 16px 12px;
             overflow-y: auto;
         }
@@ -230,6 +244,24 @@
             color: var(--text-secondary);
             cursor: pointer;
         }
+        
+        /* Sidebar close button (one-click collapse) */
+        .sidebar-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,.04);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background .12s, transform .12s;
+            z-index: 150;
+        }
+        .sidebar-close:hover { background: rgba(255,255,255,.08); transform: translateX(-2px); }
 
         .topbar-breadcrumb {
             flex: 1;
@@ -528,11 +560,13 @@
         .modal {
             background: var(--surface);
             border-radius: 16px;
-            width: 100%;
-            max-width: 540px;
+            width: calc(100% - 40px);
+            max-width: 720px;
             box-shadow: var(--shadow-lg);
             transform: scale(.96) translateY(10px);
             transition: transform .2s;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
         }
 
         .modal-overlay.open .modal { transform: scale(1) translateY(0); }
@@ -560,7 +594,7 @@
         }
         .modal-close:hover { background: var(--red-100); color: var(--red-500); }
 
-        .modal-body { padding: 24px; }
+        .modal-body { padding: 18px 20px; }
 
         .modal-footer {
             padding: 16px 24px;
@@ -654,7 +688,7 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
+            .sidebar { transform: translateX(-100%); width: min(280px, 90%); }
             .sidebar.open { transform: translateX(0); }
             .main { margin-left: 0; }
             .topbar-hamburger { display: flex; align-items: center; }
@@ -718,6 +752,10 @@
         </div>
     </div>
 
+    <button class="sidebar-close" onclick="collapseSidebar()" title="Tutup sidebar">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
     <nav class="sidebar-nav">
         <span class="nav-section-label">Utama</span>
 
@@ -726,29 +764,45 @@
             Dashboard
         </a>
 
-        <span class="nav-section-label">Data Master</span>
+        @role('admin')
+            <span class="nav-section-label">Data Master</span>
 
-        <a href="{{ route('admin.petani.index') }}" class="nav-item {{ request()->routeIs('admin.petani.*') ? 'active' : '' }}">
-            <span class="icon"><i class="fas fa-user-tie"></i></span>
-            Data Petani
-        </a>
+            <a href="{{ route('admin.petani.index') }}" class="nav-item {{ request()->routeIs('admin.petani.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-user-tie"></i></span>
+                Data Petani
+            </a>
+
+            <a href="{{ route('admin.pengguna.index') }}" class="nav-item {{ request()->routeIs('admin.pengguna.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-users"></i></span>
+                Manajemen Pengguna
+            </a>
+        @endrole
+
+        <span class="nav-section-label">Transaksi</span>
 
         <a href="{{ route('admin.panen.index') }}" class="nav-item {{ request()->routeIs('admin.panen.*') ? 'active' : '' }}">
             <span class="icon"><i class="fas fa-seedling"></i></span>
             Pencatatan Panen
         </a>
 
-        <span class="nav-section-label">Gudang & Harga</span>
-
         <a href="{{ route('admin.stok.index') }}" class="nav-item {{ request()->routeIs('admin.stok.*') ? 'active' : '' }}">
             <span class="icon"><i class="fas fa-warehouse"></i></span>
             Stok Gudang
         </a>
 
-        <a href="{{ route('admin.harga.index') }}" class="nav-item {{ request()->routeIs('admin.harga.*') ? 'active' : '' }}">
-            <span class="icon"><i class="fas fa-tags"></i></span>
-            Manajemen Harga
-        </a>
+        @role('admin')
+            <span class="nav-section-label">Gudang & Harga</span>
+
+            <a href="{{ route('admin.harga.index') }}" class="nav-item {{ request()->routeIs('admin.harga.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-tags"></i></span>
+                Manajemen Harga
+            </a>
+
+            <a href="{{ route('admin.laporan.index') }}" class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-file-chart-line"></i></span>
+                Laporan
+            </a>
+        @endrole
 
         <span class="nav-section-label">Monitoring</span>
 
@@ -759,11 +813,6 @@
             @if($alertCount > 0)
                 <span class="nav-badge">{{ $alertCount }}</span>
             @endif
-        </a>
-
-        <a href="{{ route('admin.laporan.index') }}" class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
-            <span class="icon"><i class="fas fa-file-chart-line"></i></span>
-            Laporan
         </a>
     </nav>
 
@@ -791,7 +840,7 @@
 <div class="main">
     <!-- TOPBAR -->
     <header class="topbar">
-        <button class="topbar-hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <button class="topbar-hamburger" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i>
         </button>
 
@@ -830,8 +879,9 @@
     </main>
 </div>
 
-<!-- GLOBAL MODAL CLOSE ON OVERLAY CLICK -->
+<!-- GLOBAL MODAL CLOSE ON OVERLAY CLICK + SIDEBAR TOGGLE FUNCTIONS -->
 <script>
+    // modal overlay close
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', e => {
             if (e.target === overlay) overlay.classList.remove('open');
@@ -844,6 +894,30 @@
 
     function closeModal(id) {
         document.getElementById(id).classList.remove('open');
+    }
+
+    // Sidebar collapse / toggle behavior
+    function collapseSidebar() {
+        // hide sidebar and remember collapsed state on body
+        document.body.classList.add('sidebar-collapsed');
+        document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function expandSidebar() {
+        document.body.classList.remove('sidebar-collapsed');
+        // ensure sidebar opens on mobile
+        document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const collapsed = document.body.classList.contains('sidebar-collapsed');
+        if (collapsed) {
+            // if collapsed, expand instead of toggling mobile open
+            expandSidebar();
+            return;
+        }
+        sidebar.classList.toggle('open');
     }
 </script>
 

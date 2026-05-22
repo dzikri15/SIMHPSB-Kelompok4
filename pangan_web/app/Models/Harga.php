@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Harga extends Model
 {
+    protected $table = 'harga';
+
     protected $fillable = [
         'komoditas',
         'harga_per_kg',

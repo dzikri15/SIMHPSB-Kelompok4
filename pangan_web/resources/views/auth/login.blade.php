@@ -334,14 +334,15 @@
             @csrf
 
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="identifier">Email, Nama Pengguna, atau Nama Petani</label>
                 <div class="input-wrap">
-                    <i class="fas fa-envelope icon-left"></i>
-                    <input type="email" id="email" name="email"
-                        value="{{ old('email') }}"
-                        placeholder="admin@simhpsb.id"
-                        required autofocus autocomplete="email">
+                    <i class="fas fa-user icon-left"></i>
+                    <input type="text" id="identifier" name="identifier"
+                        value="{{ old('identifier') }}"
+                        placeholder="Masukkan email, nama pengguna, atau nama petani"
+                        required autofocus autocomplete="username">
                 </div>
+                <small style="color: var(--text-muted); display: block; margin-top: 6px; font-size: 12px;">Gunakan email, username, atau nama petani untuk login.</small>
             </div>
 
             <div class="form-group">

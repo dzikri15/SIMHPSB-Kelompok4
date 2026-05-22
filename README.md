@@ -174,21 +174,23 @@ Auth: `Authorization: Bearer {token}`
 
 | Method | Endpoint | Deskripsi |
 |---|---|---|
-| POST | `/api/auth/login` | Login, return JWT token |
-| POST | `/api/auth/logout` | Logout, invalidate token |
-| GET | `/api/dashboard` | Data ringkasan dashboard |
-| GET/POST | `/api/petani` | List / tambah petani |
-| GET/POST | `/api/panen` | Riwayat / catat panen |
-| GET/POST | `/api/stok` | Riwayat / catat transaksi stok |
-| GET | `/api/stok/summary` | Saldo stok real-time |
-| GET/PUT | `/api/harga` | Konfigurasi harga |
-| GET | `/api/harga/hpp` | Kalkulasi HPP & margin |
-| GET | `/api/alert` | List alert aktif |
-| PUT | `/api/alert/{id}/resolve` | Tandai alert ditangani |
-| GET/POST | `/api/distribusi` | Riwayat / catat distribusi |
-| GET | `/api/laporan/panen` | Laporan panen per periode |
-| GET | `/api/laporan/stok` | Laporan stok per periode |
-| GET | `/api/laporan/margin` | Laporan HPP & margin |
+| POST | `/api/auth/register` | Register user baru dan return JWT token |
+| POST | `/api/auth/login` | Login user, return JWT token |
+| POST | `/api/auth/logout` | Logout user, invalidate JWT token |
+| GET | `/api/auth/me` | Ambil profil user berdasarkan token |
+| GET | `/api/user` | Ambil user authenticated (Sanctum/guard) |
+| GET/POST | `/api/petani` | List petani / tambah petani baru |
+| GET/PUT/DELETE | `/api/petani/{petani}` | Detail, update, atau hapus petani |
+| GET/POST | `/api/lahan` | List lahan / tambah lahan baru |
+| GET/PUT/DELETE | `/api/lahan/{lahan}` | Detail, update, atau hapus lahan |
+| GET/POST | `/api/panen` | List panen / catat panen baru |
+| GET/PUT/DELETE | `/api/panen/{panen}` | Detail, update, atau hapus panen |
+| GET/POST | `/api/stok` | List stok / tambah stok baru |
+| GET | `/api/stok/{stok}` | Detail stok tertentu |
+| GET | `/api/stok/monitoring` | Monitoring stok dan status low/ok |
+| GET/POST | `/api/harga` | List harga / tambah harga baru |
+| GET/PUT/DELETE | `/api/harga/{harga}` | Detail, update, atau hapus harga |
+| POST | `/api/harga/calculate` | Kalkulasi HPP dan margin dari biaya |
 
 ---
 
