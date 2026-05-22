@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Lahan;
+use App\Models\Petani;
 
 class Panen extends Model
 {
+    protected $table = 'panen';
+
     protected $fillable = [
         'lahan_id',
         'tanggal_panen',
@@ -22,5 +26,17 @@ class Panen extends Model
     public function lahan()
     {
         return $this->belongsTo(Lahan::class);
+    }
+
+    public function petani()
+    {
+        return $this->hasOneThrough(
+            Petani::class,
+            Lahan::class,
+            'id',        // Foreign key on Lahan table...
+            'id',        // Foreign key on Petani table...
+            'lahan_id',  // Local key on Panen table...
+            'petani_id'  // Local key on Lahan table...
+        );
     }
 }
