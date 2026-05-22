@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\Petani;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -23,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'role',
+        'petani_id',
     ];
 
     /**
@@ -68,5 +69,10 @@ class User extends Authenticatable implements JWTSubject
         return [
             'role' => $this->role,
         ];
+    }
+
+    public function petani()
+    {
+        return $this->belongsTo(Petani::class);
     }
 }

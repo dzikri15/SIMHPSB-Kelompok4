@@ -21,14 +21,11 @@
                     <label>Petani <span style="color:var(--red-500)">*</span></label>
                     <select name="petani_id" required>
                         <option value="">Pilih petani...</option>
-                        @foreach($petanis ?? [] as $p)
+                        @forelse($petanis as $p)
                             <option value="{{ $p->id }}">{{ $p->nama }} – {{ number_format($p->luas_lahan) }} m²</option>
-                        @endforeach
-                        {{-- Dummy --}}
-                        @if(($petanis ?? collect())->isEmpty())
-                            <option value="1">Silvy Halimatusyadiah – 9.200 m²</option>
-                            <option value="2">Budi Santoso – 5.000 m²</option>
-                        @endif
+                        @empty
+                            <option value="">Tidak ada data petani. Tambahkan petani terlebih dahulu.</option>
+                        @endforelse
                     </select>
                 </div>
 
@@ -129,19 +126,9 @@
                             <td style="font-size:12px;color:var(--text-muted);">{{ $p->tanggal_panen }}</td>
                         </tr>
                     @empty
-                        @foreach([
-                            ['Silvy Halimatusyadiah', '3.000', '1.845', 'Okt-Mar 2025', 'Mar 2025'],
-                            ['Budi Santoso',          '1.800', '1.107', 'Okt-Mar 2025', 'Feb 2025'],
-                            ['Ahmad Fauzi',           '2.200', '1.353', 'Okt-Mar 2025', 'Mar 2025'],
-                        ] as $r)
-                            <tr>
-                                <td><strong>{{ $r[0] }}</strong></td>
-                                <td>{{ $r[1] }} kg</td>
-                                <td><strong style="color:var(--green-600);">{{ $r[2] }} kg</strong></td>
-                                <td><span class="badge badge-green" style="font-size:11px;">{{ $r[3] }}</span></td>
-                                <td style="font-size:12px;color:var(--text-muted);">{{ $r[4] }}</td>
-                            </tr>
-                        @endforeach
+                        <tr>
+                            <td colspan="5" class="text-center text-muted" style="padding: 24px;">Belum ada catatan panen.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
