@@ -6,6 +6,20 @@
 
 @section('content')
 
+@if ($errors->any())
+    <div class="alert-banner danger" style="margin-bottom:24px;">
+        <i class="fas fa-exclamation-circle"></i>
+        <div>
+            <strong>Perbaiki kesalahan input stok:</strong>
+            <ul style="margin:8px 0 0 16px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
+
 {{-- RINGKASAN STOK --}}
 <div class="stat-grid" style="margin-bottom:24px;">
     <div class="stat-card green">
@@ -34,16 +48,40 @@
 
     <div class="stat-card blue">
         <div class="stat-icon"><i class="fas fa-arrow-circle-down"></i></div>
-        <div class="stat-value" style="font-size:20px;">{{ number_format($masukBulanIni ?? 1200) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div class="stat-value" style="font-size:20px;">{{ number_format(($masukBerasBulanIni ?? 0) + ($masukGabahBulanIni ?? 0)) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Masuk Bulan Ini</div>
         <div class="stat-change up"><i class="fas fa-arrow-up"></i> Gabah + Beras</div>
     </div>
 
     <div class="stat-card red">
         <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
-        <div class="stat-value" style="font-size:20px;">{{ number_format($keluarBulanIni ?? 965) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div class="stat-value" style="font-size:20px;">{{ number_format(($keluarBerasBulanIni ?? 0) + ($keluarGabahBulanIni ?? 0)) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Keluar Bulan Ini</div>
         <div class="stat-change down"><i class="fas fa-arrow-down"></i> Distribusi aktif</div>
+    </div>
+
+    <div class="stat-card blue" style="border-top:3px solid var(--blue-500);">
+        <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+        <div class="stat-value" style="font-size:20px;">{{ number_format($masukBerasBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div class="stat-label">Masuk Beras Bulan Ini</div>
+    </div>
+
+    <div class="stat-card amber" style="border-top:3px solid var(--amber-500);">
+        <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+        <div class="stat-value" style="font-size:20px;">{{ number_format($masukGabahBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div class="stat-label">Masuk Gabah Bulan Ini</div>
+    </div>
+
+    <div class="stat-card red" style="border-top:3px solid var(--red-500);">
+        <div class="stat-icon"><i class="fas fa-outbox"></i></div>
+        <div class="stat-value" style="font-size:20px;">{{ number_format($keluarBerasBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div class="stat-label">Keluar Beras Bulan Ini</div>
+    </div>
+
+    <div class="stat-card red" style="border-top:3px solid var(--gray-700);">
+        <div class="stat-icon"><i class="fas fa-outbox"></i></div>
+        <div class="stat-value" style="font-size:20px;">{{ number_format($keluarGabahBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div class="stat-label">Keluar Gabah Bulan Ini</div>
     </div>
 </div>
 
@@ -84,6 +122,7 @@
                     <th>Komoditas</th>
                     <th>Jumlah (kg)</th>
                     <th>Tujuan / Sumber</th>
+                    <th>Catatan</th>
                     <th>Saldo Setelah</th>
                     <th>Dicatat Oleh</th>
                     <th>Aksi</th>
@@ -93,31 +132,34 @@
                 @forelse($transaksis ?? [] as $i => $t)
                     <tr>
                         <td style="color:var(--text-muted);font-size:12px;">{{ $i+1 }}</td>
-                        <td>{{ $t->tanggal ? \Carbon\Carbon::parse($t->tanggal)->format('Y-m-d H:i') : '-' }}</td>
+                        <td>{{ ($t->tanggal ?? $t->tanggal_update) ? \Carbon\Carbon::parse($t->tanggal ?? $t->tanggal_update)->format('Y-m-d H:i') : '-' }}</td>
                         <td>
-                            <span class="badge badge-{{ $t->jenis == 'masuk' ? 'green' : 'red' }}">
-                                <i class="fas fa-{{ $t->jenis == 'masuk' ? 'arrow-down' : 'arrow-up' }}"></i>
-                                {{ ucfirst($t->jenis) }}
+                            <span class="badge badge-{{ $t->jenis_transaksi == 'masuk' ? 'green' : 'red' }}">
+                                <i class="fas fa-{{ $t->jenis_transaksi == 'masuk' ? 'arrow-down' : 'arrow-up' }}"></i>
+                                {{ ucfirst($t->jenis_transaksi) }}
                             </span>
                         </td>
                         <td><span class="badge badge-{{ $t->komoditas == 'Beras' ? 'blue' : 'amber' }}">{{ $t->komoditas }}</span></td>
                         <td><strong>{{ number_format($t->jumlah) }}</strong></td>
                         <td>{{ $t->keterangan }}</td>
-                        <td>{{ number_format($t->saldo_setelah) }} kg</td>
-                        <td style="font-size:12px;color:var(--text-muted);">{{ $t->user->name ?? '-' }}</td>
+                        <td>{{ $t->catatan ?? '-' }}</td>
+                        <td>{{ number_format($t->saldo_setelah ?? $t->jumlah) }} kg</td>
+                        <td style="font-size:12px;color:var(--text-muted);">{{ optional($t->user)->name ?? '-' }}</td>
                         <td>
-                            <button class="btn btn-secondary btn-icon btn-sm"><i class="fas fa-eye"></i></button>
+                            <a href="{{ route('admin.stok.show', $t->id) }}" class="btn btn-secondary btn-icon btn-sm" title="Lihat detail transaksi">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </td>
                     </tr>
                 @empty
                     @php
                         $rows = [
-                            ['Hari ini 08:00', 'masuk',  'Gabah', 500, 'Petani: Silvy H.', 800,   'Admin'],
-                            ['Hari ini 07:30', 'keluar', 'Beras', 155, 'MBG Dapur 1',      450,   'Petugas A'],
-                            ['Hari ini 07:30', 'keluar', 'Beras', 155, 'MBG Dapur 2',      605,   'Petugas A'],
-                            ['Kemarin 14:00',  'keluar', 'Beras', 100, 'Toko Rudi',         760,   'Petugas B'],
-                            ['Kemarin 10:00',  'masuk',  'Beras', 300, 'Hasil Giling',      860,   'Admin'],
-                            ['Kemarin 09:00',  'keluar', 'Gabah', 490, 'Proses Giling',    1800,   'Admin'],
+                            ['Hari ini 08:00', 'masuk',  'Gabah', 500, 'Petani: Silvy H.', 'Penerimaan panen', 800,   'Admin'],
+                            ['Hari ini 07:30', 'keluar', 'Beras', 155, 'MBG Dapur 1',      'Distribusi dapur', 450,   'Petugas A'],
+                            ['Hari ini 07:30', 'keluar', 'Beras', 155, 'MBG Dapur 2',      'Stok permintaan', 605,   'Petugas A'],
+                            ['Kemarin 14:00',  'keluar', 'Beras', 100, 'Toko Rudi',         'Pengiriman lokal', 760,   'Petugas B'],
+                            ['Kemarin 10:00',  'masuk',  'Beras', 300, 'Hasil Giling',      'Gabah hasil kering', 860,   'Admin'],
+                            ['Kemarin 09:00',  'keluar', 'Gabah', 490, 'Proses Giling',    'Bahan giling', 1800,   'Admin'],
                         ];
                     @endphp
                     @foreach($rows as $i => $r)
@@ -133,9 +175,10 @@
                             <td><span class="badge badge-{{ $r[2]=='Beras'?'blue':'amber' }}">{{ $r[2] }}</span></td>
                             <td><strong>{{ number_format($r[3]) }}</strong></td>
                             <td style="font-size:13px;">{{ $r[4] }}</td>
-                            <td><strong>{{ number_format($r[5]) }}</strong> kg</td>
-                            <td style="font-size:12px;color:var(--text-muted);">{{ $r[6] }}</td>
-                            <td><button class="btn btn-secondary btn-icon btn-sm"><i class="fas fa-eye"></i></button></td>
+                            <td style="font-size:13px;">{{ $r[5] }}</td>
+                            <td><strong>{{ number_format($r[6]) }}</strong> kg</td>
+                            <td style="font-size:12px;color:var(--text-muted);">{{ $r[7] }}</td>
+                            <td><button class="btn btn-secondary btn-icon btn-sm" disabled><i class="fas fa-eye"></i></button></td>
                         </tr>
                     @endforeach
                 @endforelse

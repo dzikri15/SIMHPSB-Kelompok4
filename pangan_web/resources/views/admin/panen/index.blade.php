@@ -6,6 +6,20 @@
 
 @section('content')
 
+@if ($errors->any())
+    <div class="alert-banner danger" style="margin-bottom:24px;">
+        <i class="fas fa-exclamation-circle"></i>
+        <div>
+            <strong>Perbaiki kesalahan berikut:</strong>
+            <ul style="margin:8px 0 0 16px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
+
 <div class="grid-2" style="margin-bottom:24px;align-items:start;">
 
     {{-- FORM CATAT PANEN --}}
@@ -22,11 +36,14 @@
                     <select name="petani_id" required>
                         <option value="">Pilih petani...</option>
                         @forelse($petanis as $p)
-                            <option value="{{ $p->id }}">{{ $p->nama }} – {{ number_format($p->luas_lahan) }} m²</option>
+                            <option value="{{ $p->id }}" {{ old('petani_id') == $p->id ? 'selected' : '' }}>
+                                {{ $p->nama }} – {{ number_format($p->luas_lahan) }} m²
+                            </option>
                         @empty
                             <option value="">Tidak ada data petani. Tambahkan petani terlebih dahulu.</option>
                         @endforelse
                     </select>
+                    @error('petani_id')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="grid-2">
@@ -34,29 +51,33 @@
                         <label>Musim Tanam <span style="color:var(--red-500)">*</span></label>
                         <select name="musim" required>
                             <option value="">Pilih musim</option>
-                            <option value="Okt-Mar 2024/2025">Okt–Mar 2024/2025</option>
-                            <option value="Apr-Sep 2025">Apr–Sep 2025</option>
-                            <option value="Okt-Mar 2025/2026">Okt–Mar 2025/2026</option>
+                            <option value="Okt-Mar 2024/2025" {{ old('musim') == 'Okt-Mar 2024/2025' ? 'selected' : '' }}>Okt–Mar 2024/2025</option>
+                            <option value="Apr-Sep 2025" {{ old('musim') == 'Apr-Sep 2025' ? 'selected' : '' }}>Apr–Sep 2025</option>
+                            <option value="Okt-Mar 2025/2026" {{ old('musim') == 'Okt-Mar 2025/2026' ? 'selected' : '' }}>Okt–Mar 2025/2026</option>
                         </select>
+                        @error('musim')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                     </div>
                     <div class="form-group">
                         <label>Tanggal Panen <span style="color:var(--red-500)">*</span></label>
-                        <input type="date" name="tanggal_panen" value="{{ date('Y-m-d') }}" required>
+                        <input type="date" name="tanggal_panen" value="{{ old('tanggal_panen', date('Y-m-d')) }}" required>
+                        @error('tanggal_panen')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Tonase Gabah (kg) <span style="color:var(--red-500)">*</span></label>
                     <input type="number" name="tonase_gabah" id="tonaseGabah" placeholder="Contoh: 3000"
-                        required min="1" oninput="hitungKonversi()">
+                        required min="1" autocomplete="off" oninput="hitungKonversi()" value="{{ old('tonase_gabah') }}">
                     <div class="form-hint">Berat gabah basah setelah panen</div>
+                    @error('tonase_gabah')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label>Rasio Konversi (%)</label>
-                    <input type="number" name="rasio_konversi" id="rasioKonversi" value="61.5"
+                    <input type="number" name="rasio_konversi" id="rasioKonversi" value="{{ old('rasio_konversi', 61.5) }}"
                         step="0.1" min="50" max="70" oninput="hitungKonversi()">
                     <div class="form-hint">Default sistem: 61,5% (dapat disesuaikan per batch)</div>
+                    @error('rasio_konversi')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
                 {{-- PREVIEW KONVERSI --}}
@@ -74,20 +95,22 @@
                             <div style="font-size:18px;font-weight:800;color:var(--green-600);" id="previewBeras">0 kg</div>
                         </div>
                     </div>
-                    <input type="hidden" name="beras_dihasilkan" id="berasDihasilkan">
+                    <input type="hidden" name="beras_dihasilkan" id="berasDihasilkan" value="{{ old('beras_dihasilkan') }}">
                 </div>
 
                 <div class="form-group">
                     <label>Komoditas</label>
                     <select name="komoditas">
-                        <option value="Padi">Padi</option>
-                        <option value="Jagung">Jagung</option>
+                        <option value="Padi" {{ old('komoditas') == 'Padi' ? 'selected' : '' }}>Padi</option>
+                        <option value="Jagung" {{ old('komoditas') == 'Jagung' ? 'selected' : '' }}>Jagung</option>
                     </select>
+                    @error('komoditas')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
                 <div class="form-group">
                     <label>Catatan</label>
-                    <textarea name="catatan" rows="2" placeholder="Kondisi panen, cuaca, dll. (opsional)"></textarea>
+                    <textarea name="catatan" rows="2" placeholder="Kondisi panen, cuaca, dll. (opsional)">{{ old('catatan') }}</textarea>
+                    @error('catatan')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
@@ -155,5 +178,9 @@ function hitungKonversi() {
         preview.style.display = 'none';
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    hitungKonversi();
+});
 </script>
 @endpush

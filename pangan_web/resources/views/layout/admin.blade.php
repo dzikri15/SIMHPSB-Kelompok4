@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SIMHPSB – @yield('title', 'Admin Panel')</title>
+    @php
+        $panelLabel = 'SIMHPSB';
+        if (auth()->check()) {
+            $role = auth()->user()->role;
+            $panelLabel = $role === 'admin' ? 'Admin Panel' : ($role === 'petugas' ? 'Petugas Panel' : 'Petani Panel');
+        }
+    @endphp
+    <title>SIMHPSB – @yield('title', $panelLabel)</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,13 +83,21 @@
         .modal-footer {
             flex-shrink: 0; /* keep footer visible */
         }
+
+        .sidebar {
             display: flex;
             flex-direction: column;
             position: fixed;
-            top: 0; left: 0; bottom: 0;
-            z-index: 100;
-            transition: transform .3s ease;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-w);
+            min-width: 260px;
+            background: var(--green-700);
+            color: #fff;
             overflow: hidden;
+            transition: transform .3s ease;
+            z-index: 100;
         }
 
         .sidebar-logo {
@@ -747,7 +762,7 @@
             <div class="logo-icon">🌾</div>
             <div class="logo-text">
                 <strong>SIMHPSB</strong>
-                <span>Admin Panel</span>
+                <span>{{ $panelLabel }}</span>
             </div>
         </div>
     </div>
@@ -756,64 +771,73 @@
         <i class="fas fa-chevron-left"></i>
     </button>
 
+    @php
+        $userRole = auth()->user()->role ?? 'guest';
+        $dashboardRoute = $userRole === 'petani' ? route('petani.dashboard') : route('admin.dashboard');
+    @endphp
+
     <nav class="sidebar-nav">
         <span class="nav-section-label">Utama</span>
 
-        <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+        <a href="{{ $dashboardRoute }}" class="nav-item {{ request()->routeIs('admin.dashboard') || request()->routeIs('petani.dashboard') ? 'active' : '' }}">
             <span class="icon"><i class="fas fa-chart-pie"></i></span>
             Dashboard
         </a>
 
-        @role('admin')
-            <span class="nav-section-label">Data Master</span>
+        @if($userRole !== 'petani')
+            @role('admin')
+                <span class="nav-section-label">Data Master</span>
 
-            <a href="{{ route('admin.petani.index') }}" class="nav-item {{ request()->routeIs('admin.petani.*') ? 'active' : '' }}">
-                <span class="icon"><i class="fas fa-user-tie"></i></span>
-                Data Petani
+                <a href="{{ route('admin.petani.index') }}" class="nav-item {{ request()->routeIs('admin.petani.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-user-tie"></i></span>
+                    Data Petani
+                </a>
+
+                <a href="{{ route('admin.pengguna.index') }}" class="nav-item {{ request()->routeIs('admin.pengguna.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-users"></i></span>
+                    Manajemen Pengguna
+                </a>
+            @endrole
+
+            <span class="nav-section-label">Transaksi</span>
+
+            <a href="{{ route('admin.panen.index') }}" class="nav-item {{ request()->routeIs('admin.panen.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-seedling"></i></span>
+                Pencatatan Panen
             </a>
 
-            <a href="{{ route('admin.pengguna.index') }}" class="nav-item {{ request()->routeIs('admin.pengguna.*') ? 'active' : '' }}">
-                <span class="icon"><i class="fas fa-users"></i></span>
-                Manajemen Pengguna
-            </a>
-        @endrole
-
-        <span class="nav-section-label">Transaksi</span>
-
-        <a href="{{ route('admin.panen.index') }}" class="nav-item {{ request()->routeIs('admin.panen.*') ? 'active' : '' }}">
-            <span class="icon"><i class="fas fa-seedling"></i></span>
-            Pencatatan Panen
-        </a>
-
-        <a href="{{ route('admin.stok.index') }}" class="nav-item {{ request()->routeIs('admin.stok.*') ? 'active' : '' }}">
-            <span class="icon"><i class="fas fa-warehouse"></i></span>
-            Stok Gudang
-        </a>
-
-        @role('admin')
-            <span class="nav-section-label">Gudang & Harga</span>
-
-            <a href="{{ route('admin.harga.index') }}" class="nav-item {{ request()->routeIs('admin.harga.*') ? 'active' : '' }}">
-                <span class="icon"><i class="fas fa-tags"></i></span>
-                Manajemen Harga
+            <a href="{{ route('admin.stok.index') }}" class="nav-item {{ request()->routeIs('admin.stok.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-warehouse"></i></span>
+                Stok Gudang
             </a>
 
-            <a href="{{ route('admin.laporan.index') }}" class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
-                <span class="icon"><i class="fas fa-file-chart-line"></i></span>
-                Laporan
-            </a>
-        @endrole
+            @role('admin')
+                <span class="nav-section-label">Gudang & Harga</span>
 
-        <span class="nav-section-label">Monitoring</span>
+                <a href="{{ route('admin.harga.index') }}" class="nav-item {{ request()->routeIs('admin.harga.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-tags"></i></span>
+                    Manajemen Harga
+                </a>
 
-        <a href="{{ route('admin.alert.index') }}" class="nav-item {{ request()->routeIs('admin.alert.*') ? 'active' : '' }}">
-            <span class="icon"><i class="fas fa-bell"></i></span>
-            Alert Stok
-            @php $alertCount = \App\Models\Alert::where('status','aktif')->count() @endphp
-            @if($alertCount > 0)
-                <span class="nav-badge">{{ $alertCount }}</span>
-            @endif
-        </a>
+                <a href="{{ route('admin.laporan.index') }}" class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-file-chart-line"></i></span>
+                    Laporan
+                </a>
+            @endrole
+
+            @role('admin')
+                <span class="nav-section-label">Monitoring</span>
+
+                @php $alertCount = $alertCount ?? \App\Models\Alert::whereIn('status', ['aktif', 'proses', 'dalam_penanganan'])->count(); @endphp
+                <a href="{{ route('admin.alert.index') }}" class="nav-item {{ request()->routeIs('admin.alert.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-bell"></i></span>
+                    Alert Stok
+                    @if($alertCount > 0)
+                        <span class="nav-badge">{{ $alertCount }}</span>
+                    @endif
+                </a>
+            @endrole
+        @endif
     </nav>
 
     <div class="sidebar-user">

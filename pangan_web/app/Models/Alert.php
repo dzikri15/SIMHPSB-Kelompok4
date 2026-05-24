@@ -17,6 +17,7 @@ class Alert extends Model
         'batas_minimum',
         'status',
         'ditangani_oleh',
+        'catatan',
     ];
 
     protected $casts = [

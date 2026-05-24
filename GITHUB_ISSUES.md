@@ -141,6 +141,7 @@ Sistem Informasi Monitoring Hasil Panen dan Stok Beras
 |----|-------------|-------|-----|----------|--------|--------|
 | #49 | Setup Laravel 12 environment & konfigurasi | backend | dzikri15 | High | Sprint 2 | ✅ Done |
 | #50 | Implementasi JWT Auth API (login, register, logout) | backend | dzikri15 | High | Sprint 2 | ✅ Done |
+| #94 | Perbaiki login role-based dan tampilan panel Petugas/Petani | backend | dzikri15 | Medium | Sprint 2 | ✅ Done |
 | #51 | Buat REST API endpoint data petani & lahan | backend | dzikri15 | High | Sprint 2 | In Progress |
 | #52 | Buat REST API endpoint pencatatan panen + konversi gabah | backend | dzikri15 | High | Sprint 3 | Todo |
 | #90 | Buat REST API endpoint monitoring stok gudang | backend | dzikri15 | High | Sprint 3 | Todo |

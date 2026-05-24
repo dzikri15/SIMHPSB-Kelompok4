@@ -36,8 +36,14 @@
             <button class="btn btn-primary" onclick="openModal('modalTambah')">
                 <i class="fas fa-plus"></i> Tambah Petani
             </button>
-            <a href="{{ route('admin.petani.export') }}" class="btn btn-secondary">
-                <i class="fas fa-file-excel"></i> Export
+            <a href="{{ route('admin.petani.export', ['format' => 'pdf']) }}" class="btn btn-secondary">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            <a href="{{ route('admin.petani.export', ['format' => 'excel']) }}" class="btn btn-secondary">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
+            <a href="{{ route('admin.petani.export', ['format' => 'csv']) }}" class="btn btn-secondary">
+                <i class="fas fa-file-csv"></i> CSV
             </a>
         </div>
     </div>

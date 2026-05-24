@@ -313,7 +313,7 @@
     <div class="login-box">
         <div class="login-header">
             <h2>Selamat datang 👋</h2>
-            <p>Masuk ke panel admin SIMHPSB</p>
+            <p>Masuk ke SIMHPSB. Gunakan akun Anda untuk melihat panel sesuai peran.</p>
         </div>
 
         @if($errors->any())

@@ -112,7 +112,7 @@
 
                 <div class="form-group" id="petaniField" style="display: {{ old('role') === 'petani' ? 'block' : 'none' }};">
                     <label>Pilih Petani Terhubung <span style="color:var(--red-500)">*</span></label>
-                    <select name="petani_id" id="petaniSelect" {{ old('role') === 'petani' ? '' : 'disabled' }}>
+                    <select name="petani_id" id="petaniSelect" {{ old('role') === 'petani' ? 'required' : '' }} {{ old('role') === 'petani' ? '' : 'disabled' }}>
                         <option value="">Pilih petani terhubung</option>
                         @foreach($petaniList as $petani)
                             <option value="{{ $petani->id }}" @selected(old('petani_id') == $petani->id)>{{ $petani->nama }} – {{ number_format($petani->luas_lahan ?: 0) }} m²</option>

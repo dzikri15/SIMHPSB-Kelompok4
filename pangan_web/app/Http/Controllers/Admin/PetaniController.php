@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Petani;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PetaniController extends Controller
 {
@@ -29,15 +30,11 @@ class PetaniController extends Controller
             'no_hp' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255|unique:petani,email',
             'tanggal_lahir' => 'nullable|date',
-            'status' => 'required|string|in:aktif,non-aktif,nonaktif',
+            'status' => 'required|string|in:aktif,nonaktif',
             'luas_lahan' => 'nullable|integer|min:0',
             'komoditas' => 'required|string|in:Padi,Jagung,Padi & Jagung',
             'catatan' => 'nullable|string',
         ]);
-
-        if ($data['status'] === 'non-aktif') {
-            $data['status'] = 'nonaktif';
-        }
 
         Petani::create($data);
 
@@ -88,15 +85,75 @@ class PetaniController extends Controller
 
     public function export()
     {
+        $format = request('format', 'csv');
         $petani = Petani::all();
-        $csv = "Nama,Alamat,No HP,Email,Tanggal Lahir,Status\n";
-        
-        foreach ($petani as $p) {
-            $csv .= "\"{$p->nama}\",\"{$p->alamat}\",\"{$p->no_hp}\",\"{$p->email}\",\"{$p->tanggal_lahir}\",\"{$p->status}\"\n";
+
+        if ($format === 'pdf') {
+            try {
+                $filename = 'petani_' . date('Ymd_His') . '.pdf';
+                $pdf = Pdf::loadView('admin.petani.pdf', compact('petani'));
+                return $pdf->download($filename);
+            } catch (\Throwable $e) {
+                return redirect()->back()->with('error', 'PDF export gagal. Pastikan barryvdh/laravel-dompdf telah terpasang.');
+            }
         }
 
+        if ($format === 'excel') {
+            $filename = 'petani_' . date('Ymd_His') . '.xls';
+            $html = '<table border="1"><thead><tr>' .
+                '<th>No</th>' .
+                '<th>Nama Petani</th>' .
+                '<th>NIK</th>' .
+                '<th>No HP</th>' .
+                '<th>Email</th>' .
+                '<th>Tanggal Lahir</th>' .
+                '<th>Luas Lahan (m²)</th>' .
+                '<th>Komoditas</th>' .
+                '<th>Status</th>' .
+                '<th>Alamat</th>' .
+                '</tr></thead><tbody>';
+
+            foreach ($petani as $index => $p) {
+                $html .= '<tr>' .
+                    '<td>' . ($index + 1) . '</td>' .
+                    '<td>' . e($p->nama) . '</td>' .
+                    '<td>' . e($p->nik ?? '-') . '</td>' .
+                    '<td>' . e($p->telepon ?? '-') . '</td>' .
+                    '<td>' . e($p->email ?? '-') . '</td>' .
+                    '<td>' . e(optional($p->tanggal_lahir)->format('Y-m-d') ?? '-') . '</td>' .
+                    '<td>' . ($p->luas_lahan !== null ? number_format($p->luas_lahan) : '-') . '</td>' .
+                    '<td>' . e($p->komoditas) . '</td>' .
+                    '<td>' . e($p->status === 'nonaktif' ? 'Non-aktif' : ucfirst($p->status)) . '</td>' .
+                    '<td>' . e($p->alamat ?? '-') . '</td>' .
+                    '</tr>';
+            }
+
+            $html .= '</tbody></table>';
+            return response($html)
+                ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+                ->header('Content-Disposition', "attachment; filename={$filename}");
+        }
+
+        $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
+        $csv .= "No,Nama Petani,NIK,No HP,Email,Tanggal Lahir,Luas Lahan (m²),Komoditas,Status,Alamat\n";
+        foreach ($petani as $index => $p) {
+            $csv .= implode(',', [
+                $index + 1,
+                '"' . str_replace('"', '""', $p->nama) . '"',
+                '"' . str_replace('"', '""', $p->nik ?? '-') . '"',
+                '"' . str_replace('"', '""', $p->telepon ?? '-') . '"',
+                '"' . str_replace('"', '""', $p->email ?? '-') . '"',
+                '"' . str_replace('"', '""', optional($p->tanggal_lahir)->format('Y-m-d') ?? '-') . '"',
+                '"' . ($p->luas_lahan !== null ? number_format($p->luas_lahan) : '-') . '"',
+                '"' . str_replace('"', '""', $p->komoditas) . '"',
+                '"' . str_replace('"', '""', $p->status === 'nonaktif' ? 'Non-aktif' : ucfirst($p->status)) . '"',
+                '"' . str_replace('"', '""', $p->alamat ?? '-') . '"',
+            ]) . "\n";
+        }
+
+        $filename = 'petani_' . date('Ymd_His') . '.csv';
         return response($csv)
-            ->header('Content-Type', 'text/csv')
-            ->header('Content-Disposition', 'attachment; filename=petani.csv');
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', "attachment; filename={$filename}");
     }
 }

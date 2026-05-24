@@ -5,21 +5,48 @@
 
 @section('title', 'Laporan')
 @section('page-title', 'Laporan')
-@section('page-subtitle', 'Rekapitulasi panen, stok, dan margin per periode')
+@php
+    $jenis = $jenis ?? request('jenis', 'margin');
+    $komoditas = $komoditas ?? request('komoditas');
+    $subtitle = match($jenis) {
+        'panen' => 'Rekapitulasi panen per periode',
+        'stok' => $komoditas ? "Rekapitulasi stok gudang {$komoditas} per periode" : 'Rekapitulasi stok gudang per periode',
+        default => 'Rekapitulasi margin dan distribusi per periode',
+    };
+@endphp
+@section('page-subtitle', $subtitle)
 
 @section('content')
 
 {{-- FILTER --}}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-body" style="padding:20px 24px;">
-        <form method="GET" action="{{ route('admin.laporan.index') }}">
+        <form method="GET" action="{{ route('admin.laporan.index') }}" id="laporanFilterForm">
             <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
                 <div class="form-group" style="margin:0;flex:1;min-width:140px;">
                     <label>Jenis Laporan</label>
-                    <select name="jenis">
+                    <select name="jenis" id="jenisLaporan" onchange="updateReportForm()">
                         <option value="panen" {{ request('jenis')=='panen'?'selected':'' }}>Laporan Panen</option>
                         <option value="stok" {{ request('jenis')=='stok'?'selected':'' }}>Laporan Stok</option>
                         <option value="margin" {{ request('jenis','margin')=='margin'?'selected':'' }}>Laporan Margin</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;flex:1;min-width:130px;" id="komoditasFilterWrapper">
+                    <label>Komoditas</label>
+                    <select name="komoditas" id="komoditas" onchange="document.getElementById('laporanFilterForm').submit()">
+                        <option value="">Semua Komoditas</option>
+                        @foreach($komoditasList ?? [] as $k)
+                            <option value="{{ $k }}" {{ request('komoditas')==$k ? 'selected' : '' }}>{{ $k }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group" style="margin:0;flex:1;min-width:130px;" id="petaniFilterWrapper">
+                    <label>Petani</label>
+                    <select name="petani_id" id="petani_id" onchange="document.getElementById('laporanFilterForm').submit()">
+                        <option value="">Semua Petani</option>
+                        @foreach($petanis ?? [] as $p)
+                            <option value="{{ $p->id }}" {{ request('petani_id')==$p->id?'selected':'' }}>{{ $p->nama }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="form-group" style="margin:0;flex:1;min-width:130px;">
@@ -29,15 +56,6 @@
                 <div class="form-group" style="margin:0;flex:1;min-width:130px;">
                     <label>Sampai Tanggal</label>
                     <input type="date" name="sampai" value="{{ request('sampai', date('Y-m-d')) }}">
-                </div>
-                <div class="form-group" style="margin:0;flex:1;min-width:130px;">
-                    <label>Petani</label>
-                    <select name="petani_id">
-                        <option value="">Semua Petani</option>
-                        @foreach($petanis ?? [] as $p)
-                            <option value="{{ $p->id }}" {{ request('petani_id')==$p->id?'selected':'' }}>{{ $p->nama }}</option>
-                        @endforeach
-                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary" style="flex-shrink:0;">
                     <i class="fas fa-filter"></i> Tampilkan
@@ -57,33 +75,87 @@
 
 {{-- RINGKASAN --}}
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
-    <div class="card" style="border-top:3px solid var(--green-500);">
-        <div class="card-body" style="text-align:center;">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Panen</div>
-            <div style="font-size:28px;font-weight:800;">{{ number_format($totalPanen ?? 3000) }} kg</div>
-            <div style="font-size:12px;color:var(--text-muted);">gabah periode ini</div>
+    @if($jenis === 'stok')
+        <div class="card" style="border-top:3px solid var(--green-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Stok</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($totalStok ?? 0) }} kg</div>
+                <div style="font-size:12px;color:var(--text-muted);">{{ $komoditas ? 'Stok ' . strtolower($komoditas) . ' periode ini' : 'Semua komoditas periode ini' }}</div>
+            </div>
         </div>
-    </div>
-    <div class="card" style="border-top:3px solid var(--blue-500);">
-        <div class="card-body" style="text-align:center;">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Distribusi</div>
-            <div style="font-size:28px;font-weight:800;">{{ number_format($totalDistribusi ?? 1845) }} kg</div>
-            <div style="font-size:12px;color:var(--text-muted);">beras periode ini</div>
+        <div class="card" style="border-top:3px solid var(--blue-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Gudang Terdata</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($totalGudang ?? 0) }}</div>
+                <div style="font-size:12px;color:var(--text-muted);">lokasi stok aktif</div>
+            </div>
         </div>
-    </div>
-    <div class="card" style="border-top:3px solid var(--amber-500);">
-        <div class="card-body" style="text-align:center;">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Estimasi Margin</div>
-            <div style="font-size:28px;font-weight:800;">Rp {{ number_format(($totalDistribusi ?? 1845) * 3886, 0, ',', '.') }}</div>
-            <div style="font-size:12px;color:var(--text-muted);">≈ Rp 3.886/kg × distribusi</div>
+        <div class="card" style="border-top:3px solid var(--amber-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Stok Kurang</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($lowStockCount ?? 0) }}</div>
+                <div style="font-size:12px;color:var(--text-muted);">entry di bawah batas minimum</div>
+            </div>
         </div>
-    </div>
+    @elseif($jenis === 'panen')
+        <div class="card" style="border-top:3px solid var(--green-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Panen</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($totalPanen ?? 0) }} kg</div>
+                <div style="font-size:12px;color:var(--text-muted);">gabah periode ini</div>
+            </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--blue-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Distribusi</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($totalDistribusi ?? 0) }} kg</div>
+                <div style="font-size:12px;color:var(--text-muted);">beras periode ini</div>
+            </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--amber-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Estimasi Margin</div>
+                <div style="font-size:28px;font-weight:800;">Rp {{ number_format(max(($totalDistribusi ?? 0) * $hppPerKg, 0), 0, ',', '.') }}</div>
+                <div style="font-size:12px;color:var(--text-muted);">≈ Rp {{ number_format($hppPerKg, 0, ',', '.') }}/kg × distribusi</div>
+            </div>
+        </div>
+    @else
+        <div class="card" style="border-top:3px solid var(--green-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Distribusi</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($totalDistribusi ?? 0) }} kg</div>
+                <div style="font-size:12px;color:var(--text-muted);">beras periode ini</div>
+            </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--blue-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Panen</div>
+                <div style="font-size:28px;font-weight:800;">{{ number_format($totalPanen ?? 0) }} kg</div>
+                <div style="font-size:12px;color:var(--text-muted);">gabah periode ini</div>
+            </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--amber-500);">
+            <div class="card-body" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Estimasi Margin</div>
+                <div style="font-size:28px;font-weight:800;">Rp {{ number_format($totalMarginEstimate ?? 0, 0, ',', '.') }}</div>
+                <div style="font-size:12px;color:var(--text-muted);">berdasarkan HPP aktif</div>
+            </div>
+        </div>
+    @endif
 </div>
 
 {{-- GRAFIK --}}
 <div class="card" style="margin-bottom:24px;">
     <div class="card-header">
-        <div class="card-title">Grafik Panen vs Distribusi</div>
+        <div class="card-title">
+            @if($jenis === 'stok')
+                Grafik Stok Periode ini
+            @elseif($jenis === 'panen')
+                Grafik Panen per Bulan
+            @else
+                Grafik Estimasi Margin
+            @endif
+        </div>
     </div>
     <div class="card-body">
         <div class="chart-wrap" style="height:280px;">
@@ -95,50 +167,74 @@
 {{-- TABEL DETAIL --}}
 <div class="card">
     <div class="card-header">
-        <div class="card-title">Detail Laporan Panen per Petani</div>
+        <div class="card-title">
+            @if($jenis === 'stok')
+                Detail Laporan Stok Beras
+            @elseif($jenis === 'panen')
+                Detail Laporan Panen per Petani
+            @else
+                Detail Laporan Margin per Panen
+            @endif
+        </div>
     </div>
     <div class="table-container">
         <table class="data-table">
             <thead>
-                <tr>
-                    <th>Petani</th>
-                    <th>Lahan (m²)</th>
-                    <th>Tonase Gabah</th>
-                    <th>Beras Dihasilkan</th>
-                    <th>Musim</th>
-                    <th>Tanggal Panen</th>
-                    <th>HPP (est.)</th>
-                    <th>Status</th>
-                </tr>
+                @if($jenis === 'stok')
+                    <tr>
+                        <th>Gudang</th>
+                        <th>Komoditas</th>
+                        <th>Jumlah Stok</th>
+                        <th>Batas Minimum</th>
+                        <th>Tanggal Update</th>
+                        <th>Status</th>
+                    </tr>
+                @else
+                    <tr>
+                        <th>Petani</th>
+                        <th>Lahan (m²)</th>
+                        <th>Tonase Gabah</th>
+                        <th>Beras Dihasilkan</th>
+                        <th>Tanggal Panen</th>
+                        <th>HPP (est.)</th>
+                        @if($jenis === 'margin')
+                            <th>Status</th>
+                        @endif
+                    </tr>
+                @endif
             </thead>
             <tbody>
                 @forelse($laporanData ?? [] as $row)
-                    <tr>
-                        <td><strong>{{ $row->petani->nama }}</strong></td>
-                        <td>{{ number_format($row->petani->luas_lahan) }}</td>
-                        <td><strong>{{ number_format($row->tonase_gabah) }} kg</strong></td>
-                        <td>{{ number_format($row->beras_dihasilkan) }} kg</td>
-                        <td><span class="badge badge-green">{{ $row->musim }}</span></td>
-                        <td style="font-size:12.5px;">{{ $row->tanggal_panen }}</td>
-                        <td>Rp {{ number_format($row->hpp_estimasi) }}</td>
-                        <td><span class="badge badge-{{ $row->status=='selesai'?'green':'amber' }}">{{ $row->status }}</span></td>
-                    </tr>
-                @empty
-                    @foreach([
-                        ['Silvy Halimatusyadiah', '9.200', '3.000', '1.845', 'Okt-Mar 2025', 'Maret 2025', '17.710.200', 'selesai'],
-                        ['Budi Santoso', '5.000', '1.800', '1.107', 'Okt-Mar 2025', 'Feb 2025',  '10.643.598', 'selesai'],
-                    ] as $r)
+                    @if($jenis === 'stok')
                         <tr>
-                            <td><strong>{{ $r[0] }}</strong></td>
-                            <td>{{ $r[1] }}</td>
-                            <td><strong>{{ $r[2] }} kg</strong></td>
-                            <td>{{ $r[3] }} kg</td>
-                            <td><span class="badge badge-green">{{ $r[4] }}</span></td>
-                            <td style="font-size:12.5px;">{{ $r[5] }}</td>
-                            <td>Rp {{ $r[6] }}</td>
-                            <td><span class="badge badge-{{ $r[7]=='selesai'?'green':'amber' }}">{{ $r[7] }}</span></td>
+                            <td><strong>{{ $row->gudang->nama_gudang ?? '-' }}</strong></td>
+                            <td><strong>{{ $row->komoditas ?? '-' }}</strong></td>
+                            <td><strong>{{ number_format($row->jumlah_stok) }} kg</strong></td>
+                            <td>{{ number_format($row->batas_minimum) }} kg</td>
+                            <td style="font-size:12.5px;">{{ optional($row->tanggal_update ?? $row->tanggal)->format('Y-m-d H:i:s') }}</td>
+                            <td>
+                                <span class="badge badge-{{ $row->jumlah_stok < $row->batas_minimum ? 'amber' : 'green' }}">
+                                    {{ $row->jumlah_stok < $row->batas_minimum ? 'Kurang' : 'Cukup' }}
+                                </span>
+                            </td>
                         </tr>
-                    @endforeach
+                    @else
+                        <tr>
+                            <td><strong>{{ $row->petani->nama ?? '-' }}</strong></td>
+                            <td>{{ number_format(optional($row->petani)->luas_lahan ?? 0) }}</td>
+                            <td><strong>{{ number_format($row->tonase_gabah ?? 0) }} kg</strong></td>
+                            <td>{{ number_format($row->beras_dihasilkan ?? 0) }} kg</td>
+                            <td style="font-size:12.5px;">{{ optional($row->tanggal_panen)->format('Y-m-d') }}</td>
+                            <td>Rp {{ number_format($row->hpp_estimasi ?? 0) }}</td>
+                            @if($jenis === 'margin')
+                                <td><span class="badge badge-{{ ($row->status ?? 'selesai') == 'selesai' ? 'green' : 'amber' }}">{{ $row->status ?? 'selesai' }}</span></td>
+                            @endif
+                        </tr>
+                    @endif
+                @empty
+                    <tr>
+                        <td colspan="{{ $jenis === 'stok' ? 5 : ($jenis === 'margin' ? 7 : 6) }}" class="text-center text-muted" style="padding:24px;">Belum ada data untuk jenis laporan ini.</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
@@ -149,25 +245,56 @@
 
 @push('scripts')
 <script>
+function updateReportForm() {
+    const jenis = document.getElementById('jenisLaporan').value;
+    const petaniWrapper = document.getElementById('petaniFilterWrapper');
+    const petaniSelect = document.getElementById('petani_id');
+    const komoditasWrapper = document.getElementById('komoditasFilterWrapper');
+    const komoditasSelect = document.getElementById('komoditas');
+
+    if (jenis === 'stok') {
+        petaniWrapper.style.display = 'none';
+        petaniSelect.disabled = true;
+        komoditasWrapper.style.display = '';
+        komoditasSelect.disabled = false;
+    } else {
+        petaniWrapper.style.display = '';
+        petaniSelect.disabled = false;
+        komoditasWrapper.style.display = 'none';
+        komoditasSelect.disabled = true;
+    }
+
+    document.getElementById('laporanFilterForm').submit();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const jenis = document.getElementById('jenisLaporan').value;
+    const petaniWrapper = document.getElementById('petaniFilterWrapper');
+    const petaniSelect = document.getElementById('petani_id');
+    const komoditasWrapper = document.getElementById('komoditasFilterWrapper');
+    const komoditasSelect = document.getElementById('komoditas');
+
+    if (jenis === 'stok') {
+        petaniWrapper.style.display = 'none';
+        petaniSelect.disabled = true;
+        komoditasWrapper.style.display = '';
+        komoditasSelect.disabled = false;
+    } else {
+        petaniWrapper.style.display = '';
+        petaniSelect.disabled = false;
+        komoditasWrapper.style.display = 'none';
+        komoditasSelect.disabled = true;
+    }
+});
+
+const laporanChartData = {
+    labels: @json($chartLabels),
+    datasets: @json($chartDatasets)
+};
+
 new Chart(document.getElementById('chartLaporan').getContext('2d'), {
     type: 'bar',
-    data: {
-        labels: ['Oktober', 'November', 'Desember', 'Januari', 'Februari', 'Maret'],
-        datasets: [
-            {
-                label: 'Gabah Masuk (kg)',
-                data: [0, 3200, 0, 2800, 4100, 3000],
-                backgroundColor: 'rgba(245,158,11,.75)',
-                borderRadius: 6,
-            },
-            {
-                label: 'Beras Distribusi (kg)',
-                data: [800, 1200, 900, 1500, 1800, 1845],
-                backgroundColor: 'rgba(56,161,105,.75)',
-                borderRadius: 6,
-            }
-        ]
-    },
+    data: laporanChartData,
     options: {
         responsive: true,
         maintainAspectRatio: false,

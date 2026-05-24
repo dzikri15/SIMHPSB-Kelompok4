@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('komoditas');
             $table->integer('stok_saat_ini');
             $table->integer('batas_minimum');
-            $table->enum('status', ['aktif', 'proses', 'selesai'])->default('aktif');
+            $table->enum('status', ['aktif', 'proses', 'dalam_penanganan', 'selesai'])->default('aktif');
+            $table->text('catatan')->nullable();
             $table->foreignId('ditangani_oleh')->nullable()->constrained('users');
             $table->timestamps();
         });

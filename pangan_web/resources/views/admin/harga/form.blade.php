@@ -101,13 +101,18 @@
 </style>
 
 @php
-    $hargaBeli = old('harga_beli_gabah', $harga->harga_beli_gabah ?? 760000);
-    $ongkosGiling = old('ongkos_giling', $harga->ongkos_giling ?? 700);
-    $hargaJual = old('harga_jual_beras', $harga->harga_jual_beras ?? 13500);
-    $rasioKonversi = old('rasio_konversi', $harga->rasio_konversi ?? 61.5);
-    $hppDefault = round(($hargaBeli / 100) * $rasioKonversi + $ongkosGiling);
-    $marginDefault = $hargaJual - $hppDefault;
-    $marginPctDefault = $hargaJual > 0 ? number_format(($marginDefault / $hargaJual) * 100, 2, ',', '.') : '0,00';
+    // Use last edited values when available; do not force app-wide defaults on edit form
+    $hargaBeli = old('harga_beli_gabah', isset($harga) ? $harga->harga_beli_gabah : null);
+    $ongkosGiling = old('ongkos_giling', isset($harga) ? $harga->ongkos_giling : null);
+    $hargaJual = old('harga_jual_beras', isset($harga) ? $harga->harga_jual_beras : null);
+    $rasioKonversi = old('rasio_konversi', isset($harga) ? $harga->rasio_konversi : 61.5);
+
+    $hppDefault = 0;
+    if ($rasioKonversi > 0 && $hargaBeli !== null && $ongkosGiling !== null) {
+        $hppDefault = round(($hargaBeli / $rasioKonversi) + $ongkosGiling);
+    }
+    $marginDefault = ($hargaJual ?? 0) - $hppDefault;
+    $marginPctDefault = ($hargaJual ?? 0) > 0 ? number_format(($marginDefault / ($hargaJual ?: 1)) * 100, 2, ',', '.') : '0,00';
 @endphp
 
 <div class="grid-2" style="margin-bottom:24px;">
@@ -141,7 +146,7 @@
                     <label>Harga Beli Gabah (per 100 kg)</label>
                     <div style="position:relative;">
                         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;font-weight:600;">Rp</span>
-                        <input type="text" name="harga_beli_gabah" id="harga_beli_gabah" class="currency-input" value="{{ number_format(intval(preg_replace('/\D/', '', $hargaBeli)), 0, ',', '.') }}"
+                        <input type="text" name="harga_beli_gabah" id="harga_beli_gabah" class="currency-input" value="{{ is_numeric($hargaBeli) ? number_format($hargaBeli, 0, ',', '.') : ($hargaBeli ?? '') }}"
                             style="padding-left:36px;" placeholder="760.000" inputmode="numeric" autocomplete="off" required>
                     </div>
                 </div>
@@ -150,7 +155,7 @@
                     <label>Ongkos Giling (per kg beras)</label>
                     <div style="position:relative;">
                         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;font-weight:600;">Rp</span>
-                        <input type="text" name="ongkos_giling" id="ongkos_giling" class="currency-input" value="{{ number_format(intval(preg_replace('/\D/', '', $ongkosGiling)), 0, ',', '.') }}"
+                        <input type="text" name="ongkos_giling" id="ongkos_giling" class="currency-input" value="{{ is_numeric($ongkosGiling) ? number_format($ongkosGiling, 0, ',', '.') : ($ongkosGiling ?? '') }}"
                             style="padding-left:36px;" placeholder="700" inputmode="numeric" autocomplete="off" required>
                     </div>
                 </div>
@@ -159,7 +164,7 @@
                     <label>Harga Jual Beras (per kg)</label>
                     <div style="position:relative;">
                         <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;font-weight:600;">Rp</span>
-                        <input type="text" name="harga_jual_beras" id="harga_jual_beras" class="currency-input" value="{{ number_format(intval(preg_replace('/\D/', '', $hargaJual)), 0, ',', '.') }}"
+                        <input type="text" name="harga_jual_beras" id="harga_jual_beras" class="currency-input" value="{{ is_numeric($hargaJual) ? number_format($hargaJual, 0, ',', '.') : ($hargaJual ?? '') }}"
                             style="padding-left:36px;" placeholder="13.500" inputmode="numeric" autocomplete="off" required>
                     </div>
                     <div class="form-hint" id="hintHarga">Minimum HPP + margin 10%</div>
@@ -201,8 +206,8 @@
                 <div style="background:var(--surface-2);border-radius:10px;padding:16px;margin-bottom:16px;">
                     <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-weight:600;">RUMUS HPP (per kg beras)</div>
                     <div style="font-size:13.5px;line-height:2;color:var(--text-secondary);">
-                        HPP = (Harga Beli Gabah ÷ 100 × <em>konversi</em>) + Ongkos Giling<br>
-                        <span id="formulaDisplay" style="font-size:12px;color:var(--text-muted);">= (Rp {{ number_format($hargaBeli, 0, ',', '.') }} &divide; 100 &times; {{ number_format($rasioKonversi, 1, ',', '.') }}) + Rp {{ number_format($ongkosGiling, 0, ',', '.') }}</span>
+                        HPP = (Harga Beli Gabah ÷ Rasio Konversi) + Ongkos Giling<br>
+                        <span id="formulaDisplay" style="font-size:12px;color:var(--text-muted);">= (Rp {{ number_format($hargaBeli, 0, ',', '.') }} &divide; {{ number_format($rasioKonversi, 1, ',', '.') }}) + Rp {{ number_format($ongkosGiling, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
@@ -212,7 +217,7 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                             <strong id="hasil_hpp" class="fade-value">Rp {{ number_format($hppDefault, 0, ',', '.') }}</strong>
                             <span class="tooltip-inline" tabindex="0">?
-                                <span class="tooltip-text" id="hasil_tooltip">HPP = (Rp {{ number_format($hargaBeli, 0, ',', '.') }} ÷ 100 × {{ number_format($rasioKonversi, 1, ',', '.') }}%) + Rp {{ number_format($ongkosGiling, 0, ',', '.') }} = Rp {{ number_format($hppDefault, 0, ',', '.') }}</span>
+                                <span class="tooltip-text" id="hasil_tooltip">HPP = (Rp {{ number_format($hargaBeli, 0, ',', '.') }} ÷ {{ number_format($rasioKonversi, 1, ',', '.') }}) + Rp {{ number_format($ongkosGiling, 0, ',', '.') }} = Rp {{ number_format($hppDefault, 0, ',', '.') }}</span>
                             </span>
                         </div>
                     </div>
@@ -280,7 +285,7 @@ function updateHPPPreview() {
     const hargaJual = parseCurrency(document.getElementById('harga_jual_beras').value);
     const rasio = parseFloat(document.getElementById('rasio_konversi').value) || 0;
 
-    const hpp = Math.round((hargaBeli / 100) * rasio + ongkosGiling);
+    const hpp = rasio > 0 ? Math.round(hargaBeli / rasio + ongkosGiling) : 0;
     const margin = hargaJual - hpp;
     const pct = hargaJual > 0 ? ((margin / hargaJual) * 100).toFixed(2) : '0.00';
 
@@ -295,7 +300,7 @@ function updateHPPPreview() {
 
     const tooltipText = document.getElementById('hasil_tooltip');
     if (tooltipText) {
-        tooltipText.textContent = `HPP = (Rp ${formatRupiah(hargaBeli)} ÷ 100 × ${rasio}%) + Rp ${formatRupiah(ongkosGiling)} = Rp ${formatRupiah(hpp)}`;
+        tooltipText.textContent = `HPP = (Rp ${formatRupiah(hargaBeli)} ÷ ${rasio}) + Rp ${formatRupiah(ongkosGiling)} = Rp ${formatRupiah(hpp)}`;
     }
 
     const badge = document.getElementById('hasil_badge');
