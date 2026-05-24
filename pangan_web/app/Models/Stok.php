@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Stok extends Model
 {
@@ -11,11 +12,15 @@ class Stok extends Model
 
     protected $fillable = [
         'gudang_id',
+        'jenis_transaksi',
+        'komoditas',
+        'jumlah',
+        'keterangan',
+        'catatan',
         'jumlah_stok',
         'batas_minimum',
         'tanggal_update',
         'tanggal',
-        'catatan',
     ];
 
     protected $casts = [
@@ -23,7 +28,7 @@ class Stok extends Model
         'tanggal' => 'datetime',
     ];
 
-    public function getTanggalAttribute($value)
+    public function getTanggalAttribute(?string $value): ?string
     {
         if ($value) {
             return Carbon::parse($value)->format('Y-m-d H:i:s');
@@ -39,5 +44,10 @@ class Stok extends Model
     public function gudang()
     {
         return $this->belongsTo(Gudang::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

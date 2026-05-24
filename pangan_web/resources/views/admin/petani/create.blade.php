@@ -94,7 +94,7 @@
                 <label for="status" style="display:block; margin-bottom:5px; font-weight:bold;">Status</label>
                 <select name="status" id="status" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
                     <option value="aktif" {{ old('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="non-aktif" {{ old('status') === 'non-aktif' ? 'selected' : '' }}>Non-aktif</option>
+                    <option value="nonaktif" {{ old('status') === 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
                 </select>
                 @error('status')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
             </div>

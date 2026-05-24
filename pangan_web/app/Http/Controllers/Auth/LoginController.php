@@ -62,7 +62,20 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard'));
+        return redirect()->intended($this->redirectToByRole(Auth::user()));
+    }
+
+    protected function redirectToByRole($user)
+    {
+        if (in_array($user->role, ['admin', 'petugas'])) {
+            return route('admin.dashboard');
+        }
+
+        if ($user->role === 'petani') {
+            return route('petani.dashboard');
+        }
+
+        return route('login');
     }
 
     /**

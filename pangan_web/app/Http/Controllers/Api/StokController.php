@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\AlertController;
 use App\Models\Stok;
 use Illuminate\Http\Request;
 
@@ -30,6 +31,16 @@ class StokController extends Controller
 
         $stok = Stok::create($data);
 
+        // Jika data komoditas tersedia, cek apakah perlu buat alert otomatis
+        if (! empty($stok->komoditas)) {
+            $config = \Illuminate\Support\Facades\Schema::hasTable('alert_configurations') ? \App\Models\AlertConfiguration::first() : null;
+            $batasMinimum = $stok->komoditas === 'Beras'
+                ? ($config?->batas_min_beras ?? 400)
+                : ($config?->batas_min_gabah ?? 1000);
+
+            AlertController::checkAndCreateAlert($stok->komoditas, (float) $stok->jumlah_stok, (int) $batasMinimum);
+        }
+
         return response()->json($stok, 201);
     }
 
@@ -44,6 +55,16 @@ class StokController extends Controller
         ]);
 
         $stok->update($data);
+
+        // Jika komoditas tersedia setelah update, cek kembali untuk kemungkinan alert
+        if (! empty($stok->komoditas) && isset($stok->jumlah_stok)) {
+            $config = \Illuminate\Support\Facades\Schema::hasTable('alert_configurations') ? \App\Models\AlertConfiguration::first() : null;
+            $batasMinimum = $stok->komoditas === 'Beras'
+                ? ($config?->batas_min_beras ?? 400)
+                : ($config?->batas_min_gabah ?? 1000);
+
+            AlertController::checkAndCreateAlert($stok->komoditas, (float) $stok->jumlah_stok, (int) $batasMinimum);
+        }
 
         return response()->json($stok);
     }

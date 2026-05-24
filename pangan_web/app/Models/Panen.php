@@ -16,6 +16,7 @@ class Panen extends Model
         'jumlah_gabah',
         'harga_gabah_per_kg',
         'konversi_beras',
+        'musim',
         'catatan',
     ];
 
@@ -38,5 +39,19 @@ class Panen extends Model
             'lahan_id',  // Local key on Panen table...
             'petani_id'  // Local key on Lahan table...
         );
+    }
+
+    public function getTonaseGabahAttribute()
+    {
+        return $this->jumlah_gabah;
+    }
+
+    public function getBerasDihasilkanAttribute()
+    {
+        if (! $this->jumlah_gabah || ! $this->konversi_beras) {
+            return 0;
+        }
+
+        return round($this->jumlah_gabah * ($this->konversi_beras / 100), 2);
     }
 }
