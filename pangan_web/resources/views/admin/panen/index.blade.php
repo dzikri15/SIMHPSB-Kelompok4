@@ -51,9 +51,8 @@
                         <label>Musim Tanam <span style="color:var(--red-500)">*</span></label>
                         <select name="musim" required>
                             <option value="">Pilih musim</option>
-                            <option value="Okt-Mar 2024/2025" {{ old('musim') == 'Okt-Mar 2024/2025' ? 'selected' : '' }}>Okt–Mar 2024/2025</option>
-                            <option value="Apr-Sep 2025" {{ old('musim') == 'Apr-Sep 2025' ? 'selected' : '' }}>Apr–Sep 2025</option>
-                            <option value="Okt-Mar 2025/2026" {{ old('musim') == 'Okt-Mar 2025/2026' ? 'selected' : '' }}>Okt–Mar 2025/2026</option>
+                            <option value="Kemarau" {{ old('musim') == 'Kemarau' ? 'selected' : '' }}>Kemarau</option>
+                            <option value="Hujan" {{ old('musim') == 'Hujan' ? 'selected' : '' }}>Hujan</option>
                         </select>
                         @error('musim')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                     </div>
