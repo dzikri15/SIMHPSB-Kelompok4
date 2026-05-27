@@ -34,7 +34,6 @@ Route::middleware(['auth', 'role:petani'])->prefix('petani')->name('petani.')->g
 Route::middleware('guest')->group(function () {
     Route::get('/login',  [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
-    Route::get('/password/reset', fn() => view('auth.passwords.email'))->name('password.request');
 });
 
 Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');

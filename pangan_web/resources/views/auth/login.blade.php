@@ -298,7 +298,7 @@
                 </div>
             </div>
             <div class="feature-item">
-                <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="feature-icon"><i class="fas fa-file-chart-line"></i></div>
                 <div class="feature-text">
                     <strong>Laporan & Ekspor</strong>
                     Rekap panen dan margin per periode
@@ -363,7 +363,6 @@
                     <input type="checkbox" name="remember" style="width:auto;margin:0;" {{ old('remember') ? 'checked' : '' }}>
                     Ingat saya
                 </label>
-                <a href="{{ route('password.request') }}">Lupa password?</a>
             </div>
 
             <button type="submit" class="btn-login">
