@@ -146,7 +146,7 @@
                             <td>{{ number_format($p->tonase_gabah) }} kg</td>
                             <td><strong style="color:var(--green-600);">{{ number_format($p->beras_dihasilkan) }} kg</strong></td>
                             <td><span class="badge badge-green" style="font-size:11px;">{{ $p->musim }}</span></td>
-                            <td style="font-size:12px;color:var(--text-muted);">{{ $p->tanggal_panen }}</td>
+                            <td style="font-size:12px;color:var(--text-muted);">{{ optional($p->tanggal_panen)->format('Y-m-d') }}</td>
                         </tr>
                     @empty
                         <tr>
