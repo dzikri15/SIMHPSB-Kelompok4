@@ -820,7 +820,7 @@
                 </a>
 
                 <a href="{{ route('admin.laporan.index') }}" class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
-                    <span class="icon"><i class="fas fa-file-chart-line"></i></span>
+                    <span class="icon"><i class="fas fa-file-alt"></i></span>
                     Laporan
                 </a>
             @endrole

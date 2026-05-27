@@ -21,44 +21,66 @@ class PanenController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'lahan_id' => 'required|integer|exists:lahan,id',
-            'tanggal_panen' => 'required|date',
-            'jumlah_gabah' => 'required|numeric|min:0',
+            'lahan_id'         => 'required|integer|exists:lahan,id',
+            'tanggal_panen'    => 'required|date',
+            'jumlah_gabah'     => 'required|numeric|min:0',
             'harga_gabah_per_kg' => 'nullable|numeric|min:0',
-            'konversi_factor' => 'nullable|numeric|min:0|max:1',
-            'catatan' => 'nullable|string',
+            // konversi_factor dikirim Flutter sebagai 0–1 (misal 0.55 = 55%)
+            'konversi_factor'  => 'nullable|numeric|min:0|max:1',
+            'catatan'          => 'nullable|string',
+            // field dari Flutter
+            'musim_tanam'      => 'nullable|string|max:100',
+            'komoditas'        => 'nullable|string|max:50',
+            'petani_id'        => 'nullable|integer|exists:petani,id',
         ]);
 
-        $factor = $data['konversi_factor'] ?? 0.6;
+        // Hitung beras hasil: gabah × factor
+        // Simpan hasil ke konversi_beras (bukan persentase, tapi hasil kg)
+        $factor = $data['konversi_factor'] ?? 0.615;
         $data['konversi_beras'] = round($data['jumlah_gabah'] * $factor, 2);
-        unset($data['konversi_factor']);
+
+        // Map musim_tanam (Flutter) → musim (DB)
+        if (!empty($data['musim_tanam'])) {
+            $data['musim'] = $data['musim_tanam'];
+        }
+
+        // Bersihkan field yang tidak ada di DB
+        unset($data['konversi_factor'], $data['musim_tanam'], $data['komoditas'], $data['petani_id']);
 
         $panen = Panen::create($data);
 
-        return response()->json($panen, 201);
+        return response()->json($panen->load('lahan.petani'), 201);
     }
 
     public function update(Request $request, Panen $panen)
     {
         $data = $request->validate([
-            'lahan_id' => 'sometimes|required|integer|exists:lahan,id',
-            'tanggal_panen' => 'sometimes|required|date',
-            'jumlah_gabah' => 'sometimes|required|numeric|min:0',
+            'lahan_id'         => 'sometimes|required|integer|exists:lahan,id',
+            'tanggal_panen'    => 'sometimes|required|date',
+            'jumlah_gabah'     => 'sometimes|required|numeric|min:0',
             'harga_gabah_per_kg' => 'nullable|numeric|min:0',
-            'konversi_factor' => 'nullable|numeric|min:0|max:1',
-            'catatan' => 'nullable|string',
+            'konversi_factor'  => 'nullable|numeric|min:0|max:1',
+            'catatan'          => 'nullable|string',
+            'musim_tanam'      => 'nullable|string|max:100',
+            'komoditas'        => 'nullable|string|max:50',
+            'petani_id'        => 'nullable|integer',
         ]);
 
         if (isset($data['konversi_factor']) || isset($data['jumlah_gabah'])) {
-            $factor = $data['konversi_factor'] ?? 0.6;
+            $factor      = $data['konversi_factor'] ?? 0.615;
             $jumlahGabah = $data['jumlah_gabah'] ?? $panen->jumlah_gabah;
             $data['konversi_beras'] = round($jumlahGabah * $factor, 2);
         }
 
-        unset($data['konversi_factor']);
+        if (!empty($data['musim_tanam'])) {
+            $data['musim'] = $data['musim_tanam'];
+        }
+
+        unset($data['konversi_factor'], $data['musim_tanam'], $data['komoditas'], $data['petani_id']);
+
         $panen->update($data);
 
-        return response()->json($panen);
+        return response()->json($panen->fresh()->load('lahan.petani'));
     }
 
     public function destroy(Panen $panen)

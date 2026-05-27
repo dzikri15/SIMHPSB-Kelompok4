@@ -8,16 +8,17 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'string|in:admin,petugas',
+            'role'     => 'string|in:admin,petugas',
         ]);
 
         if ($validator->fails()) {
@@ -25,18 +26,18 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role ?? 'petugas',
+            'role'     => $request->role ?? 'petugas',
         ]);
 
         $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'message' => 'User registered successfully',
-            'user' => $user,
-            'token' => $token,
+            'user'    => $user,
+            'token'   => $token,
         ], 201);
     }
 
@@ -45,7 +46,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
         } catch (JWTException $e) {
@@ -56,8 +57,8 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token,
+            'user'    => $user,
+            'token'   => $token,
         ]);
     }
 
@@ -71,5 +72,20 @@ class AuthController extends Controller
     public function me()
     {
         return response()->json(JWTAuth::user());
+    }
+
+    /**
+     * Refresh a JWT token (Flutter calls this when it gets 401).
+     */
+    public function refresh()
+    {
+        try {
+            $newToken = JWTAuth::refresh(JWTAuth::getToken());
+            return response()->json(['token' => $newToken]);
+        } catch (TokenExpiredException $e) {
+            return response()->json(['error' => 'Token has expired and can no longer be refreshed'], 401);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not refresh token'], 500);
+        }
     }
 }
