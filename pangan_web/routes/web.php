@@ -22,13 +22,30 @@ Route::get('/', function () {
         return redirect()->route('login');
     }
 
-    return Auth::user()->role === 'petani'
-        ? redirect()->route('petani.dashboard')
-        : redirect()->route('admin.dashboard');
+    if (Auth::user()->role === 'petani') {
+        return redirect()->route('petani.dashboard');
+    }
+
+    if (Auth::user()->role === 'petugas') {
+        return redirect()->route('petugas.dashboard');
+    }
+
+    return redirect()->route('admin.dashboard');
 });
 
 Route::middleware(['auth', 'role:petani'])->prefix('petani')->name('petani.')->group(function () {
     Route::get('/', [PetaniDashboardController::class, 'index'])->name('dashboard');
+});
+
+Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('panen', PanenController::class)->names('panen');
+    Route::get('stok', [StokController::class, 'index'])->name('stok.index');
+    Route::post('stok', [StokController::class, 'store'])->name('stok.store');
+    Route::get('stok/{id}', [StokController::class, 'show'])->name('stok.show');
+    Route::get('alert', [AlertController::class, 'index'])->name('alert.index');
+    Route::put('alert/konfigurasi', [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
+    Route::patch('alert/{alert}/tangani', [AlertController::class, 'tangani'])->name('alert.tangani');
 });
 // AUTH
 Route::middleware('guest')->group(function () {
@@ -56,7 +73,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
     Route::post('stok',       [StokController::class, 'store'])->name('stok.store');
     Route::get ('stok/{id}',  [StokController::class, 'show'])->name('stok.show');
 
-    // Alert, Laporan, Manajemen Harga, Pengguna, dan Pengaturan hanya untuk admin
+    // Alert dapat diakses oleh admin dan petugas. Harga, laporan, pengguna, dan pengaturan hanya untuk admin.
+    Route::middleware('role:admin,petugas')->group(function () {
+        // Alert
+        Route::get  ('alert',                    [AlertController::class, 'index'])    ->name('alert.index');
+        Route::put  ('alert/konfigurasi',        [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
+        Route::patch('alert/{alert}/tangani',    [AlertController::class, 'tangani'])  ->name('alert.tangani');
+    });
+
     Route::middleware('role:admin')->group(function () {
         // Manajemen Harga
         Route::get('harga', [HargaController::class, 'index'])->name('harga.index');
@@ -67,11 +91,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         Route::delete('harga/{harga}', [HargaController::class, 'destroy'])->name('harga.destroy');
         Route::patch('harga/{harga}/rasio', [HargaController::class, 'updateRasio'])->name('harga.updateRasio');
         Route::patch('harga/{harga}/activate', [HargaController::class, 'activate'])->name('harga.activate');
-
-        // Alert
-        Route::get  ('alert',                    [AlertController::class, 'index'])    ->name('alert.index');
-        Route::put  ('alert/konfigurasi',        [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
-        Route::patch('alert/{alert}/tangani',    [AlertController::class, 'tangani'])  ->name('alert.tangani');
 
         // Laporan
         Route::get('laporan',        [LaporanController::class, 'index']) ->name('laporan.index');
