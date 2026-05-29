@@ -60,6 +60,7 @@ class StokModel {
   final String? catatan;
   final GudangModel? gudang;
   final String? monitoringStatus;
+  final String? komoditas;
 
   const StokModel({
     required this.id,
@@ -70,6 +71,7 @@ class StokModel {
     this.catatan,
     this.gudang,
     this.monitoringStatus,
+    this.komoditas,
   });
 
   factory StokModel.fromJson(Map<String, dynamic> json) => StokModel(
@@ -83,6 +85,7 @@ class StokModel {
             ? GudangModel.fromJson(json['gudang'] as Map<String, dynamic>)
             : null,
         monitoringStatus: json['status'] as String?,
+        komoditas:        json['komoditas'] as String?,
       );
 
   Map<String, dynamic> toJson() => {

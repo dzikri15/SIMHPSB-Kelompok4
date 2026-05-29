@@ -1,41 +1,50 @@
-// lib/screens/login_screen.dart
 
+// lib/screens/login_screen.dart
+ 
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
 import '../main_shell.dart';
-
+import '../petani_shell.dart';
+ 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
+ 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
+ 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl    = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _loading       = false;
   bool _obscure       = true;
   String? _error;
-
+ 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
-
+ 
   Future<void> _login() async {
     setState(() { _loading = true; _error = null; });
     try {
-      await AuthService().login(
+      final user = await AuthService().login(
         _emailCtrl.text.trim(),
         _passwordCtrl.text,
       );
       if (!mounted) return;
+      if (user.isAdmin) {
+        await AuthService().logout();
+        setState(() => _error = 'Akun admin tidak dapat menggunakan aplikasi mobile.');
+        return;
+      }
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainShell()),
+        MaterialPageRoute(
+          builder: (_) => user.isPetani ? const PetaniShell() : const MainShell(),
+        ),
       );
     } on AuthException catch (e) {
       setState(() => _error = e.message);
@@ -45,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
               ),
               const SizedBox(height: 32),
-
+ 
               // Error banner
               if (_error != null) ...[
                 Container(
@@ -124,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
-
+ 
               // Email
               const Align(
                 alignment: Alignment.centerLeft,
@@ -152,25 +161,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
+ 
               // Password
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('KATA SANDI',
-                      style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2, color: AppColors.onSurfaceVariant,
-                      )),
-                  GestureDetector(
-                    onTap: () {},
-                    child: const Text('Lupa Sandi?',
-                        style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                        )),
-                  ),
-                ],
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text('KATA SANDI',
+                    style: TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2, color: AppColors.onSurfaceVariant,
+                    )),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -198,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onSubmitted: (_) => _login(),
               ),
               const SizedBox(height: 32),
-
+ 
               // Login button
               SizedBox(
                 width: double.infinity,
@@ -262,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
+ 
   Widget _mitraIcon(IconData icon) => Container(
         width: 40, height: 40,
         decoration: BoxDecoration(

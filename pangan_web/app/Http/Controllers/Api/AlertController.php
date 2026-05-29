@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
+use App\Models\AlertConfiguration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class AlertController extends Controller
 {
     public function index()
     {
-        return Alert::with('handler')->paginate(15);
+        return Alert::with('handler')->orderByDesc('created_at')->paginate(50);
     }
 
     public function show(Alert $alert)
@@ -63,5 +65,64 @@ class AlertController extends Controller
             ->paginate(15);
 
         return $alerts;
+    }
+
+    /**
+     * GET /api/alert/konfigurasi
+     * Ambil konfigurasi batas minimum dari tabel alert_configurations
+     */
+    public function getKonfigurasi()
+    {
+        if (! Schema::hasTable('alert_configurations')) {
+            return response()->json([
+                'batas_min_beras' => 400,
+                'batas_min_gabah' => 1000,
+            ]);
+        }
+
+        $config = AlertConfiguration::first();
+
+        return response()->json([
+            'batas_min_beras' => $config?->batas_min_beras ?? 400,
+            'batas_min_gabah' => $config?->batas_min_gabah ?? 1000,
+        ]);
+    }
+
+    /**
+     * PUT /api/alert/konfigurasi
+     * Simpan konfigurasi batas minimum ke tabel alert_configurations
+     * Sekaligus update batas_minimum di semua baris stok terkini per komoditas
+     */
+    public function saveKonfigurasi(Request $request)
+    {
+        $data = $request->validate([
+            'batas_min_beras' => 'required|numeric|min:0',
+            'batas_min_gabah' => 'required|numeric|min:0',
+        ]);
+
+        if (! Schema::hasTable('alert_configurations')) {
+            return response()->json(['message' => 'Tabel konfigurasi belum ada. Jalankan migrate.'], 500);
+        }
+
+        // Simpan ke tabel alert_configurations
+        $config = AlertConfiguration::firstOrNew();
+        $config->fill([
+            'batas_min_beras' => $data['batas_min_beras'],
+            'batas_min_gabah' => $data['batas_min_gabah'],
+        ]);
+        $config->save();
+
+        // Update batas_minimum pada stok terkini per komoditas agar monitoring konsisten
+        \App\Models\Stok::where('komoditas', 'Beras')
+            ->update(['batas_minimum' => $data['batas_min_beras']]);
+
+        \App\Models\Stok::where('komoditas', 'Gabah')
+            ->update(['batas_minimum' => $data['batas_min_gabah']]);
+
+        return response()->json([
+            'message' => 'Konfigurasi berhasil disimpan',
+            'batas_min_beras' => $config->batas_min_beras,
+            'batas_min_gabah' => $config->batas_min_gabah,
+        ]);
     }
 }

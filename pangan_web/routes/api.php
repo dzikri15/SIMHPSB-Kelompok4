@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\HargaController;
 use App\Http\Controllers\Api\AlertController;
 use App\Http\Controllers\Api\DistribusiController;
 use App\Http\Controllers\Api\LaporanController;
+use App\Http\Controllers\Api\PetaniProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,11 +37,11 @@ Route::middleware('auth:api')->group(function () {
     // ── Panen ───────────────────────────────────────────────────────────
     Route::apiResource('panen', PanenController::class);
 
-    // ── Stok  (custom routes BEFORE apiResource to avoid /stok/{id} clash)
+    // ── Stok (custom routes BEFORE apiResource to avoid /stok/{id} clash)
     Route::get('stok/monitoring',  [StokController::class, 'monitoring']);
-    Route::get('stok/summary',     [StokController::class, 'summary']);    // ← BARU
-    Route::get('stok/transaksi',   [StokController::class, 'transaksi']); // ← BARU
-    Route::post('stok/catat',      [StokController::class, 'catat']);     // ← BARU
+    Route::get('stok/summary',     [StokController::class, 'summary']);
+    Route::get('stok/transaksi',   [StokController::class, 'transaksi']);
+    Route::post('stok/catat',      [StokController::class, 'catat']);
     Route::apiResource('stok', StokController::class);
 
     // ── Harga (custom route BEFORE apiResource)
@@ -48,7 +49,9 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('harga', HargaController::class);
 
     // ── Alert (custom route BEFORE apiResource)
-    Route::get('alert/minimum', [AlertController::class, 'minimum']);
+    Route::get('alert/minimum',        [AlertController::class, 'minimum']);
+    Route::get('alert/konfigurasi',    [AlertController::class, 'getKonfigurasi']);
+    Route::put('alert/konfigurasi',    [AlertController::class, 'saveKonfigurasi']);
     Route::apiResource('alert', AlertController::class);
 
     // ── Laporan ─────────────────────────────────────────────────────────
@@ -56,7 +59,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('laporan/stok',   [LaporanController::class, 'stok']);
     Route::get('laporan/margin', [LaporanController::class, 'margin']);
 
-    // ── Distribusi (admin & petugas only) ───────────────────────────────
+    // ── Petani Profile (untuk role 'petani' di Flutter) ───────────────
+    Route::prefix('petani-profile')->group(function () {
+        Route::get('/',           [PetaniProfileController::class, 'profile']);
+        Route::get('/panen',      [PetaniProfileController::class, 'panen']);
+        Route::get('/panen/{id}', [PetaniProfileController::class, 'panenDetail']);
+        Route::get('/ringkasan',  [PetaniProfileController::class, 'ringkasan']);
+    });
+
+    // ── Distribusi (admin & petugas only) ──────────────────────────────
     Route::apiResource('distribusi', DistribusiController::class)
         ->middleware('role:admin,petugas');
 });

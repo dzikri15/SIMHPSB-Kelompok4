@@ -1,54 +1,59 @@
-// lib/main_shell.dart
-// Updated: tambah tab LAPORAN di bottom nav
+// lib/petani_shell.dart
+// Shell navigasi khusus untuk user dengan role 'petani'
+// Tab: Beranda | Panen | Profil | Keluar
  
 import 'package:flutter/material.dart';
 import 'core/app_colors.dart';
-import 'screens/beranda_screen.dart';
-import 'screens/panen_screen.dart';
-import 'screens/gudang_screen.dart';
+import 'screens/petani/petani_beranda_screen.dart';
+import 'screens/petani/petani_panen_screen.dart';
+import 'screens/petani/petani_profil_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
  
-class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+class PetaniShell extends StatefulWidget {
+  const PetaniShell({super.key});
  
   @override
-  State<MainShell> createState() => _MainShellState();
+  State<PetaniShell> createState() => _PetaniShellState();
 }
  
-class _MainShellState extends State<MainShell> {
+class _PetaniShellState extends State<PetaniShell> {
   int _selectedIndex = 0;
  
   late final List<Widget> _screens = [
-    BerandaScreen(
-      onNavigateToScreen: (index) {
-        setState(() => _selectedIndex = index);
-      },
+    PetaniBerandaScreen(
+      onNavigateToTab: (index) => setState(() => _selectedIndex = index),
     ),
-    const PanenScreen(),
-    const GudangScreen(),
+    const PetaniPanenScreen(),
+    const PetaniProfilScreen(),
   ];
  
   Future<void> _logout() async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Keluar'),
         content: const Text('Yakin ingin keluar dari akun?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Keluar',
-                  style: TextStyle(color: AppColors.error))),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Keluar',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
         ],
       ),
     );
     if (confirm != true || !mounted) return;
     await AuthService().logout();
     if (!mounted) return;
+    // Tunda navigasi ke frame berikutnya agar semua widget selesai dispose
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -61,16 +66,31 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: _screens[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
  
   Widget _buildBottomNav() {
     final items = [
-      {'icon': Icons.home_outlined,        'iconFill': Icons.home,          'label': 'BERANDA'},
-      {'icon': Icons.agriculture_outlined, 'iconFill': Icons.agriculture,   'label': 'PANEN'},
-      {'icon': Icons.warehouse_outlined,   'iconFill': Icons.warehouse,     'label': 'GUDANG'},
+      {
+        'icon': Icons.home_outlined,
+        'iconFill': Icons.home,
+        'label': 'BERANDA',
+      },
+      {
+        'icon': Icons.agriculture_outlined,
+        'iconFill': Icons.agriculture,
+        'label': 'PANEN',
+      },
+      {
+        'icon': Icons.person_outline,
+        'iconFill': Icons.person,
+        'label': 'PROFIL',
+      },
     ];
  
     return Container(
@@ -96,7 +116,7 @@ class _MainShellState extends State<MainShell> {
               onTap: () => setState(() => _selectedIndex = i),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                 decoration: BoxDecoration(
                   color: isActive ? AppColors.brandDark : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
@@ -126,11 +146,11 @@ class _MainShellState extends State<MainShell> {
               ),
             );
           }),
-          // Logout button
+          // Tombol Keluar
           GestureDetector(
             onTap: _logout,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
               decoration: BoxDecoration(
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
@@ -140,13 +160,15 @@ class _MainShellState extends State<MainShell> {
                 children: [
                   Icon(Icons.logout, color: AppColors.outline, size: 22),
                   SizedBox(height: 3),
-                  Text('KELUAR',
-                      style: TextStyle(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                        color: AppColors.outline,
-                      )),
+                  Text(
+                    'KELUAR',
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.0,
+                      color: AppColors.outline,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -156,4 +178,3 @@ class _MainShellState extends State<MainShell> {
     );
   }
 }
- 

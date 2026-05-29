@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../models/transaksi_stok_model.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../services/transaksi_stok_service.dart';
 import '../widgets/app_top_bar.dart';
 
@@ -23,6 +24,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   Map<String, dynamic>    _ringkasan = {};
   List<TransaksiStokModel> _aktivitas = [];
   bool _loading = true;
+  String _namaUser = 'Petugas';
 
   @override
   void initState() {
@@ -34,6 +36,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
     setState(() => _loading = true);
     try {
       // User dari cache
+      final user = await AuthService().getCachedUser();
 
       // Ringkasan: petani, panen bulan ini, stok
       final results = await Future.wait([
@@ -51,6 +54,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
 
       if (mounted) {
         setState(() {
+          _namaUser = user?.name ?? 'Petugas';
           _ringkasan = {
             'total_petani': petaniData?['total'] ?? petaniData?['meta']?['total'] ?? 0,
             'total_panen':  panenData?['total']  ?? panenData?['meta']?['total']  ?? 0,
@@ -117,8 +121,8 @@ class _BerandaScreenState extends State<BerandaScreen> {
             style: const TextStyle(
                 fontSize: 13, color: AppColors.onSurfaceVariant)),
         const SizedBox(height: 2),
-        const Text('Petugas',
-            style: TextStyle(
+        Text(_namaUser,
+            style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
                 color: AppColors.onSurface,
@@ -244,12 +248,10 @@ class _BerandaScreenState extends State<BerandaScreen> {
   // ── Akses Cepat ────────────────────────────────────────────────────────
   Widget _buildAksesCepat() {
     final menus = [
-      const _Menu(Icons.people_alt_outlined, 'Data Petani',
-          'Registrasi & profil petani', 1),
       const _Menu(Icons.agriculture_outlined, 'Input Panen',
-          'Catat hasil panen baru', 2),
+          'Catat hasil panen baru', 1),
       const _Menu(Icons.warehouse_outlined,  'Stok Gudang',
-          'Mutasi & saldo gudang',   3),
+          'Mutasi & saldo gudang',   2),
     ];
 
     return Column(
