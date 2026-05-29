@@ -21,10 +21,8 @@ class _MusimOption {
 }
 
 const _musimOptions = [
-  _MusimOption('apr_sep_2025', 'Apr-Sep 2025'),
-  _MusimOption('okt_mar_2025_2026', 'Okt-Mar 2025/2026'),
-  _MusimOption('apr_sep_2026', 'Apr-Sep 2026'),
-  _MusimOption('okt_mar_2026_2027', 'Okt-Mar 2026/2027'),
+  _MusimOption('kemarau', 'Kemarau'),
+  _MusimOption('hujan', 'Hujan'),
 ];
 
 // ── Hanya Padi & Jagung sesuai web ───────────────────────────────────
@@ -349,6 +347,36 @@ class _PanenScreenState extends State<PanenScreen> {
                             ),
                           ),
                         ),
+                  const SizedBox(height: 16),
+
+                  // ── Musim Tanam ───────────────────────────────
+                  _label('Musim Tanam *'),
+                  const SizedBox(height: 8),
+                  _inputBox(
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedMusim,
+                        hint: const Text('Pilih musim tanam...',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.onSurfaceVariant)),
+                        isExpanded: true,
+                        icon: const Icon(Icons.keyboard_arrow_down,
+                            color: AppColors.onSurfaceVariant),
+                        items: _musimOptions
+                            .map((m) => DropdownMenuItem(
+                                  value: m.value,
+                                  child: Text(m.label,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          color: AppColors.onSurface)),
+                                ))
+                            .toList(),
+                        onChanged: (val) =>
+                            setState(() => _selectedMusim = val),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
 
                   // ── Tanggal Panen ─────────────────────────────
@@ -743,30 +771,26 @@ class _PanenScreenState extends State<PanenScreen> {
           Expanded(
             flex: 3,
             child: musimLabel != null
-                ? Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      musimLabel,
-                      style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary),
-                      overflow: TextOverflow.ellipsis,
+                ? Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        musimLabel,
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   )
-                : Container(
-                    width: 30,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
+                : const SizedBox(),
           ),
           // Tanggal
           Expanded(

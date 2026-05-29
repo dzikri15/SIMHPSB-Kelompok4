@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Petani;
 use Illuminate\Http\Request;
+use App\Models\Lahan;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PetaniController extends Controller
@@ -36,7 +37,19 @@ class PetaniController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-        Petani::create($data);
+        $petani = Petani::create($data);
+
+        // Jika user mengisi luas_lahan pada form Petani, buatkan juga entri Lahan
+        // supaya fitur yang mengandalkan relasi lahan (mis. pencatatan panen) bekerja.
+        if (! empty($data['luas_lahan']) && $data['luas_lahan'] > 0) {
+            Lahan::create([
+                'petani_id' => $petani->id,
+                'nama_lahan' => 'Lahan utama',
+                'luas' => $data['luas_lahan'],
+                'lokasi' => $data['alamat'] ?? null,
+                'status' => 'aktif',
+            ]);
+        }
 
         return redirect()->route('admin.petani.index')->with('success', 'Petani berhasil ditambahkan');
     }

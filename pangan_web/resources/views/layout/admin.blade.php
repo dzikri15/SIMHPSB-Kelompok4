@@ -773,13 +773,14 @@
 
     @php
         $userRole = auth()->user()->role ?? 'guest';
-        $dashboardRoute = $userRole === 'petani' ? route('petani.dashboard') : route('admin.dashboard');
+        $routePrefix = $userRole === 'petugas' ? 'petugas.' : 'admin.';
+        $dashboardRoute = $userRole === 'petani' ? route('petani.dashboard') : route($routePrefix.'dashboard');
     @endphp
 
     <nav class="sidebar-nav">
         <span class="nav-section-label">Utama</span>
 
-        <a href="{{ $dashboardRoute }}" class="nav-item {{ request()->routeIs('admin.dashboard') || request()->routeIs('petani.dashboard') ? 'active' : '' }}">
+        <a href="{{ $dashboardRoute }}" class="nav-item {{ request()->routeIs('admin.dashboard') || request()->routeIs('petugas.dashboard') || request()->routeIs('petani.dashboard') ? 'active' : '' }}">
             <span class="icon"><i class="fas fa-chart-pie"></i></span>
             Dashboard
         </a>
@@ -801,12 +802,12 @@
 
             <span class="nav-section-label">Transaksi</span>
 
-            <a href="{{ route('admin.panen.index') }}" class="nav-item {{ request()->routeIs('admin.panen.*') ? 'active' : '' }}">
+            <a href="{{ route($routePrefix.'panen.index') }}" class="nav-item {{ request()->routeIs($routePrefix.'panen.*') ? 'active' : '' }}">
                 <span class="icon"><i class="fas fa-seedling"></i></span>
                 Pencatatan Panen
             </a>
 
-            <a href="{{ route('admin.stok.index') }}" class="nav-item {{ request()->routeIs('admin.stok.*') ? 'active' : '' }}">
+            <a href="{{ route($routePrefix.'stok.index') }}" class="nav-item {{ request()->routeIs($routePrefix.'stok.*') ? 'active' : '' }}">
                 <span class="icon"><i class="fas fa-warehouse"></i></span>
                 Stok Gudang
             </a>
@@ -820,23 +821,23 @@
                 </a>
 
                 <a href="{{ route('admin.laporan.index') }}" class="nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
-                    <span class="icon"><i class="fas fa-file-chart-line"></i></span>
+                    <span class="icon"><i class="fas fa-file-alt"></i></span>
                     Laporan
                 </a>
             @endrole
 
-            @role('admin')
+            @if(in_array($userRole, ['admin', 'petugas']))
                 <span class="nav-section-label">Monitoring</span>
 
                 @php $alertCount = $alertCount ?? \App\Models\Alert::whereIn('status', ['aktif', 'proses', 'dalam_penanganan'])->count(); @endphp
-                <a href="{{ route('admin.alert.index') }}" class="nav-item {{ request()->routeIs('admin.alert.*') ? 'active' : '' }}">
+                <a href="{{ route($routePrefix.'alert.index') }}" class="nav-item {{ request()->routeIs($routePrefix.'alert.*') ? 'active' : '' }}">
                     <span class="icon"><i class="fas fa-bell"></i></span>
                     Alert Stok
                     @if($alertCount > 0)
                         <span class="nav-badge">{{ $alertCount }}</span>
                     @endif
                 </a>
-            @endrole
+            @endif
         @endif
     </nav>
 
@@ -874,12 +875,14 @@
         </div>
 
         <div class="topbar-actions">
-            <a href="{{ route('admin.alert.index') }}" class="topbar-btn" title="Notifikasi">
-                <i class="fas fa-bell"></i>
-                @if(isset($alertCount) && $alertCount > 0)
-                    <span class="notif-dot"></span>
-                @endif
-            </a>
+            @if($userRole !== 'petani')
+                <a href="{{ route($routePrefix.'alert.index') }}" class="topbar-btn" title="Notifikasi">
+                    <i class="fas fa-bell"></i>
+                    @if(isset($alertCount) && $alertCount > 0)
+                        <span class="notif-dot"></span>
+                    @endif
+                </a>
+            @endif
         </div>
     </header>
 

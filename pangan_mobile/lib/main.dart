@@ -1,19 +1,21 @@
 // lib/main.dart
-
+ 
 import 'package:flutter/material.dart';
 import 'core/app_colors.dart';
 import 'screens/login_screen.dart';
 import 'screens/alert_screen.dart';
 import 'main_shell.dart';
+import 'petani_shell.dart';
+import 'models/user_model.dart';
 import 'services/auth_service.dart';
-
+ 
 void main() {
   runApp(const SimhpsbApp());
 }
-
+ 
 class SimhpsbApp extends StatelessWidget {
   const SimhpsbApp({super.key});
-
+ 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,28 +53,35 @@ class SimhpsbApp extends StatelessWidget {
     );
   }
 }
-
+ 
 /// Cek token lokal → tampilkan LoginScreen atau MainShell.
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
-
+ 
   @override
   State<AuthGate> createState() => _AuthGateState();
 }
-
+ 
 class _AuthGateState extends State<AuthGate> {
+  Future<UserModel?> _resolveShell() async {
+    final loggedIn = await AuthService().isLoggedIn();
+    if (!loggedIn) return null;
+    return AuthService().getCachedUser();
+  }
+ 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: AuthService().isLoggedIn(),
+    return FutureBuilder<UserModel?>(
+      future: _resolveShell(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        final loggedIn = snapshot.data ?? false;
-        return loggedIn ? const MainShell() : const LoginScreen();
+        final user = snapshot.data;
+        if (user == null) return const LoginScreen();
+        return user.isPetani ? const PetaniShell() : const MainShell();
       },
     );
   }

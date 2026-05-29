@@ -51,9 +51,8 @@
                         <label>Musim Tanam <span style="color:var(--red-500)">*</span></label>
                         <select name="musim" required>
                             <option value="">Pilih musim</option>
-                            <option value="Okt-Mar 2024/2025" {{ old('musim') == 'Okt-Mar 2024/2025' ? 'selected' : '' }}>Okt–Mar 2024/2025</option>
-                            <option value="Apr-Sep 2025" {{ old('musim') == 'Apr-Sep 2025' ? 'selected' : '' }}>Apr–Sep 2025</option>
-                            <option value="Okt-Mar 2025/2026" {{ old('musim') == 'Okt-Mar 2025/2026' ? 'selected' : '' }}>Okt–Mar 2025/2026</option>
+                            <option value="Kemarau" {{ old('musim') == 'Kemarau' ? 'selected' : '' }}>Kemarau</option>
+                            <option value="Hujan" {{ old('musim') == 'Hujan' ? 'selected' : '' }}>Hujan</option>
                         </select>
                         @error('musim')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                     </div>
@@ -146,7 +145,7 @@
                             <td>{{ number_format($p->tonase_gabah) }} kg</td>
                             <td><strong style="color:var(--green-600);">{{ number_format($p->beras_dihasilkan) }} kg</strong></td>
                             <td><span class="badge badge-green" style="font-size:11px;">{{ $p->musim }}</span></td>
-                            <td style="font-size:12px;color:var(--text-muted);">{{ $p->tanggal_panen }}</td>
+                            <td style="font-size:12px;color:var(--text-muted);">{{ optional($p->tanggal_panen)->format('Y-m-d') }}</td>
                         </tr>
                     @empty
                         <tr>

@@ -363,7 +363,6 @@
                     <input type="checkbox" name="remember" style="width:auto;margin:0;" {{ old('remember') ? 'checked' : '' }}>
                     Ingat saya
                 </label>
-                <a href="{{ route('password.request') }}">Lupa password?</a>
             </div>
 
             <button type="submit" class="btn-login">

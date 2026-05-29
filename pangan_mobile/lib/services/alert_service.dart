@@ -40,4 +40,33 @@ class AlertService {
   }
 
   Future<void> delete(int id) => _api.delete('alert/$id');
+
+  // ── Konfigurasi Batas Minimum ──────────────────────────────────────────
+
+  /// GET /api/alert/konfigurasi
+  Future<Map<String, double>> getKonfigurasi() async {
+    final data = await _api.get('alert/konfigurasi') as Map<String, dynamic>;
+    return {
+      'batas_min_beras': _toDouble(data['batas_min_beras']),
+      'batas_min_gabah': _toDouble(data['batas_min_gabah']),
+    };
+  }
+
+  /// PUT /api/alert/konfigurasi
+  Future<void> saveKonfigurasi({
+    required double batasMinBeras,
+    required double batasMinGabah,
+  }) async {
+    await _api.put('alert/konfigurasi', {
+      'batas_min_beras': batasMinBeras,
+      'batas_min_gabah': batasMinGabah,
+    });
+  }
+
+  double _toDouble(dynamic v) {
+    if (v == null) return 0;
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v) ?? 0;
+    return 0;
+  }
 }

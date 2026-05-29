@@ -4,7 +4,7 @@
 //   GET  /api/stok/summary   → ringkasan statistik
 //   GET  /api/stok/transaksi → daftar mutasi (filterable)
 //   POST /api/stok/catat     → catat transaksi baru
-
+ 
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../widgets/app_top_bar.dart';
@@ -13,49 +13,49 @@ import '../services/transaksi_stok_service.dart';
 import '../services/stok_service.dart';
 import '../models/gudang_summary_model.dart';
 import '../models/transaksi_stok_model.dart';
-
+ 
 // ── Palette tambahan ──────────────────────────────────────────────────────
 const _blueAccent  = Color(0xFF1565C0);
 const _amberAccent = Color(0xFFE65100);
 const _redAccent   = AppColors.error;
 const _greenAccent = AppColors.primary;
-
+ 
 class GudangScreen extends StatefulWidget {
   const GudangScreen({super.key});
-
+ 
   @override
   State<GudangScreen> createState() => _GudangScreenState();
 }
-
+ 
 class _GudangScreenState extends State<GudangScreen> {
   final TransaksiStokService _transaksiService = TransaksiStokService();
   final StokService           _stokService     = StokService();
-
+ 
   // Refresh keys
   int _summaryKey    = 0;
   int _transaksiKey  = 0;
-
+ 
   // Filter transaksi
   final _searchCtrl = TextEditingController();
   String? _filterJenis;
   String? _filterKomoditas;
-
-
+ 
+ 
   @override
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
   }
-
+ 
   void _refresh() {
     setState(() {
       _summaryKey++;
       _transaksiKey++;
     });
   }
-
+ 
   void _applyFilter() => setState(() => _transaksiKey++);
-
+ 
   // ──────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
@@ -86,19 +86,19 @@ class _GudangScreenState extends State<GudangScreen> {
                         fontSize: 13, color: AppColors.onSurfaceVariant),
                   ),
                   const SizedBox(height: 18),
-
+ 
                   // ── 8 Summary Cards ────────────────────────────────
                   _buildSummarySection(),
                   const SizedBox(height: 28),
-
+ 
                   // ── Header Mutasi + Tombol Catat ───────────────────
                   _buildMutasiHeader(),
                   const SizedBox(height: 14),
-
+ 
                   // ── Filter Bar ─────────────────────────────────────
                   _buildFilterBar(),
                   const SizedBox(height: 14),
-
+ 
                   // ── Tabel Transaksi ────────────────────────────────
                   _buildTransaksiSection(),
                 ]),
@@ -109,8 +109,8 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
-
+ 
+ 
   // ══════════════════════════════════════════════════════════════════════
   // 8 SUMMARY CARDS
   // ══════════════════════════════════════════════════════════════════════
@@ -130,11 +130,14 @@ class _GudangScreenState extends State<GudangScreen> {
         }
         final s = snap.data;
         if (s == null) return const SizedBox.shrink();
-
+ 
         return Column(
           children: [
             // Row 1: 4 kartu besar dengan icon
-            Row(children: [
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               Expanded(
                 child: _summaryCardLarge(
                   accentColor: _greenAccent,
@@ -164,9 +167,12 @@ class _GudangScreenState extends State<GudangScreen> {
                   progressColor: _amberAccent,
                 ),
               ),
-            ]),
+            ])),
             const SizedBox(height: 10),
-            Row(children: [
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               Expanded(
                 child: _summaryCardLarge(
                   accentColor: _blueAccent,
@@ -192,11 +198,14 @@ class _GudangScreenState extends State<GudangScreen> {
                   badgeColor: _redAccent,
                 ),
               ),
-            ]),
+            ])),
             const SizedBox(height: 10),
-
+ 
             // Row 2: 4 kartu kecil (per komoditas bulan ini)
-            Row(children: [
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               Expanded(
                 child: _summaryCardSmall(
                   accentColor: _blueAccent,
@@ -218,9 +227,12 @@ class _GudangScreenState extends State<GudangScreen> {
                   label: 'Masuk Gabah\nBulan Ini',
                 ),
               ),
-            ]),
+            ])),
             const SizedBox(height: 10),
-            Row(children: [
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               Expanded(
                 child: _summaryCardSmall(
                   accentColor: _redAccent,
@@ -242,13 +254,13 @@ class _GudangScreenState extends State<GudangScreen> {
                   label: 'Keluar Gabah\nBulan Ini',
                 ),
               ),
-            ]),
+            ])),
           ],
         );
       },
     );
   }
-
+ 
   // ── Card Besar (dengan ikon + progress bar opsional) ──────────────────
   Widget _summaryCardLarge({
     required Color accentColor,
@@ -264,7 +276,8 @@ class _GudangScreenState extends State<GudangScreen> {
     Color? progressColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      clipBehavior: Clip.hardEdge,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -329,7 +342,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
+ 
   // ── Card Kecil (per komoditas bulan ini) ─────────────────────────────
   Widget _summaryCardSmall({
     required Color accentColor,
@@ -340,7 +353,8 @@ class _GudangScreenState extends State<GudangScreen> {
     required String label,
   }) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      clipBehavior: Clip.hardEdge,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -384,7 +398,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
+ 
   // ══════════════════════════════════════════════════════════════════════
   // HEADER MUTASI
   // ══════════════════════════════════════════════════════════════════════
@@ -422,7 +436,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     ]);
   }
-
+ 
   // ══════════════════════════════════════════════════════════════════════
   // FILTER BAR
   // ══════════════════════════════════════════════════════════════════════
@@ -514,7 +528,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ],
     );
   }
-
+ 
   Widget _filterDropdown({
     required String? value,
     required String hint,
@@ -551,7 +565,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
+ 
   // ══════════════════════════════════════════════════════════════════════
   // DAFTAR TRANSAKSI
   // ══════════════════════════════════════════════════════════════════════
@@ -577,7 +591,7 @@ class _GudangScreenState extends State<GudangScreen> {
         if (list.isEmpty) {
           return _emptyCard('Belum ada data transaksi.');
         }
-
+ 
         return Column(
           children: list
               .map((t) => Padding(
@@ -589,7 +603,7 @@ class _GudangScreenState extends State<GudangScreen> {
       },
     );
   }
-
+ 
   Widget _transaksiTile(TransaksiStokModel t) {
     final isMasuk = t.isMasuk;
     final jenisColor  = isMasuk ? _blueAccent : _redAccent;
@@ -598,7 +612,7 @@ class _GudangScreenState extends State<GudangScreen> {
         : const Color(0xFFFFEBEE);
     final jenisIcon = isMasuk ? Icons.login_rounded : Icons.logout_rounded;
     final jenisLabel = isMasuk ? 'Masuk' : 'Keluar';
-
+ 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -626,7 +640,7 @@ class _GudangScreenState extends State<GudangScreen> {
                 child: Icon(jenisIcon, color: jenisColor, size: 24),
               ),
               const SizedBox(width: 14),
-
+ 
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,9 +713,9 @@ class _GudangScreenState extends State<GudangScreen> {
               ),
             ],
           ),
-
+ 
           const SizedBox(height: 12),
-
+ 
           // ── Bottom row: tanggal / saldo / dicatat oleh ─────────────
           Container(
             padding: const EdgeInsets.all(10),
@@ -727,7 +741,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
+ 
   Widget _infoChip(IconData icon, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -743,7 +757,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ],
     );
   }
-
+ 
   // ══════════════════════════════════════════════════════════════════════
   // HELPERS
   // ══════════════════════════════════════════════════════════════════════
@@ -751,7 +765,7 @@ class _GudangScreenState extends State<GudangScreen> {
     if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)} T';
     return '${v.toStringAsFixed(0)} kg';
   }
-
+ 
   Widget _errorCard(String msg) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -776,7 +790,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ]),
     );
   }
-
+ 
   Widget _emptyCard(String msg) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -797,7 +811,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
+ 
   // ══════════════════════════════════════════════════════════════════════
   // DIALOG CATAT TRANSAKSI
   // ══════════════════════════════════════════════════════════════════════
@@ -809,7 +823,7 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
+ 
   Future<void> _saveCatatTransaksi(Map<String, dynamic> data) async {
     try {
       await _transaksiService.create(data);

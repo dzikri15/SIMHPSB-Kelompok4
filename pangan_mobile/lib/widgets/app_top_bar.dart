@@ -8,7 +8,8 @@ import '../services/alert_service.dart';
 
 class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBack;
-  const AppTopBar({super.key, this.showBack = false});
+  final bool showAlert;
+  const AppTopBar({super.key, this.showBack = false, this.showAlert = true});
 
   @override
   Size get preferredSize => const Size.fromHeight(72);
@@ -78,7 +79,8 @@ class _AppTopBarState extends State<AppTopBar> {
               ],
               const Spacer(),
 
-              // ── Ikon Notifikasi / Alert ───────────────────────────────────
+              // ── Ikon Notifikasi / Alert (hanya petugas) ──────────────────
+              if (widget.showAlert)
               FutureBuilder<List<AlertModel>>(
                 future: _futureAlerts,
                 builder: (context, snapshot) {

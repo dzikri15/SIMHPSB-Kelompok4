@@ -55,10 +55,13 @@ class PanenModel {
   String? get musimLabel {
     if (musimTanam == null || musimTanam!.isEmpty) return null;
     const map = {
-      'apr_sep_2025':       'Apr-Sep 2025',
-      'okt_mar_2025_2026':  'Okt-Mar 2025/2026',
-      'apr_sep_2026':       'Apr-Sep 2026',
-      'okt_mar_2026_2027':  'Okt-Mar 2026/2027',
+      'kemarau':           'Kemarau',
+      'hujan':             'Hujan',
+      // backward compat nilai lama
+      'apr_sep_2025':      'Kemarau',
+      'okt_mar_2025_2026': 'Hujan',
+      'apr_sep_2026':      'Kemarau',
+      'okt_mar_2026_2027': 'Hujan',
     };
     return map[musimTanam] ?? musimTanam;
   }

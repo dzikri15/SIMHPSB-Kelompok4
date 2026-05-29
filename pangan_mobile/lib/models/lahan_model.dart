@@ -1,5 +1,5 @@
 // lib/models/lahan_model.dart
-// Fix: _toDouble handles String values from Laravel
+// FIXED: gabungan field lama (komoditas) + field baru (lokasi, jenisTanah)
 
 double? _toDouble(dynamic v) {
   if (v == null) return null;
@@ -16,11 +16,13 @@ int _toInt(dynamic v) {
 }
 
 class LahanModel {
-  final int id;
-  final int petaniId;
+  final int     id;
+  final int     petaniId;
   final String? namaLahan;
   final double? luas;
-  final String? komoditas;
+  final String? komoditas;   // ← field lama, dipakai petani_screen.dart
+  final String? lokasi;      // ← field baru, dipakai petani_profil_screen.dart
+  final String? jenisTanah;  // ← field baru
   final String? status;
 
   const LahanModel({
@@ -29,6 +31,8 @@ class LahanModel {
     this.namaLahan,
     this.luas,
     this.komoditas,
+    this.lokasi,
+    this.jenisTanah,
     this.status,
   });
 
@@ -38,15 +42,19 @@ class LahanModel {
         namaLahan: json['nama_lahan'] as String?,
         luas:      _toDouble(json['luas']),
         komoditas: json['komoditas'] as String?,
+        lokasi:    json['lokasi'] as String?,
+        jenisTanah:json['jenis_tanah'] as String?,
         status:    json['status'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
-        'id':         id,
-        'petani_id':  petaniId,
-        'nama_lahan': namaLahan,
-        'luas':       luas,
-        'komoditas':  komoditas,
-        'status':     status,
+        'id':          id,
+        'petani_id':   petaniId,
+        'nama_lahan':  namaLahan,
+        'luas':        luas,
+        'komoditas':   komoditas,
+        'lokasi':      lokasi,
+        'jenis_tanah': jenisTanah,
+        'status':      status,
       };
 }
