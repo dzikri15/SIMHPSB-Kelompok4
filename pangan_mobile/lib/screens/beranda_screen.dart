@@ -250,8 +250,6 @@ class _BerandaScreenState extends State<BerandaScreen> {
           'Catat hasil panen baru', 2),
       const _Menu(Icons.warehouse_outlined,  'Stok Gudang',
           'Mutasi & saldo gudang',   3),
-      const _Menu(Icons.bar_chart_outlined,  'Laporan',
-          'Rekapitulasi per periode', 4),
     ];
 
     return Column(

@@ -7,7 +7,6 @@ import 'screens/beranda_screen.dart';
 import 'screens/petani_screen.dart';
 import 'screens/panen_screen.dart';
 import 'screens/gudang_screen.dart';
-import 'screens/laporan_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
 
@@ -30,7 +29,6 @@ class _MainShellState extends State<MainShell> {
     const PetaniScreen(),
     const PanenScreen(),
     const GudangScreen(),
-    const LaporanScreen(),
   ];
 
   Future<void> _logout() async {
@@ -74,7 +72,6 @@ class _MainShellState extends State<MainShell> {
       {'icon': Icons.group_outlined,       'iconFill': Icons.group,         'label': 'PETANI'},
       {'icon': Icons.agriculture_outlined, 'iconFill': Icons.agriculture,   'label': 'PANEN'},
       {'icon': Icons.warehouse_outlined,   'iconFill': Icons.warehouse,     'label': 'GUDANG'},
-      {'icon': Icons.bar_chart_outlined,   'iconFill': Icons.bar_chart,     'label': 'LAPORAN'},
     ];
 
     return Container(
