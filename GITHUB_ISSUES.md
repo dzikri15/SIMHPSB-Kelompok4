@@ -116,6 +116,8 @@ Sistem Informasi Monitoring Hasil Panen dan Stok Beras
 | #39 | Integrasi Flutter ke API panen & stok | mobile | fahri | High | Sprint 3 | Todo |
 | #40 | Integrasi Flutter ke API alert & laporan | mobile | fahri | Medium | Sprint 3 | Todo |
 | #41 | Handling error & token expired (auto redirect login) | mobile | fahri | Medium | Sprint 3 | Todo |
+| #95 | Tambah tampilan dashboard Petani di Flutter (tampilan khusus setelah login untuk role `petani`) — tampilkan riwayat panen, data lahan, dan navigasi khusus petani | mobile | fahri | High | Sprint 2 | Todo |
+| #96 | Hapus/sempurnakan fitur 'Laporan' pada panel Petugas (sembunyikan atau remove) | frontend | fahri | Medium | Sprint 3 | Todo |
 
 ---
 
