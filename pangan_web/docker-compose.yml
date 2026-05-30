@@ -18,7 +18,7 @@ services:
     environment:
       - APP_NAME=SIMHPSB
       - APP_ENV=local
-      - APP_KEY=base64:Ysi1IwiVo3o2OdV0jey4JCaN2XM0Y1OdI7biMiY84bc=
+      - APP_KEY=base64:B0wFcepdxG0zXQv7+7tDEHEckgwk3FXUuoJ9UDPuXek=
       - APP_DEBUG=true
       - APP_URL=http://localhost:8000
       - DB_CONNECTION=mysql
