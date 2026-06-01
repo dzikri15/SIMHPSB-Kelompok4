@@ -43,7 +43,7 @@
 | 💰 Manajemen Harga | Konfigurasi harga beli gabah, ongkos giling, harga jual, kalkulasi HPP & margin |
 | 👨‍🌾 Data Petani | CRUD data petani mitra, lahan (sawah/ladang), kontak & riwayat panen |
 | 📋 Laporan | Rekapitulasi panen, stok, distribusi, margin — ekspor PDF & Excel |
-| 📱 Mobile App | Aplikasi Flutter untuk petugas lapangan monitoring panen dari lokasi |
+| 📱 Mobile App | Aplikasi Flutter untuk petugas lapangan dan petani monitoring panen dari lokasi |
 | 🔐 Autentikasi | JWT Token-based authentication, session management, role-based access |
 | 🔄 Sinkronisasi | Real-time data sync antara web dan mobile app via REST API |
 
@@ -192,7 +192,7 @@ SIMHPSB-Kelompok4/
 *Halaman login dengan validasi JWT authentication*
 
 ### Mobile App
-Aplikasi Flutter untuk monitoring real-time dari lapangan:
+Aplikasi Flutter untuk monitoring real-time dari lapangan oleh petugas dan petani:
 - Home dashboard dengan ringkasan stok
 - List petani & riwayat panen
 - Input pencatatan panen baru
@@ -496,11 +496,11 @@ docker compose exec db mysql -uroot -proot -e "DROP DATABASE simhpsb_db; CREATE 
 | # | Nama | GitHub | Peran utama | Catatan / Tanggung jawab |
 |---|------|--------|-------------|-------------------------|
 | 1️⃣ | Muhammad Dzikri Sagara | [@dzikri15](https://github.com/dzikri15) | Project Manager (PM) · Backend · DevOps (Docker setup) | Arsitektur backend, API design, sprint planning, dan bertanggung jawab atas setup Docker & containerization (hanya bagian Docker). |
-| 2️⃣ | Fahri Noah Mikhailovna | - | Frontend Web · Mobile (Flutter) | UI/UX frontend web, integrasi dengan API, kontribusi pada aplikasi Flutter. |
-| 3️⃣ | Alamsyah | - | Diagram · QA Web · Manual Book Web · DevOps | Membantu desain diagram, QA untuk web, dokumentasi manual web, dan berperan di DevOps (n8n workflows & infra). |
-| 4️⃣ | Difa | - | Diagram · QA Web · Manual Book Web | Mendesain diagram sistem, melakukan QA web, menulis manual web. |
-| 5️⃣ | Devina | - | Diagram · QA Mobile · Manual Book Mobile | Mendesain diagram, QA mobile, menyusun panduan pengguna mobile. |
-| 6️⃣ | Agusta | - | QA Mobile · Manual Book Mobile · Testing | Pengujian aplikasi mobile, pembuatan dokumentasi manual mobile, pelaksanaan testing |
+| 2️⃣ | Fahri Noah Mikhailovna | [@NoahMikhailovna](https://github.com/NoahMikhailovna) | Frontend Web · Mobile (Flutter) | UI/UX frontend web, integrasi dengan API, kontribusi pada aplikasi Flutter. |
+| 3️⃣ | Alamsyah | [@L-6969](https://github.com/L-6969) | Diagram · QA Web · Manual Book Web · DevOps | Membantu desain diagram, QA untuk web, dokumentasi manual web, dan berperan di DevOps (n8n workflows & infra). |
+| 4️⃣ | Difa Anisa | [@difanisa](https://github.com/difanisa) | Diagram · QA Web · Manual Book Web | Mendesain diagram sistem, melakukan QA web, menulis manual web. |
+| 5️⃣ | Devina | [@ayoel99](https://github.com/ayoel99) | Diagram · QA Mobile · Manual Book Mobile | Mendesain diagram, QA mobile, menyusun panduan pengguna mobile. |
+| 6️⃣ | Agusta Firman Firdaus | [@AgustaFirmanFirdaus](https://github.com/AgustaFirmanFirdaus) | QA Mobile · Manual Book Mobile · Testing | Pengujian aplikasi mobile, pembuatan dokumentasi manual mobile, pelaksanaan testing |
 
 
 ---
@@ -517,10 +517,10 @@ docker compose exec db mysql -uroot -proot -e "DROP DATABASE simhpsb_db; CREATE 
 - ✅ Redis Caching & Queue — **Integrated**
 - ✅ n8n Automation Setup — **Done** 
 
-### Frontend & Mobile 🟡
-- 🟡 Mobile App (Flutter) — **In Development** (80%)
-- 🟡 Frontend Web UI — **In Progress** (60%)
-- 🟡 Dashboard & Reports — **In Progress**
+### Frontend & Mobile ✅
+- ✅ Mobile App (Flutter) — **Completed**
+- ✅ Frontend Web UI — **Completed**
+- ✅ Dashboard & Reports — **Completed**
 
 ### DevOps & Automation 📅
 - 📅 Stok Alert Workflow (#113) — **Todo**
@@ -534,7 +534,7 @@ docker compose exec db mysql -uroot -proot -e "DROP DATABASE simhpsb_db; CREATE 
 - 📅 Deployment & CI/CD — **Final Phase**
 - 📅 Complete Documentation — **In Progress**
 
-**Overall Progress: 72% Complete** 📈
+**Overall Progress: 80% Complete** 📈
 
 ---
 
@@ -616,6 +616,6 @@ Automasi n8n sekarang fokus pada dua workflow utama yang dibutuhkan:
 
 **Last Updated:** 30 May 2026  
 **Version:** 1.3  
-**Status:** 🟢 Production Ready (Backend), 🟡 In Development (Frontend/Mobile/DevOps)  
+**Status:** 🟢 Production Ready (Backend & Frontend/Mobile), 🟡 In Development (DevOps)  
 **License:** MIT  
 **Repository:** https://github.com/dzikri15/SIMHPSB-Kelompok4
