@@ -21,7 +21,7 @@
                 <th>#</th>
                 <th>Nama</th>
                 <th>NIK</th>
-                <th>No HP</th>
+                <th>No. Telepon/HP</th>
                 <th>Email</th>
                 <th>Alamat</th>
                 <th>Luas Lahan</th>

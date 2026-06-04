@@ -187,12 +187,22 @@
                 </div>
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>No. Telepon</label>
+                        <label>No. Telepon/HP</label>
                         <input type="text" name="telepon" placeholder="+62 8xx xxxx xxxx">
                     </div>
                     <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="contoh@domain.com">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
                         <label>Luas Lahan (m²) <span style="color:var(--red-500)">*</span></label>
                         <input type="number" name="luas_lahan" placeholder="contoh: 9200" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Lahir</label>
+                        <input type="date" name="tanggal_lahir">
                     </div>
                 </div>
                 <div class="grid-2">

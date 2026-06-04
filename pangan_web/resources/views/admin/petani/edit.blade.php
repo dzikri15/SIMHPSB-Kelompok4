@@ -6,22 +6,56 @@
 @section('content')
 
 <div class="card">
-    <div style="margin-bottom:20px;">
-        <a href="{{ route('admin.petani.index') }}" style="color:#0066cc; text-decoration:none;">← Kembali ke Data Petani</a>
+    @php
+        $totalLahan = $petani->lahan->count();
+    @endphp
+
+    <div class="card-header">
+        <div>
+            <div class="card-title">Edit Data Petani</div>
+            <div class="card-subtitle">Perbarui informasi petani dengan cepat dan akurat</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <a href="{{ route('admin.petani.index') }}" class="btn btn-secondary btn-sm">
+                ↩️ Kembali
+            </a>
+            <a href="{{ route('admin.petani.show', $petani) }}" class="btn btn-secondary btn-sm">
+                👁️ Lihat Detail
+            </a>
+        </div>
     </div>
 
-    @if ($errors->any())
-        <div style="background-color:#f8d7da; border:1px solid #f5c6cb; color:#721c24; padding:12px; border-radius:4px; margin-bottom:15px;">
-            <strong>Error Validasi:</strong>
-            <ul style="margin:8px 0 0 20px;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <div class="card-body">
+        @if ($errors->any())
+            <div style="background-color:#f8d7da; border:1px solid #f5c6cb; color:#721c24; padding:12px; border-radius:4px; margin-bottom:15px;">
+                <strong>Error Validasi:</strong>
+                <ul style="margin:8px 0 0 20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <form action="{{ route('admin.petani.update', $petani) }}" method="POST">
+        <div class="stat-grid" style="margin-bottom:24px;">
+            <div class="stat-card green">
+                <div class="stat-icon">📦</div>
+                <div class="stat-value">{{ $totalLahan }}</div>
+                <div class="stat-label">Jumlah Lahan</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-icon">🔖</div>
+                <div class="stat-value">{{ ucfirst($petani->status) }}</div>
+                <div class="stat-label">Status</div>
+            </div>
+            <div class="stat-card amber">
+                <div class="stat-icon">🌾</div>
+                <div class="stat-value">{{ $petani->komoditas ?? '-' }}</div>
+                <div class="stat-label">Komoditas Utama</div>
+            </div>
+        </div>
+
+        <form action="{{ route('admin.petani.update', $petani) }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -45,7 +79,7 @@
             </div>
 
             <div>
-                <label for="telepon" style="display:block; margin-bottom:5px; font-weight:bold;">No. Telepon</label>
+                <label for="telepon" style="display:block; margin-bottom:5px; font-weight:bold;">No. Telepon/HP</label>
                 <input type="text" name="telepon" id="telepon" value="{{ old('telepon', $petani->telepon) }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
                 @error('telepon')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
             </div>
@@ -70,13 +104,7 @@
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
-            <div>
-                <label for="no_hp" style="display:block; margin-bottom:5px; font-weight:bold;">No HP</label>
-                <input type="text" name="no_hp" id="no_hp" value="{{ old('no_hp', $petani->no_hp) }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                @error('no_hp')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-            </div>
-
+        <div style="display:grid; grid-template-columns:1fr; gap:15px; margin-bottom:15px;">
             <div>
                 <label for="email" style="display:block; margin-bottom:5px; font-weight:bold;">Email</label>
                 <input type="email" name="email" id="email" value="{{ old('email', $petani->email) }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
@@ -101,15 +129,18 @@
             </div>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button type="submit" style="background-color:#0066cc; color:white; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
-                💾 Update
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+            <button type="submit" class="btn btn-primary btn-sm" style="min-width:140px;">
+                <span>💾</span>
+                <span>Update Petani</span>
             </button>
-            <a href="{{ route('admin.petani.index') }}" style="background-color:#6c757d; color:white; padding:10px 20px; border-radius:4px; text-decoration:none; display:inline-block;">
-                Batal
+            <a href="{{ route('admin.petani.index') }}" class="btn btn-secondary btn-sm" style="min-width:120px;">
+                <span>✖️</span>
+                <span>Batal</span>
             </a>
         </div>
     </form>
+    </div>
 </div>
 
 @endsection
