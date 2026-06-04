@@ -192,8 +192,13 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
         _item('Nama Lengkap', p.nama, Icons.person_outline),
         if (p.nik != null && p.nik!.isNotEmpty)
           _item('NIK', p.nik!, Icons.credit_card_outlined),
-        if (p.tanggalLahir != null)
-          _item('Tanggal Lahir', p.tanggalLahir!, Icons.cake_outlined),
+        _item(
+          'Tanggal Lahir',
+          (p.tanggalLahir != null && p.tanggalLahir!.isNotEmpty)
+              ? p.tanggalLahir!
+              : '-',
+          Icons.cake_outlined,
+        ),
         if (p.alamat != null && p.alamat!.isNotEmpty)
           _item('Alamat', p.alamat!, Icons.location_on_outlined),
       ],
@@ -210,11 +215,11 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
     if (p.telepon != null && p.telepon!.isNotEmpty) {
       kontakItems.add(_item('Telepon', p.telepon!, Icons.call_outlined));
     }
-    if (p.email != null && p.email!.isNotEmpty) {
-      kontakItems.add(_item('Email', p.email!, Icons.email_outlined));
-    }
- 
-    if (kontakItems.isEmpty) return const SizedBox.shrink();
+    kontakItems.add(_item(
+      'Email',
+      (p.email != null && p.email!.isNotEmpty) ? p.email! : '-',
+      Icons.email_outlined,
+    ));
  
     return _section(
       title: 'Kontak',
@@ -443,4 +448,3 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
     );
   }
 }
- 
