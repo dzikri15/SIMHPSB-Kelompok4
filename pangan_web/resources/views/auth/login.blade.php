@@ -298,7 +298,7 @@
                 </div>
             </div>
             <div class="feature-item">
-                <div class="feature-icon"><i class="fas fa-file-chart-line"></i></div>
+                <div class="feature-icon"><i class="fas fa-file-export"></i></div>
                 <div class="feature-text">
                     <strong>Laporan & Ekspor</strong>
                     Rekap panen dan margin per periode
