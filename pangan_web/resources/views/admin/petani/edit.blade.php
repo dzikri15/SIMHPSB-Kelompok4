@@ -49,7 +49,7 @@
                 <div class="stat-label">Status</div>
             </div>
             <div class="stat-card amber">
-                <div class="stat-icon">🌾</div>
+                <div class="stat-icon"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="Komoditas" style="width:100%;height:100%;object-fit:contain;"></div>
                 <div class="stat-value">{{ $petani->komoditas ?? '-' }}</div>
                 <div class="stat-label">Komoditas Utama</div>
             </div>

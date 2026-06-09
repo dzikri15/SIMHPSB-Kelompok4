@@ -56,7 +56,80 @@
             --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
         }
 
+        html.dark {
+            --surface:   #0d1f17;
+            --surface-2: #112219;
+            --surface-3: #1a3325;
+            --border:    #1e3d2b;
+            --text-primary:   #e8f5ee;
+            --text-secondary: #6aaf8a;
+            --text-muted:     #5c8a72;
+        }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            background: var(--surface);
+            color: var(--text-primary);
+            scroll-behavior: smooth;
+        }
+
+        /* ── SCROLLBAR LIGHT MODE ── */
+        html:not(.dark) ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        html:not(.dark) ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        html:not(.dark) ::-webkit-scrollbar-thumb {
+            background: rgba(45, 122, 82, 0.3);
+            border-radius: 8px;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            transition: background .2s ease;
+        }
+
+        html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+            background: rgba(45, 122, 82, 0.7);
+            background-clip: padding-box;
+        }
+
+        /* ── SCROLLBAR DARK MODE ── */
+        html.dark ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+
+        html.dark ::-webkit-scrollbar-track {
+            background: rgba(13, 31, 23, 0.95);
+        }
+
+        html.dark ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #4CF693 0%, #35D07F 100%);
+            border-radius: 12px;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            transition: all .3s ease;
+        }
+
+        html.dark ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #5DFF9F 0%, #45E08F 100%);
+            background-clip: padding-box;
+            box-shadow: 0 0 28px rgba(76, 246, 147, 0.9);
+        }
+
+        html.dark ::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(180deg, #6FFF9F 0%, #50E08F 100%);
+            box-shadow: 0 0 32px rgba(76, 246, 147, 1);
+        }
+
+        body {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
 
         .modal {
             background: var(--surface);
@@ -78,6 +151,29 @@
             overflow: auto; /* enable internal scrolling */
             -webkit-overflow-scrolling: touch;
             flex: 1 1 auto; /* grow to fill available space */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,0,0,.15) transparent;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,.2);
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            transition: background .2s ease;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,.4);
+            background-clip: padding-box;
         }
 
         .modal-footer {
@@ -129,6 +225,29 @@
             min-height: 0;
             padding: 16px 12px;
             overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,.45) transparent;
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.35);
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            transition: background .2s ease;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,.65);
+            background-clip: padding-box;
         }
 
         .nav-section-label {
@@ -299,6 +418,11 @@
             gap: 10px;
         }
 
+        .dark-mode-toggle .icon-sun  { display: none; }
+        .dark-mode-toggle .icon-moon { display: block; }
+        html.dark .dark-mode-toggle .icon-sun  { display: block; }
+        html.dark .dark-mode-toggle .icon-moon { display: none; }
+
         .topbar-btn {
             width: 38px; height: 38px;
             border-radius: 9px;
@@ -326,6 +450,30 @@
         .content {
             flex: 1;
             padding: 28px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(45,122,82,.3) transparent;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: rgba(45,122,82,.25);
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            transition: background .2s ease;
+        }
+
+        .content::-webkit-scrollbar-thumb:hover {
+            background: rgba(45,122,82,.5);
+            background-clip: padding-box;
         }
 
         /* ── CARDS ── */
@@ -431,7 +579,32 @@
         .stat-change.down { color: var(--red-500); }
 
         /* ── TABLE ── */
-        .table-container { overflow-x: auto; }
+        .table-container { 
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(45,122,82,.3) transparent;
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: rgba(45,122,82,.25);
+            border-radius: 4px;
+            border: 1px solid transparent;
+            background-clip: padding-box;
+            transition: background .2s ease;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(45,122,82,.5);
+            background-clip: padding-box;
+        }
 
         table.data-table {
             width: 100%;
@@ -476,10 +649,10 @@
             font-weight: 600;
         }
 
-        .badge-green  { background: var(--green-100); color: var(--green-700); }
-        .badge-amber  { background: var(--amber-100); color: #92400e; }
-        .badge-red    { background: var(--red-100);   color: #991b1b; }
-        .badge-blue   { background: var(--blue-100);  color: #1e40af; }
+        .badge-green  { background: var(--green-100); color: var(--green-600); }
+        .badge-amber  { background: var(--amber-100); color: var(--amber-500); }
+        .badge-red    { background: var(--red-100);   color: var(--red-500); }
+        .badge-blue   { background: var(--blue-100);  color: var(--blue-500); }
         .badge-gray   { background: var(--surface-3); color: var(--text-secondary); }
 
         /* ── BUTTONS ── */
@@ -725,6 +898,11 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         .animate-in {
             animation: fadeInUp .4s ease forwards;
         }
@@ -753,13 +931,17 @@
 
     @stack('styles')
 </head>
+<!-- Dark Mode: jalankan SEBELUM paint untuk cegah flash of light mode -->
+<script>
+(function(){var k='simhpsb_dark_mode';var s=localStorage.getItem(k);var dark=s!==null?s==='true':(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark)document.documentElement.classList.add('dark');})();
+</script>
 <body>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="logo-badge">
-            <div class="logo-icon">🌾</div>
+            <div class="logo-icon"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHPSB" style="width:100%;height:100%;object-fit:contain;"></div>
             <div class="logo-text">
                 <strong>SIMHPSB</strong>
                 <span>{{ $panelLabel }}</span>
@@ -875,6 +1057,12 @@
         </div>
 
         <div class="topbar-actions">
+            <!-- Dark Mode Toggle -->
+            <button id="darkModeToggle" class="dark-mode-toggle topbar-btn" title="Mode Gelap" aria-label="Toggle dark mode">
+                <i class="fas fa-sun icon-sun"></i>
+                <i class="fas fa-moon icon-moon"></i>
+            </button>
+
             @if($userRole !== 'petani')
                 <a href="{{ route($routePrefix.'alert.index') }}" class="topbar-btn" title="Notifikasi">
                     <i class="fas fa-bell"></i>
@@ -947,6 +1135,9 @@
         sidebar.classList.toggle('open');
     }
 </script>
+
+<!-- Dark Mode JS -->
+<script src="{{ asset('js/dark-mode.js') }}"></script>
 
 @stack('scripts')
 </body>

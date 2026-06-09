@@ -573,12 +573,16 @@
             height: 82px;
             margin: 0 auto 18px;
             border-radius: 24px;
-            background: linear-gradient(145deg, #3ecf74, #22a157);
-            display: grid;
-            place-items: center;
-            font-size: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             box-shadow: 0 0 0 1px rgba(79,213,133,.2), 0 20px 50px rgba(34,161,85,.35);
             animation: loader-logo-pulse 2.4s ease-in-out infinite;
+        }
+        .loader-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         .loader-title {
             font-size: 32px;
@@ -673,13 +677,41 @@
         .interactive-scale:hover {
             transform: scale(1.02);
         }
+        
+        /* ── SCROLLBAR STYLING ── */
+        ::-webkit-scrollbar {
+            width: 14px;
+            height: 14px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(79, 213, 133, 0.4);
+            border-radius: 8px;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            transition: background .2s ease, box-shadow .2s ease;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(79, 213, 133, 0.85);
+            background-clip: padding-box;
+            box-shadow: 0 0 12px rgba(79, 213, 133, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb:active {
+            background: rgba(79, 213, 133, 1);
+        }
     </style>
 </head>
 <body>
 
 <div class="loader-screen" id="loaderScreen">
     <div class="loader-inner">
-        <div class="loader-logo"><img src="{{ asset('foto/padi.png') }}" alt="Padi" style="width:64px; max-width:100%; display:block; margin:0 auto; height:auto; object-fit:contain;" /></div>
+        <div class="loader-logo"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHPSB Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
         <div class="loader-title">SIMHPSB</div>
         <div class="loader-copy">Sistem Monitoring Pangan<br>Memuat tampilan interaktif...</div>
         <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
@@ -724,7 +756,7 @@
         <div class="logo-wrap logo-container" id="logoWrap">
             <div class="logo-ring"></div>
             <div class="logo-ring-2"></div>
-        <div class="loader-logo"><img src="{{ asset('foto/padi.png') }}" alt="Padi" style="width:64px; max-width:100%; display:block; margin:0 auto; height:auto; object-fit:contain;" /></div>
+            <div class="logo-icon logo-img"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHPSB" style="width:100%;height:100%;object-fit:contain;"></div>
         </div>
 
         <div class="title" id="title"><!-- chars injected --></div>
