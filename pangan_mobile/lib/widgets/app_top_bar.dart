@@ -2,6 +2,7 @@
 // Updated: tambah tombol "Laporan" di sebelah kiri ikon notifikasi
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../core/app_colors.dart';
 import '../models/alert_model.dart';
 import '../services/alert_service.dart';
@@ -62,8 +63,13 @@ class _AppTopBarState extends State<AppTopBar> {
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Text('🌾', style: TextStyle(fontSize: 20)),
+                  child: Center(
+                    child: SvgPicture.network(
+                      'https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg',
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),

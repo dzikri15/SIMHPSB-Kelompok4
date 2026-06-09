@@ -2,6 +2,7 @@
 // Halaman profil petani — menampilkan semua data diri dari tabel petani
  
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/app_colors.dart';
 import '../../models/petani_model.dart';
 import '../../services/petani_profile_service.dart';
@@ -131,8 +132,13 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                     ),
                   ],
                 ),
-                child: const Center(
-                  child: Text('🧑‍🌾', style: TextStyle(fontSize: 40)),
+                child: Center(
+                  child: SvgPicture.network(
+                    'https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
