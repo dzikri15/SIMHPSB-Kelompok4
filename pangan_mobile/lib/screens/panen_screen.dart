@@ -222,39 +222,7 @@ class _PanenScreenState extends State<PanenScreen> {
     }
   }
 
-  Future<void> _hapusPanen(PanenModel panen) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Hapus Data Panen?',
-            style: TextStyle(fontWeight: FontWeight.w700)),
-        content: const Text('Data panen ini akan dihapus permanen.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Batal')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
-            child:
-                const Text('Hapus', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-    if (confirm != true) return;
-    try {
-      await _panenService.delete(panen.id);
-      _snack('Data panen dihapus');
-      _loadRiwayat();
-    } on ApiException catch (e) {
-      _snack('Error: ${e.message}', isError: true);
-    }
-  }
+
 
   void _snack(String msg, {bool isError = false}) {
     if (!mounted) return;
@@ -800,12 +768,6 @@ class _PanenScreenState extends State<PanenScreen> {
               style: const TextStyle(
                   fontSize: 12, color: AppColors.onSurfaceVariant),
             ),
-          ),
-          // Hapus
-          GestureDetector(
-            onTap: () => _hapusPanen(r),
-            child: const Icon(Icons.delete_outline,
-                size: 18, color: AppColors.error),
           ),
         ],
       ),

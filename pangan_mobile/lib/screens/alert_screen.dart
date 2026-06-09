@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../core/app_colors.dart';
 import '../models/alert_model.dart';
 import '../models/gudang_model.dart';
@@ -376,7 +377,13 @@ class _AlertScreenState extends State<AlertScreen> {
               children: [
                 // Nama komoditas
                 Row(children: [
-                  const Text('🌾 ', style: TextStyle(fontSize: 11)),
+                  SvgPicture.network(
+                    'https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg',
+                    width: 11,
+                    height: 11,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(nama,
                         style: const TextStyle(
