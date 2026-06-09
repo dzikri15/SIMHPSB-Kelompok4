@@ -1,31 +1,24 @@
-# Multi-stage build untuk aplikasi Laravel SIMHPSB
-
 # Stage 1: Build dependencies
-FROM php:8.2-fpm as builder
+FROM php:8.2-fpm AS builder
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies tanpa gd (lebih ringan)
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
     libzip-dev \
-    postgresql-client \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql pcntl \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+    unzip \
+    && docker-php-ext-install zip pdo pdo_mysql pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application files so artisan exists for composer post-install scripts
-COPY composer.json composer.lock ./
+# Copy semua file
 COPY . ./
+
+# Install dependencies
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
 # Stage 2: Production image
@@ -35,38 +28,41 @@ WORKDIR /app
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
     libzip-dev \
     netcat-openbsd \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql pcntl \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+    unzip \
+    curl \
+    && docker-php-ext-install zip pdo pdo_mysql pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
 # Create application user
-RUN useradd -m -u 1000 laravel && \
-    mkdir -p /app/storage/logs && \
-    chown -R laravel:laravel /app
+RUN useradd -m -u 1000 laravel
 
-# Copy composer from builder stage
+# Copy vendor dari builder
 COPY --from=builder --chown=laravel:laravel /app/vendor ./vendor
 
-# Copy application files
+# Copy semua file aplikasi
 COPY --chown=laravel:laravel . .
 
-# Copy entrypoint script
+# Set storage permissions
+RUN mkdir -p \
+    /app/storage/logs \
+    /app/storage/framework/sessions \
+    /app/storage/framework/views \
+    /app/storage/framework/cache \
+    /app/bootstrap/cache \
+    && chown -R laravel:laravel /app/storage \
+    && chown -R laravel:laravel /app/bootstrap/cache \
+    && chmod -R 775 /app/storage \
+    && chmod -R 775 /app/bootstrap/cache
+
+# Copy entrypoint
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Set proper permissions
-RUN chown -R laravel:laravel /app
-
 USER laravel
 
-EXPOSE 9000
+EXPOSE 8000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php-fpm"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

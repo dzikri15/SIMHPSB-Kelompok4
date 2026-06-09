@@ -9,29 +9,35 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
-      - ./storage/logs:/app/storage/logs
+      - /app/vendor
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - APP_NAME=SIMHPSB
+      - APP_ENV=local
+      - APP_KEY=base64:B0wFcepdxG0zXQv7+7tDEHEckgwk3FXUuoJ9UDPuXek=
       - APP_DEBUG=true
       - APP_URL=http://localhost:8000
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-simhpsb}
-      - DB_USERNAME=${DB_USERNAME:-laravel}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
-      - CACHE_DRIVER=redis
+      - DB_DATABASE=simhpsb_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - CACHE_STORE=redis
       - QUEUE_CONNECTION=redis
+      - SESSION_DRIVER=file
+      - REDIS_CLIENT=predis
       - REDIS_HOST=redis
       - REDIS_PASSWORD=null
       - REDIS_PORT=6379
     networks:
       - simhpsb_network
-    expose:
-      - 9000
+    ports:
+      - "8000:8000"
 
   # MySQL Database
   db:
@@ -39,10 +45,10 @@ services:
     container_name: simhpsb_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-simhpsb}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_DATABASE: simhpsb_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: laravel
     volumes:
       - dbdata:/var/lib/mysql
       - ./simhpsb_db.sql:/docker-entrypoint-initdb.d/init.sql
@@ -51,27 +57,30 @@ services:
     networks:
       - simhpsb_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       timeout: 20s
       retries: 10
+      interval: 5s
 
-  # phpMyAdmin UI
+  # phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: simhpsb_phpmyadmin
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_ARBITRARY: 0
+      PMA_USER: root
+      PMA_PASSWORD: root
     ports:
       - "8080:80"
     networks:
       - simhpsb_network
 
-  # Redis Cache & Queue
+  # Redis
   redis:
     image: redis:7-alpine
     container_name: simhpsb_redis
@@ -85,55 +94,54 @@ services:
       - simhpsb_network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      timeout: 20s
+      timeout: 5s
       retries: 10
+      interval: 3s
 
-  # Nginx Web Server
+  # Nginx
   nginx:
     image: nginx:alpine
     container_name: simhpsb_nginx
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./:/app
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
-      - ./docker/nginx/ssl:/etc/nginx/ssl
     depends_on:
       - app
     networks:
       - simhpsb_network
 
-  # Queue Worker (optional, for processing jobs)
-  queue:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: simhpsb_queue
+  # n8n Workflow Automation + AI Agent
+  n8n:
+    image: n8nio/n8n
+    container_name: simhpsb_n8n
     restart: unless-stopped
-    working_dir: /app
-    command: php artisan queue:work redis --sleep=3 --tries=3
-    volumes:
-      - ./:/app
-    depends_on:
-      - db
-      - redis
+    ports:
+      - "5678:5678"
     environment:
-      - APP_NAME=SIMHPSB
-      - APP_ENV=local
-      - APP_DEBUG=true
-      - DB_CONNECTION=mysql
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-simhpsb}
-      - DB_USERNAME=${DB_USERNAME:-laravel}
-      - DB_PASSWORD=${DB_PASSWORD:-password}
-      - CACHE_DRIVER=redis
-      - QUEUE_CONNECTION=redis
-      - REDIS_HOST=redis
-      - REDIS_PASSWORD=null
-      - REDIS_PORT=6379
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=Asia/Jakarta
+      - TZ=Asia/Jakarta
+      - DB_TYPE=mysqldb
+      - DB_MYSQLDB_HOST=db
+      - DB_MYSQLDB_PORT=3306
+      - DB_MYSQLDB_DATABASE=n8n_db
+      - DB_MYSQLDB_USER=root
+      - DB_MYSQLDB_PASSWORD=root
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=simhpsb123
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - simhpsb_network
 
@@ -145,4 +153,6 @@ volumes:
   dbdata:
     driver: local
   redis_data:
+    driver: local
+  n8n_data:
     driver: local

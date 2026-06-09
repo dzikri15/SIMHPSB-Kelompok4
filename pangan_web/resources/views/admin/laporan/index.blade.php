@@ -196,7 +196,8 @@
                         <th>Tonase Gabah</th>
                         <th>Beras Dihasilkan</th>
                         <th>Tanggal Panen</th>
-                        <th>HPP (est.)</th>
+                        <th>HPP/kg (Est.)</th>
+                        <th>Total HPP (Est.)</th>
                         @if($jenis === 'margin')
                             <th>Status</th>
                         @endif
@@ -225,7 +226,8 @@
                             <td><strong>{{ number_format($row->tonase_gabah ?? 0) }} kg</strong></td>
                             <td>{{ number_format($row->beras_dihasilkan ?? 0) }} kg</td>
                             <td style="font-size:12.5px;">{{ optional($row->tanggal_panen)->format('Y-m-d') }}</td>
-                            <td>Rp {{ number_format($row->hpp_estimasi ?? 0) }}</td>
+                            <td>Rp {{ number_format($row->hpp_estimasi) }}</td>
+                            <td>Rp {{ number_format($row->hpp_estimasi * $row->beras_dihasilkan) }}</td>
                             @if($jenis === 'margin')
                                 <td><span class="badge badge-{{ ($row->status ?? 'selesai') == 'selesai' ? 'green' : 'amber' }}">{{ $row->status ?? 'selesai' }}</span></td>
                             @endif

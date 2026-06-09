@@ -37,7 +37,7 @@
             <style>
                 .alert-stock-card { background: var(--surface-2); border-radius: 16px; padding: 18px; }
                 .stock-status-pill { display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;}
-                .stock-status-pill.red { background: var(--red-100); color: var(--red-600); }
+                .stock-status-pill.red { background: var(--red-100); color: #991b1b; }
                 .stock-status-pill.amber { background: var(--amber-100); color: #92400e; }
                 .stock-status-pill.green { background: var(--green-100); color: var(--green-700); }
                 .progress-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; height: 10px; }
@@ -61,7 +61,7 @@
                     <div class="alert-stock-card">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
                             <div>
-                                <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">🌾 {{ $card['komoditas'] }}</div>
+                                <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px;"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="Padi" style="width:16px;height:16px;vertical-align:middle;margin-right:6px;display:inline-block;"> {{ $card['komoditas'] }}</div>
                                 <div style="font-size:28px;font-weight:800;color:var(--text-primary);">{{ number_format($card['stok']) }} kg</div>
                             </div>
                             <span class="stock-status-pill {{ $statusClass }}">{{ $status }}</span>

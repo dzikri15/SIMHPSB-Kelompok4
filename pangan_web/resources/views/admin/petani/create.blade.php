@@ -44,7 +44,7 @@
             </div>
 
             <div>
-                <label for="telepon" style="display:block; margin-bottom:5px; font-weight:bold;">No. Telepon</label>
+                <label for="telepon" style="display:block; margin-bottom:5px; font-weight:bold;">No. Telepon/HP</label>
                 <input type="text" name="telepon" id="telepon" value="{{ old('telepon') }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
                 @error('telepon')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
             </div>

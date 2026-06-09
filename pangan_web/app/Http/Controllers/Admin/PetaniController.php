@@ -117,7 +117,7 @@ class PetaniController extends Controller
                 '<th>No</th>' .
                 '<th>Nama Petani</th>' .
                 '<th>NIK</th>' .
-                '<th>No HP</th>' .
+                '<th>No. Telepon/HP</th>' .
                 '<th>Email</th>' .
                 '<th>Tanggal Lahir</th>' .
                 '<th>Luas Lahan (m²)</th>' .
@@ -148,7 +148,7 @@ class PetaniController extends Controller
         }
 
         $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
-        $csv .= "No,Nama Petani,NIK,No HP,Email,Tanggal Lahir,Luas Lahan (m²),Komoditas,Status,Alamat\n";
+        $csv .= "No,Nama Petani,NIK,No. Telepon/HP,Email,Tanggal Lahir,Luas Lahan (m²),Komoditas,Status,Alamat\n";
         foreach ($petani as $index => $p) {
             $csv .= implode(',', [
                 $index + 1,

@@ -25,8 +25,8 @@ class LaporanController extends Controller
         $komoditas = request('komoditas');
 
         $petanis = Petani::orderBy('nama')->get();
-        $config = KonfigurasiHarga::where('is_active', true)->first();
-        $hppPerKg = 0;
+        $config = KonfigurasiHarga::where('is_active', true)->latest('berlaku_mulai')->first() ?? KonfigurasiHarga::latest('berlaku_mulai')->first();
+            $hppPerKg = 0;
         if ($config && $config->rasio_konversi > 0) {
             $hppPerKg = round(($config->harga_beli_gabah / $config->rasio_konversi) + $config->ongkos_giling);
         }
