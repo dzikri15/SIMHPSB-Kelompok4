@@ -17,9 +17,14 @@ use Illuminate\Support\Facades\Route;use Illuminate\Support\Facades\Auth;use App
 };
 use App\Http\Controllers\PetaniDashboardController;
 
+// INTRO PAGE
+Route::get('/intro', function () {
+    return view('auth.intro');
+})->name('intro');
+
 Route::get('/', function () {
     if (!Auth::check()) {
-        return redirect()->route('login');
+        return redirect()->route('intro');
     }
 
     if (Auth::user()->role === 'petani') {
