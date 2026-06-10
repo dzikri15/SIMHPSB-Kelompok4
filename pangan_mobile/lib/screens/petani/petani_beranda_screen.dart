@@ -75,7 +75,7 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const AppTopBar(showAlert: false),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -105,18 +105,18 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
       children: [
         Text(
           '${_greeting()},',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: AppColors.onSurfaceVariant,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           _namaPetani,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w800,
-            color: AppColors.onSurface,
+            color: Theme.of(context).colorScheme.onSurface,
             letterSpacing: -0.5,
           ),
         ),
@@ -124,20 +124,20 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.eco, size: 13, color: AppColors.primary),
-              SizedBox(width: 4),
+              Icon(Icons.eco, size: 13, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 4),
               Text(
                 'Petani',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
@@ -152,12 +152,12 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Ringkasan',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: AppColors.onSurface,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -179,8 +179,8 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
               label: 'Total Panen',
               value: '${_ringkasan['total_panen'] ?? 0}',
               satuan: 'catatan',
-              warna: const Color(0xFF1565C0),
-              bg: const Color(0xFFE3F2FD),
+              warna: AppColors.accentBlue,
+              bg: AppColors.accentBlueLight,
             ),
           ),
         ]),
@@ -192,8 +192,8 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
               label: 'Total Gabah',
               value: _fmtKg(_ringkasan['total_gabah_kg'] ?? 0),
               satuan: 'keseluruhan',
-              warna: const Color(0xFFE65100),
-              bg: const Color(0xFFFFF3E0),
+              warna: AppColors.accentOrange,
+              bg: AppColors.accentOrangeLight,
             ),
           ),
           const SizedBox(width: 12),
@@ -203,8 +203,8 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
               label: 'Total Beras',
               value: _fmtKg(_ringkasan['total_beras_kg'] ?? 0),
               satuan: 'hasil konversi',
-              warna: const Color(0xFF2E7D32),
-              bg: const Color(0xFFE8F5E9),
+              warna: AppColors.primary,
+              bg: AppColors.primaryContainer,
             ),
           ),
         ]),
@@ -220,10 +220,11 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     required Color warna,
     required Color bg,
   }) {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border(top: BorderSide(color: warna, width: 3)),
         boxShadow: [
@@ -247,26 +248,26 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: AppColors.onSurface,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: AppColors.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           Text(
             satuan,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: AppColors.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -279,12 +280,12 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Akses Cepat',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: AppColors.onSurface,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -310,15 +311,16 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     required String sub,
     required VoidCallback onTap,
   }) {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.outlineVariant),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
         ),
         child: Row(
           children: [
@@ -338,25 +340,25 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: AppColors.onSurface,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     sub,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
-              color: AppColors.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
           ],
@@ -373,23 +375,23 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Panen Terbaru',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: AppColors.onSurface,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             if (_panenTerbaru.isNotEmpty)
               GestureDetector(
                 onTap: () => widget.onNavigateToTab?.call(1),
-                child: const Text(
+                child: Text(
                   'Lihat semua',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -400,19 +402,19 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.outlineVariant),
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
             ),
-            child: const Center(
+            child: Center(
               child: Column(
                 children: [
                   Icon(Icons.agriculture_outlined,
-                      size: 40, color: AppColors.outlineVariant),
-                  SizedBox(height: 8),
+                      size: 40, color: Theme.of(context).colorScheme.outline),
+                  const SizedBox(height: 8),
                   Text(
                     'Belum ada catatan panen.',
-                    style: TextStyle(color: AppColors.onSurfaceVariant),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -425,13 +427,14 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
   }
 
   Widget _panenTile(PanenModel p) {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Row(
         children: [
@@ -439,12 +442,12 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
+              color: AppColors.accentGreenLight,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.grass_outlined,
-              color: Color(0xFF2E7D32),
+              color: AppColors.accentGreen,
               size: 22,
             ),
           ),
@@ -455,17 +458,17 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
               children: [
                 Text(
                   p.lahan?.namaLahan ?? 'Lahan #${p.lahanId}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
-                    color: AppColors.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Text(
                   p.tanggalPanen,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -479,14 +482,14 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
                 style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
-                  color: Color(0xFFE65100),
+                  color: AppColors.accentOrange,
                 ),
               ),
-              const Text(
+              Text(
                 'gabah',
                 style: TextStyle(
                   fontSize: 10,
-                  color: AppColors.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

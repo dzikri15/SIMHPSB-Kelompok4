@@ -149,7 +149,7 @@ class _PanenScreenState extends State<PanenScreen> {
       final list = await _panenService.getAll();
       if (mounted) {
         setState(() {
-          _riwayat = list;
+          _riwayat = list.reversed.toList();
           _isLoadingRiwayat = false;
         });
       }
@@ -239,7 +239,7 @@ class _PanenScreenState extends State<PanenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const AppTopBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
@@ -247,19 +247,19 @@ class _PanenScreenState extends State<PanenScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Header ────────────────────────────────────────────
-            const Text(
+            Text(
               'Pencatatan Panen',
               style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                   letterSpacing: -0.5),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Input tonase panen dengan konversi gabah → beras otomatis',
               style:
-                  TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
+                  TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
 
@@ -283,21 +283,21 @@ class _PanenScreenState extends State<PanenScreen> {
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<PetaniModel>(
                               value: _selectedPetani,
-                              hint: const Text('Pilih petani...',
+                              hint: Text('Pilih petani...',
                                   style: TextStyle(
                                       fontSize: 14,
-                                      color: AppColors.onSurfaceVariant)),
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
                               isExpanded: true,
-                              icon: const Icon(Icons.keyboard_arrow_down,
-                                  color: AppColors.onSurfaceVariant),
+                              icon: Icon(Icons.keyboard_arrow_down,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
                               items: _petaniList
                                   .map((p) => DropdownMenuItem(
                                         value: p,
                                         child: Text(
                                           _petaniDropdownLabel(p),
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               fontSize: 14,
-                                              color: AppColors.onSurface),
+                                              color: Theme.of(context).colorScheme.onSurface),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ))
@@ -324,20 +324,20 @@ class _PanenScreenState extends State<PanenScreen> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         value: _selectedMusim,
-                        hint: const Text('Pilih musim tanam...',
+                        hint: Text('Pilih musim tanam...',
                             style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.onSurfaceVariant)),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         isExpanded: true,
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            color: AppColors.onSurfaceVariant),
+                        icon: Icon(Icons.keyboard_arrow_down,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                         items: _musimOptions
                             .map((m) => DropdownMenuItem(
                                   value: m.value,
                                   child: Text(m.label,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontSize: 14,
-                                          color: AppColors.onSurface)),
+                                          color: Theme.of(context).colorScheme.onSurface)),
                                 ))
                             .toList(),
                         onChanged: (val) =>
@@ -353,19 +353,19 @@ class _PanenScreenState extends State<PanenScreen> {
                   _inputBox(
                     child: TextFormField(
                       controller: _tanggalCtrl,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                         hintText: 'DD/MM/YYYY',
                         suffixIcon: Icon(
                             Icons.calendar_today_outlined,
-                            color: AppColors.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             size: 18),
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.onSurface),
+                          color: Theme.of(context).colorScheme.onSurface),
                       onTap: () async {
                         final picked = await showDatePicker(
                           context: context,
@@ -389,7 +389,7 @@ class _PanenScreenState extends State<PanenScreen> {
                   const Text('Berat gabah basah setelah panen',
                       style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.onSurfaceVariant)),
+                          color: Color.fromARGB(255, 209, 250, 229))),
                   const SizedBox(height: 8),
                   _inputBox(
                     child: Row(children: [
@@ -397,16 +397,16 @@ class _PanenScreenState extends State<PanenScreen> {
                         child: TextFormField(
                           controller: _tonaseCtrl,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: 'Contoh: 3000',
                             hintStyle: TextStyle(
-                                color: AppColors.onSurfaceVariant),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
                             border: InputBorder.none,
                             isDense: true,
                             contentPadding: EdgeInsets.zero,
                           ),
-                          style: const TextStyle(
-                              fontSize: 14, color: AppColors.onSurface),
+                          style: TextStyle(
+                              fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                         ),
                       ),
                       Container(
@@ -429,11 +429,11 @@ class _PanenScreenState extends State<PanenScreen> {
                   // ── Rasio Konversi ────────────────────────────
                   _label('Rasio Konversi (%)'),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                       'Default sistem: 61,5% (dapat disesuaikan per batch)',
                       style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.onSurfaceVariant)),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 8),
                   _inputBox(
                     child: TextFormField(
@@ -444,8 +444,8 @@ class _PanenScreenState extends State<PanenScreen> {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
-                      style: const TextStyle(
-                          fontSize: 14, color: AppColors.onSurface),
+                      style: TextStyle(
+                          fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -458,15 +458,15 @@ class _PanenScreenState extends State<PanenScreen> {
                       child: DropdownButton<String>(
                         value: _selectedKomoditas,
                         isExpanded: true,
-                        icon: const Icon(Icons.keyboard_arrow_down,
-                            color: AppColors.onSurfaceVariant),
+                        icon: Icon(Icons.keyboard_arrow_down,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                         items: _komoditasList
                             .map((k) => DropdownMenuItem(
                                   value: k,
                                   child: Text(k,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontSize: 14,
-                                          color: AppColors.onSurface)),
+                                          color: Theme.of(context).colorScheme.onSurface)),
                                 ))
                             .toList(),
                         onChanged: (val) => setState(
@@ -483,24 +483,24 @@ class _PanenScreenState extends State<PanenScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceContainerHigh,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextFormField(
                       controller: _catatanCtrl,
                       maxLines: 3,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText:
                             'Kondisi panen, cuaca, dll. (opsional)',
                         hintStyle: TextStyle(
                             fontSize: 13,
-                            color: AppColors.onSurfaceVariant),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                       ),
-                      style: const TextStyle(
-                          fontSize: 14, color: AppColors.onSurface),
+                      style: TextStyle(
+                          fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -510,48 +510,48 @@ class _PanenScreenState extends State<PanenScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryContainer.withValues(alpha: 0.3),
+                        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.2)),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
                       ),
                       child: Row(children: [
                         Container(
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                              color: AppColors.primaryContainer,
+                              color: Theme.of(context).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(12)),
-                          child: const Icon(Icons.calculate_outlined,
-                              color: AppColors.primary, size: 22),
+                          child: Icon(Icons.calculate_outlined,
+                              color: Theme.of(context).colorScheme.primary, size: 22),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('ESTIMASI BERAS HASIL',
+                              Text('ESTIMASI BERAS HASIL',
                                   style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w700,
                                       letterSpacing: 1.2,
-                                      color: AppColors.onSurfaceVariant)),
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
                               const SizedBox(height: 4),
                               Text(
                                 '${_estimasiBeras.toStringAsFixed(0)} kg',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w900,
-                                    color: AppColors.primary),
+                                    color: Theme.of(context).colorScheme.primary),
                               ),
                             ],
                           ),
                         ),
                         Text(
                           '${_rasioKonversi.toStringAsFixed(1)}%',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.onSurfaceVariant),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       ]),
                     ),
@@ -565,12 +565,12 @@ class _PanenScreenState extends State<PanenScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _isSaving ? null : _simpanPanen,
                       icon: _isSaving
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white))
+                                  color: Theme.of(context).colorScheme.onPrimary))
                           : const Icon(Icons.save_outlined),
                       label: const Text('Simpan Catatan Panen',
                           style: TextStyle(
@@ -600,12 +600,12 @@ class _PanenScreenState extends State<PanenScreen> {
                       child: CircularProgressIndicator(),
                     ))
                   : _riwayat.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Padding(
-                          padding: EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(20),
                           child: Text('Belum ada riwayat panen.',
                               style: TextStyle(
-                                  color: AppColors.onSurfaceVariant)),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         ))
                       : RefreshIndicator(
                           onRefresh: _loadRiwayat,
@@ -631,10 +631,10 @@ class _PanenScreenState extends State<PanenScreen> {
       padding:
           const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerHigh,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Expanded(
               flex: 3,
@@ -643,7 +643,7 @@ class _PanenScreenState extends State<PanenScreen> {
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: AppColors.onSurfaceVariant))),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
           Expanded(
               flex: 3,
               child: Text('TONASE GABAH',
@@ -651,7 +651,7 @@ class _PanenScreenState extends State<PanenScreen> {
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: AppColors.onSurfaceVariant))),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
           Expanded(
               flex: 3,
               child: Text('BERAS HASIL',
@@ -659,7 +659,7 @@ class _PanenScreenState extends State<PanenScreen> {
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: AppColors.onSurfaceVariant))),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
           Expanded(
               flex: 3,
               child: Text('MUSIM',
@@ -667,7 +667,7 @@ class _PanenScreenState extends State<PanenScreen> {
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: AppColors.onSurfaceVariant))),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
           Expanded(
               flex: 3,
               child: Text('TANGGAL',
@@ -675,8 +675,8 @@ class _PanenScreenState extends State<PanenScreen> {
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
-                      color: AppColors.onSurfaceVariant))),
-          SizedBox(width: 24),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
+          const SizedBox(width: 24),
         ],
       ),
     );
@@ -691,11 +691,11 @@ class _PanenScreenState extends State<PanenScreen> {
       margin: const EdgeInsets.only(bottom: 1),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(8),
         border: Border(
           bottom: BorderSide(
-              color: AppColors.outlineVariant.withValues(alpha: 0.4), width: 1),
+              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4), width: 1),
         ),
       ),
       child: Row(
@@ -706,10 +706,10 @@ class _PanenScreenState extends State<PanenScreen> {
             flex: 3,
             child: Text(
               r.namaPetani,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface),
+                  color: Theme.of(context).colorScheme.onSurface),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -718,8 +718,8 @@ class _PanenScreenState extends State<PanenScreen> {
             flex: 3,
             child: Text(
               '${r.jumlahGabah.toStringAsFixed(0)} kg',
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.onSurface),
+              style: TextStyle(
+                  fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           // Beras Hasil (hijau bold sesuai web)
@@ -729,10 +729,10 @@ class _PanenScreenState extends State<PanenScreen> {
               r.konversiBeras != null
                   ? '${r.konversiBeras!.toStringAsFixed(0)} kg'
                   : '—',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.primary),
+                  color: Theme.of(context).colorScheme.primary),
             ),
           ),
           // Musim (badge pill sesuai web)
@@ -745,15 +745,15 @@ class _PanenScreenState extends State<PanenScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryContainer,
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         musimLabel,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.primary),
+                            color: Theme.of(context).colorScheme.primary),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -765,8 +765,8 @@ class _PanenScreenState extends State<PanenScreen> {
             flex: 3,
             child: Text(
               r.tanggalPanen,
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.onSurfaceVariant),
+              style: TextStyle(
+                  fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         ],
@@ -784,11 +784,11 @@ class _PanenScreenState extends State<PanenScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: AppColors.onSurface.withValues(alpha: 0.04),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
               blurRadius: 12)
         ],
       ),
@@ -796,16 +796,16 @@ class _PanenScreenState extends State<PanenScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface)),
+                  color: Theme.of(context).colorScheme.onSurface)),
           if (subtitle != null) ...[
             const SizedBox(height: 2),
             Text(subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.onSurfaceVariant)),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
           const SizedBox(height: 20),
           child,
@@ -819,7 +819,7 @@ class _PanenScreenState extends State<PanenScreen> {
       padding:
           const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerHigh,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
       ),
       child: child,
@@ -828,9 +828,9 @@ class _PanenScreenState extends State<PanenScreen> {
 
   Widget _label(String text) {
     return Text(text,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.onSurface));
+            color: Theme.of(context).colorScheme.onSurface));
   }
 }

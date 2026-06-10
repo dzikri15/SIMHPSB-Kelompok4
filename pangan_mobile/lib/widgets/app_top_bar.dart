@@ -3,9 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../core/app_colors.dart';
+import '../main.dart';
 import '../models/alert_model.dart';
 import '../services/alert_service.dart';
+import 'dark_mode_toggle.dart';
 
 class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBack;
@@ -31,8 +32,13 @@ class _AppTopBarState extends State<AppTopBar> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = themeNotifier.value == ThemeMode.dark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    final surfaceColor = Theme.of(context).scaffoldBackgroundColor;
+    
     return Container(
-      color: AppColors.background.withValues(alpha: 0.9),
+      color: surfaceColor.withValues(alpha: 0.9),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -42,24 +48,27 @@ class _AppTopBarState extends State<AppTopBar> {
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back),
-                  color: AppColors.brandDark,
+                  color: Theme.of(context).colorScheme.onSurface,
                 )
               else ...[
                 Container(
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF68D391), Color(0xFF2F855A)],
+                      colors: [
+                        primaryColor.withValues(alpha: 0.8),
+                        secondaryColor.withValues(alpha: 0.8),
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Color(0x6638A169),
+                        color: primaryColor.withValues(alpha: isDark ? 0.2 : 0.15),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -73,12 +82,12 @@ class _AppTopBarState extends State<AppTopBar> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'SIMHPSB',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.brandDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -100,9 +109,9 @@ class _AppTopBarState extends State<AppTopBar> {
                         onPressed: () {
                           Navigator.pushNamed(context, '/alert');
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.notifications_outlined,
-                          color: AppColors.brandDark,
+                          color: Theme.of(context).colorScheme.onSurface,
                           size: 24,
                         ),
                       ),
@@ -112,16 +121,16 @@ class _AppTopBarState extends State<AppTopBar> {
                           top: 8,
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: AppColors.error,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.error,
                               shape: BoxShape.circle,
                             ),
                             child: Text(
                               aktifCount.toString(),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.onPrimary,
+                                color: Theme.of(context).colorScheme.onError,
                               ),
                             ),
                           ),
@@ -130,6 +139,9 @@ class _AppTopBarState extends State<AppTopBar> {
                   );
                 },
               ),
+
+              // ── Dark Mode Toggle ─────────────────────────────────────
+              const DarkModeToggle(),
             ],
           ),
         ),

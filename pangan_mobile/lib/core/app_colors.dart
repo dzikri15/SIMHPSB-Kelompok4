@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
+  // ══════════════════════════════════════════
+  // LIGHT MODE
+  // ══════════════════════════════════════════
+
   // Primary
   static const primary = Color(0xFF3A694A);
   static const onPrimary = Color(0xFFFFFFFF);
@@ -67,4 +71,87 @@ class AppColors {
   // Brand-specific
   static const brandDark = Color(0xFF012D1D);
   static const brandMedium = Color(0xFF1B4332);
+
+  // Accent colors untuk UI components
+  static const accentBlue = Color(0xFF1565C0);
+  static const accentBlueLight = Color(0xFFE3F2FD);
+  static const accentOrange = Color(0xFFE65100);
+  static const accentOrangeLight = Color(0xFFFFF3E0);
+  static const accentGreen = primary;
+  static const accentGreenLight = primaryContainer;
+  static const accentRed = error;
+  static const accentRedLight = Color(0xFFFFEBEE);
+
+  // ══════════════════════════════════════════
+  // DARK MODE
+  // Dipetakan dari dark-mode.css web (SIMHPSB)
+  // --green-400 → primary, --surface-2 → surface, dsb.
+  // ══════════════════════════════════════════
+
+  // Primary dark  (--green-400: #3db370)
+  static const darkPrimary = Color(0xFF3DB370);
+  static const darkOnPrimary = Color(0xFF00210F);
+  static const darkPrimaryContainer = Color(0xFF1A5C38); // --green-600
+  static const darkOnPrimaryContainer = Color(0xFFD1FAE5); // --text-primary
+
+  // Secondary dark  (--green-300: #5fcc90)
+  static const darkSecondary = Color(0xFF5FCC90);
+  static const darkOnSecondary = Color(0xFF0A1F14); // --green-900
+  static const darkSecondaryContainer = Color(0xFF123524); // --green-700
+  static const darkOnSecondaryContainer = Color(0xFFD1FAE5);
+
+  // Tertiary dark
+  static const darkTertiary = Color(0xFF6FCF97); // --text-secondary
+  static const darkOnTertiary = Color(0xFF091A10); // --green-50
+  static const darkTertiaryContainer = Color(0xFF0E2A1C); // --green-800
+  static const darkOnTertiaryContainer = Color(0xFFD1FAE5);
+
+  // Surface dark
+  static const darkBackground = Color(0xFF0F1F17);    // --surface
+  static const darkSurface = Color(0xFF152B1E);        // --surface-2
+  static const darkSurface2 = Color(0xFF152B1E);       // --surface-2
+  static const darkSurface3 = Color(0xFF1A3326);       // --surface-3
+  static const darkOnSurface = Color(0xFFD1FAE5);      // --text-primary
+  static const darkOnSurfaceVariant = Color(0xFF6FCF97); // --text-secondary
+  static const darkInverseSurface = Color.fromARGB(255, 209, 250, 229);
+  static const darkInverseOnSurface = Color(0xFF0F1F17);
+  static const darkSurfaceContainerLowest = Color(0xFF0A1F14); // --green-900
+  static const darkSurfaceContainerLow = Color(0xFF0E2A1C);
+  static const darkSurfaceContainer = Color(0xFF0F1F17);
+  static const darkSurfaceContainerHigh = Color(0xFF152B1E);
+  static const darkSurfaceContainerHighest = Color(0xFF1A3326);
+
+  // Outline dark
+  static const darkOutline = Color.fromRGBO(74, 144, 104, 1);        // --text-muted
+  static const darkOutlineVariant = Color(0xFF1E3D2A); // --border
+
+  // Error dark
+  static const darkError = Color(0xFFDC2626);          // --red-500
+  static const darkOnError = Color(0xFFFFFFFF);
+  static const darkErrorContainer = Color(0xFF2D0A0A); // --red-100
+  static const darkOnErrorContainer = Color(0xFFF87171);
+
+  // ══════════════════════════════════════════
+  // HELPER METHODS untuk mendapatkan theme-aware colors
+  // ══════════════════════════════════════════
+
+  /// Dapatkan warna teks utama berdasarkan brightness
+  static Color onSurfaceByContext(BuildContext context) {
+    return Theme.of(context).colorScheme.onSurface;
+  }
+
+  /// Dapatkan warna teks sekunder berdasarkan brightness
+  static Color onSurfaceVariantByContext(BuildContext context) {
+    return Theme.of(context).colorScheme.onSurfaceVariant;
+  }
+
+  /// Dapatkan warna outline berdasarkan brightness
+  static Color outlineByContext(BuildContext context) {
+    return Theme.of(context).colorScheme.outline;
+  }
+
+  /// Dapatkan warna surface berdasarkan brightness
+  static Color surfaceByContext(BuildContext context) {
+    return Theme.of(context).colorScheme.surface;
+  }
 }

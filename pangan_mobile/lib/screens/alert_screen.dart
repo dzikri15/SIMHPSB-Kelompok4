@@ -112,6 +112,7 @@ class _AlertScreenState extends State<AlertScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => Dialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -121,20 +122,20 @@ class _AlertScreenState extends State<AlertScreen> {
             children: [
               // Judul
               Row(children: [
-                const Expanded(
+                Expanded(
                   child: Text('Konfigurasi Batas Minimum Alert',
                       style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w700,
-                        color: AppColors.onSurface,
+                        color: Theme.of(ctx).colorScheme.onSurface,
                       )),
                 ),
                 InkWell(
                   onTap: () => Navigator.pop(ctx),
                   borderRadius: BorderRadius.circular(20),
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
                     child: Icon(Icons.close, size: 20,
-                        color: AppColors.onSurfaceVariant),
+                        color: Theme.of(ctx).colorScheme.onSurfaceVariant),
                   ),
                 ),
               ]),
@@ -144,19 +145,19 @@ class _AlertScreenState extends State<AlertScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E1),
+                  color: AppColors.accentOrangeLight,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFFFE082)),
+                  border: Border.all(color: AppColors.accentOrange.withValues(alpha: 0.5)),
                 ),
-                child: const Row(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.info_outline, color: Color(0xFFF57C00), size: 18),
-                    SizedBox(width: 8),
+                    const Icon(Icons.info_outline, color: AppColors.accentOrange, size: 18),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Nilai akan disimpan ke konfigurasi sistem dan berlaku untuk semua stok.',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF795548)),
+                        style: TextStyle(fontSize: 12, color: Theme.of(ctx).colorScheme.onSurfaceVariant),
                       ),
                     ),
                   ],
@@ -170,10 +171,10 @@ class _AlertScreenState extends State<AlertScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Batas Minimum Beras (kg)',
+                      Text('Batas Minimum Beras (kg)',
                           style: TextStyle(
                             fontSize: 12, fontWeight: FontWeight.w600,
-                            color: AppColors.onSurfaceVariant,
+                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                           )),
                       const SizedBox(height: 6),
                       TextField(
@@ -197,10 +198,10 @@ class _AlertScreenState extends State<AlertScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Batas Minimum Gabah (kg)',
+                      Text('Batas Minimum Gabah (kg)',
                           style: TextStyle(
                             fontSize: 12, fontWeight: FontWeight.w600,
-                            color: AppColors.onSurfaceVariant,
+                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                           )),
                       const SizedBox(height: 6),
                       TextField(
@@ -267,9 +268,9 @@ class _AlertScreenState extends State<AlertScreen> {
   // ── Helpers status ────────────────────────────────────────────────────
   Color _statusColor(String s) {
     switch (s.toLowerCase()) {
-      case 'aktif':   return AppColors.error;
-      case 'proses':  return const Color(0xFFF57C00);
-      case 'selesai': return AppColors.primary;
+      case 'aktif':   return AppColors.accentRed;
+      case 'proses':  return AppColors.accentOrange;
+      case 'selesai': return AppColors.accentGreen;
       default:        return AppColors.onSurfaceVariant;
     }
   }
@@ -292,9 +293,9 @@ class _AlertScreenState extends State<AlertScreen> {
 
   // Sesuai web: merah jika < batas, kuning jika < 1.5x batas, hijau jika aman
   Color _stokColor(double stok, double batas) {
-    if (stok >= batas) return AppColors.primary;
-    if (stok >= batas * 0.5) return const Color(0xFFF57C00);
-    return AppColors.error;
+    if (stok >= batas) return AppColors.accentGreen;
+    if (stok >= batas * 0.5) return AppColors.accentOrange;
+    return AppColors.accentRed;
   }
   String _stokLabel(double stok, double batas) {
     if (stok >= batas) return 'Aman';
@@ -350,6 +351,7 @@ class _AlertScreenState extends State<AlertScreen> {
     }
 
     final List<Map<String, dynamic>> cards = [cardMap['Beras']!, cardMap['Gabah']!];
+    final surfaceColor = Theme.of(context).colorScheme.surface;
 
     return Row(
       children: List.generate(cards.length, (i) {
@@ -368,7 +370,7 @@ class _AlertScreenState extends State<AlertScreen> {
             margin: EdgeInsets.only(right: i < cards.length - 1 ? 10 : 0),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: surfaceColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.outlineVariant),
             ),
@@ -386,9 +388,9 @@ class _AlertScreenState extends State<AlertScreen> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(nama,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -433,30 +435,30 @@ class _AlertScreenState extends State<AlertScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Batas minimum',
+                        Text('Batas minimum',
                             style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.onSurfaceVariant)),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         Text('${_fmtNum(batas)} kg',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.onSurface,
+                              color: Theme.of(context).colorScheme.onSurface,
                             )),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text('Kapasitas',
+                        Text('Kapasitas',
                             style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.onSurfaceVariant)),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         Text(cap > 0 ? '${_fmtNum(cap)} kg' : '-',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.onSurface,
+                              color: Theme.of(context).colorScheme.onSurface,
                             )),
                       ],
                     ),
@@ -480,13 +482,13 @@ class _AlertScreenState extends State<AlertScreen> {
                   children: [
                     Text(
                       '${persen.toStringAsFixed(0)}% dari kapasitas',
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.onSurfaceVariant),
+                      style: TextStyle(
+                          fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     Text(
                       cap > 0 ? '${_fmtNum(sisa.clamp(0, double.infinity))} kg tersisa' : '',
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.onSurfaceVariant),
+                      style: TextStyle(
+                          fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -505,18 +507,19 @@ class _AlertScreenState extends State<AlertScreen> {
 
   // ── Build ─────────────────────────────────────────────────────────────
   @override
+  @override
   Widget build(BuildContext context) {
     final aktifCount   = _alerts.where((a) => a.isAktif).length;
     final prosesCount  = _alerts.where((a) => a.isProses).length;
     final selesaiCount = _alerts.where((a) => a.isSelesai).length;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.onSurface),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -530,15 +533,15 @@ class _AlertScreenState extends State<AlertScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ── Header ───────────────────────────────────────────────
-              const Text('Alert Stok',
+              Text('Alert Stok',
                   style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.w800,
-                    color: AppColors.onSurface, letterSpacing: -0.5,
+                    color: Theme.of(context).colorScheme.onSurface, letterSpacing: -0.5,
                   )),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Notifikasi otomatis saat stok mendekati batas minimum',
-                style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
+                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
 
@@ -546,7 +549,7 @@ class _AlertScreenState extends State<AlertScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLowest,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.outlineVariant),
                 ),
@@ -554,20 +557,20 @@ class _AlertScreenState extends State<AlertScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Konfigurasi Batas Minimum',
                                 style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w700,
-                                  color: AppColors.onSurface,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 )),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               'Sistem akan memicu alert jika stok berada di bawah batas minimum',
                               style: TextStyle(
-                                  fontSize: 11, color: AppColors.onSurfaceVariant),
+                                  fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -595,39 +598,39 @@ class _AlertScreenState extends State<AlertScreen> {
               const SizedBox(height: 24),
 
               // ── Ringkasan Status Alert ────────────────────────────────
-              const Text('Ringkasan Status Alert',
+              Text('Ringkasan Status Alert',
                   style: TextStyle(
                     fontSize: 18, fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                   )),
               const SizedBox(height: 12),
               Row(children: [
                 Expanded(child: _buildStatusCard(
                     title: 'Alert Aktif', count: aktifCount,
-                    color: AppColors.error, icon: Icons.warning_rounded)),
+                    color: AppColors.accentRed, icon: Icons.warning_rounded)),
                 const SizedBox(width: 12),
                 Expanded(child: _buildStatusCard(
                     title: 'Dalam Penanganan', count: prosesCount,
-                    color: const Color(0xFFF57C00),
+                    color: AppColors.accentOrange,
                     icon: Icons.hourglass_bottom_rounded)),
                 const SizedBox(width: 12),
                 Expanded(child: _buildStatusCard(
                     title: 'Sudah Ditangani', count: selesaiCount,
-                    color: AppColors.primary,
+                    color: AppColors.accentGreen,
                     icon: Icons.check_circle_rounded)),
               ]),
               const SizedBox(height: 28),
 
               // ── Riwayat Alert ─────────────────────────────────────────
-              const Text('Riwayat Alert',
+              Text('Riwayat Alert',
                   style: TextStyle(
                     fontSize: 18, fontWeight: FontWeight.w700,
-                    color: AppColors.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                   )),
               const SizedBox(height: 4),
-              const Text('Semua notifikasi sistem, terbaru di atas',
+              Text('Semua notifikasi sistem, terbaru di atas',
                   style: TextStyle(
-                      fontSize: 12, color: AppColors.onSurfaceVariant)),
+                      fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: 16),
 
               if (_loadingAlerts)
@@ -682,16 +685,17 @@ class _AlertScreenState extends State<AlertScreen> {
     final color = _statusColor(alert.status);
     final label = _statusLabel(alert.status);
     final icon  = _statusIcon(alert.status);
+    final surfaceColor = Theme.of(context).colorScheme.surface;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outline.withValues(alpha: 0.05)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05)),
         boxShadow: [
-          BoxShadow(color: AppColors.onSurface.withValues(alpha: 0.03),
+          BoxShadow(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
               blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
@@ -715,17 +719,17 @@ class _AlertScreenState extends State<AlertScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(alert.komoditas,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w700,
-                            color: AppColors.onSurface)),
+                            color: Theme.of(context).colorScheme.onSurface)),
                     const SizedBox(height: 4),
                     Wrap(spacing: 8, children: [
                       Text('Stok: ${alert.stokSaatIni.toStringAsFixed(0)} kg',
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.onSurfaceVariant)),
+                          style: TextStyle(
+                              fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       Text('Batas Min: ${alert.batasMinimum.toStringAsFixed(0)} kg',
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.onSurfaceVariant)),
+                          style: TextStyle(
+                              fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ]),
                     const SizedBox(height: 2),
                     Text(
@@ -733,8 +737,8 @@ class _AlertScreenState extends State<AlertScreen> {
                           ? DateFormat('dd MMM yyyy HH:mm')
                               .format(DateTime.parse(alert.createdAt!))
                           : 'Tanggal tidak tersedia',
-                      style: const TextStyle(
-                          fontSize: 10, color: AppColors.onSurfaceVariant),
+                      style: TextStyle(
+                          fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -814,11 +818,11 @@ class _AlertScreenState extends State<AlertScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.inbox_rounded, size: 48,
-                color: AppColors.onSurfaceVariant.withValues(alpha: 0.4)),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
             const SizedBox(height: 12),
-            const Text('Belum ada alert',
+            Text('Belum ada alert',
                 style: TextStyle(
-                    fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       );
@@ -832,8 +836,8 @@ class _AlertScreenState extends State<AlertScreen> {
             const SizedBox(height: 12),
             Text(_errorAlerts ?? 'Terjadi kesalahan',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.onSurfaceVariant)),
+                style: TextStyle(
+                    fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadAlerts,
