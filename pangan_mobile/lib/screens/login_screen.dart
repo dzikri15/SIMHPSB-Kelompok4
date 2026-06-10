@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../core/app_colors.dart';
 import '../services/auth_service.dart';
+import '../main.dart';
 import '../main_shell.dart';
 import '../petani_shell.dart';
  
@@ -58,29 +59,55 @@ class _LoginScreenState extends State<LoginScreen> {
  
   @override
   Widget build(BuildContext context) {
+    final isDark = themeNotifier.value == ThemeMode.dark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5EC),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 48),
+              // Dark Mode Toggle Button
+              Align(
+                alignment: Alignment.centerRight,
+                child: ValueListenableBuilder<ThemeMode>(
+                  valueListenable: themeNotifier,
+                  builder: (_, mode, __) => IconButton(
+                    onPressed: () {
+                      themeNotifier.value = 
+                        mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+                    },
+                    icon: Icon(
+                      mode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
+                    tooltip: mode == ThemeMode.dark ? 'Light Mode' : 'Dark Mode',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               Container(
                 width: 80, height: 80,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF68D391), Color(0xFF2F855A)],
+                    colors: [
+                      primaryColor.withValues(alpha: 0.8),
+                      secondaryColor.withValues(alpha: 0.8),
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x6638A169),
+                      color: primaryColor.withValues(alpha: isDark ? 0.2 : 0.15),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -102,25 +129,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Sistem Informasi Manajemen Hasil Panen dan Sumber Bakti',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
+                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 48),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Selamat Datang',
                     style: TextStyle(
                       fontSize: 32, fontWeight: FontWeight.w900,
-                      color: AppColors.onSurface,
+                      color: Theme.of(context).colorScheme.onSurface,
                     )),
               ),
               const SizedBox(height: 8),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Masuk untuk mengelola data lapangan Anda.',
-                    style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant)),
+                    style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ),
               const SizedBox(height: 32),
  
@@ -141,23 +168,24 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
  
               // Email
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text('ALAMAT EMAIL',
                     style: TextStyle(
                       fontSize: 11, fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2, color: AppColors.onSurfaceVariant,
+                      letterSpacing: 1.2, color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: 'nama@petugas.id',
-                  hintStyle: const TextStyle(color: AppColors.outline),
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   filled: true,
-                  fillColor: AppColors.surfaceContainerHigh,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -169,23 +197,24 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
  
               // Password
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text('KATA SANDI',
                     style: TextStyle(
                       fontSize: 11, fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2, color: AppColors.onSurfaceVariant,
+                      letterSpacing: 1.2, color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _passwordCtrl,
                 obscureText: _obscure,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
                   hintText: '••••••••',
-                  hintStyle: const TextStyle(color: AppColors.outline),
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   filled: true,
-                  fillColor: AppColors.surfaceContainerHigh,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -195,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscure ? Icons.visibility_off : Icons.visibility,
-                      color: AppColors.outline,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     onPressed: () => setState(() => _obscure = !_obscure),
                   ),
@@ -211,10 +240,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _loading ? null : _login,
                   icon: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20, height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white))
+                              strokeWidth: 2, 
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).colorScheme.onPrimary))
+                      )
                       : const Icon(Icons.login),
                   label: Text(
                     _loading ? 'Memproses...' : 'Masuk ke Akun',
@@ -231,9 +263,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               RichText(
-                text: const TextSpan(
-                  style: TextStyle(fontSize: 13, color: AppColors.onSurfaceVariant),
-                  children: [
+                text: TextSpan(
+                  style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  children: const [
                     TextSpan(text: 'Belum memiliki akun? '),
                     TextSpan(
                       text: 'Hubungi Admin',
@@ -244,10 +276,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 60),
-              const Text('MITRA LAPANGAN',
+              Text('MITRA LAPANGAN',
                   style: TextStyle(
                     fontSize: 10, fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5, color: AppColors.onSurfaceVariant,
+                    letterSpacing: 1.5, color: Theme.of(context).colorScheme.onSurfaceVariant,
                   )),
               const SizedBox(height: 12),
               Row(

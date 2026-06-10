@@ -47,7 +47,9 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       lastDate: DateTime.now(),
       builder: (ctx, child) => Theme(
         data: Theme.of(ctx).copyWith(
-          colorScheme: const ColorScheme.light(primary: AppColors.primary),
+          colorScheme: Theme.of(ctx).colorScheme.copyWith(
+            primary: Theme.of(ctx).colorScheme.primary,
+          ),
         ),
         child: child!,
       ),
@@ -96,13 +98,15 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   // ─────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+    
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480, maxHeight: 720),
         decoration: BoxDecoration(
-          color: AppColors.surfaceContainerLowest,
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
@@ -133,10 +137,12 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.add_box, color: Colors.white, size: 22),
+                    child: Icon(Icons.add_box, 
+                        color: Theme.of(context).colorScheme.onPrimary, 
+                        size: 22),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -144,18 +150,18 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                             style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.onSurface)),
+                                color: Theme.of(context).colorScheme.onSurface)),
                         Text('Mutasi masuk / keluar gudang',
                             style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.onSurfaceVariant)),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close,
-                        color: AppColors.onSurfaceVariant),
+                    icon: Icon(Icons.close,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -176,8 +182,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                         final isMasuk = j.toLowerCase() == 'masuk';
                         final isSelected = _selectedJenis == j;
                         final color = isMasuk
-                            ? const Color(0xFF1565C0)
-                            : AppColors.error;
+                            ? AppColors.accentBlue
+                            : AppColors.accentRed;
                         return Expanded(
                           child: GestureDetector(
                             onTap: () => setState(() => _selectedJenis = j),
@@ -207,7 +213,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                                         : Icons.logout_rounded,
                                     size: 18,
                                     color: isSelected
-                                        ? Colors.white
+                                        ? AppColors.onPrimary
                                         : color,
                                   ),
                                   const SizedBox(width: 8),
@@ -216,7 +222,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                                           fontWeight: FontWeight.w700,
                                           fontSize: 14,
                                           color: isSelected
-                                              ? Colors.white
+                                              ? AppColors.onPrimary
                                               : color)),
                                 ],
                               ),
@@ -272,21 +278,21 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 14, vertical: 14),
                                 decoration: BoxDecoration(
-                                  color: AppColors.surfaceContainerLow,
+                                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                                   border: Border.all(
-                                      color: AppColors.outlineVariant),
+                                      color: Theme.of(context).colorScheme.outline),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(children: [
-                                  const Icon(Icons.calendar_today,
+                                  Icon(Icons.calendar_today,
                                       size: 16,
-                                      color: AppColors.onSurfaceVariant),
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       DateFormat('dd/MM/yyyy')
                                           .format(_selectedDate),
-                                      style: const TextStyle(fontSize: 13),
+                                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                                     ),
                                   ),
                                 ]),
@@ -330,13 +336,13 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: const BorderSide(color: AppColors.outlineVariant),
+                      side: BorderSide(color: Theme.of(context).colorScheme.outline),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
-                    child: const Text('Batal',
+                    child: Text('Batal',
                         style: TextStyle(
-                            color: AppColors.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w600)),
                   ),
                 ),
@@ -386,10 +392,10 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   }
 
   Widget _label(String text) => Text(text,
-      style: const TextStyle(
+      style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: AppColors.onSurface,
+          color: Theme.of(context).colorScheme.onSurface,
           letterSpacing: 0.3));
 
   Widget _textField({
@@ -404,27 +410,27 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       maxLines: maxLines,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      style: const TextStyle(fontSize: 14),
+      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(
-            color: AppColors.onSurfaceVariant, fontSize: 13),
+        hintStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
         filled: true,
-        fillColor: AppColors.surfaceContainerLow,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.outlineVariant),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.outlineVariant),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide:
-              const BorderSide(color: AppColors.primary, width: 1.5),
+              BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
         ),
       ),
     );
@@ -439,25 +445,27 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        border: Border.all(color: AppColors.outlineVariant),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButton<String>(
         value: value,
         hint: Text(hint,
-            style: const TextStyle(
-                color: AppColors.onSurfaceVariant, fontSize: 13)),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
         isExpanded: true,
         underline: const SizedBox(),
         borderRadius: BorderRadius.circular(12),
+        style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
         items: items
             .map((item) => DropdownMenuItem<String>(
                   value: item,
-                  child: Text(item, style: const TextStyle(fontSize: 14)),
+                  child: Text(item, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                 ))
             .toList(),
         onChanged: onChanged,
+        dropdownColor: Theme.of(context).colorScheme.surfaceContainerLow,
       ),
     );
   }

@@ -41,7 +41,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const AppTopBar(showAlert: false),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -96,7 +96,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white70,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 4),
@@ -124,7 +124,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.primaryContainer,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
+                  border: Border.all(color: Theme.of(context).colorScheme.onPrimary, width: 4),
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.2),
@@ -147,12 +147,12 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color:
-                      isAktif ? const Color(0xFFE8F5E9) : const Color(0xFFFFF3E0),
+                      isAktif ? AppColors.accentGreenLight : AppColors.accentOrangeLight,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isAktif
-                        ? const Color(0xFF2E7D32)
-                        : const Color(0xFFE65100),
+                        ? AppColors.accentGreen
+                        : AppColors.accentOrange,
                   ),
                 ),
                 child: Row(
@@ -162,8 +162,8 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                       isAktif ? Icons.check_circle : Icons.pause_circle,
                       size: 13,
                       color: isAktif
-                          ? const Color(0xFF2E7D32)
-                          : const Color(0xFFE65100),
+                          ? AppColors.accentGreen
+                          : AppColors.accentOrange,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -172,8 +172,8 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: isAktif
-                            ? const Color(0xFF2E7D32)
-                            : const Color(0xFFE65100),
+                            ? AppColors.accentGreen
+                            : AppColors.accentOrange,
                       ),
                     ),
                   ],
@@ -271,26 +271,27 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
  
   // ── Section: Catatan ──────────────────────────────────────────────────
   Widget _buildSectionCatatan() {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.notes, size: 18, color: AppColors.primary),
-              SizedBox(width: 8),
+              Icon(Icons.notes, size: 18, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
               Text(
                 'Catatan',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -298,9 +299,9 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
           const SizedBox(height: 10),
           Text(
             _petani!.catatan!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: AppColors.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),
@@ -315,12 +316,13 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
     required IconData icon,
     required List<Widget> items,
   }) {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     if (items.isEmpty) return const SizedBox.shrink();
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: Column(
         children: [
@@ -334,14 +336,14 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
             ),
             child: Row(
               children: [
-                Icon(icon, size: 18, color: AppColors.primary),
+                Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     letterSpacing: 0.3,
                   ),
                 ),
@@ -355,7 +357,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
               children: [
                 e.value,
                 if (!isLast)
-                  const Divider(height: 1, indent: 52, color: AppColors.outlineVariant),
+                  Divider(height: 1, indent: 52, color: Theme.of(context).colorScheme.outline),
               ],
             );
           }),
@@ -400,19 +402,19 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -442,7 +444,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
           Text(
             _error ?? 'Terjadi kesalahan',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.onSurfaceVariant),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           ElevatedButton(

@@ -45,7 +45,7 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const AppTopBar(showAlert: false),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,8 +53,8 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
           // ── Page Header ─────────────────────────────────────────────
           Container(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-            color: AppColors.background,
-            child: const Column(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -62,22 +62,22 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                     letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'Semua catatan panen saya',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppColors.outlineVariant),
+          Divider(height: 1, color: Theme.of(context).colorScheme.outline),
 
           // ── Content ──────────────────────────────────────────────────
           Expanded(
@@ -105,14 +105,15 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
   }
 
   Widget _buildCard(PanenModel p) {
+    final surfaceColor = Theme.of(context).colorScheme.surface;
     final nilaiPanen = p.nilaiPanen;
     final hasNilai   = nilaiPanen > 0;
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.outlineVariant),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.04),
@@ -152,17 +153,17 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                     children: [
                       Text(
                         p.lahan?.namaLahan ?? 'Lahan #${p.lahanId}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
-                          color: AppColors.onSurface,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         p.tanggalPanen,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -197,14 +198,14 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                   label: 'Gabah',
                   value: _fmtKg(p.jumlahGabah),
                   icon: Icons.grain,
-                  color: const Color(0xFFE65100),
+                  color: AppColors.accentOrange,
                 ),
                 _dividerV(),
                 _statItem(
                   label: 'Beras',
                   value: _fmtKg(p.konversiBeras ?? 0),
                   icon: Icons.inventory_2_outlined,
-                  color: const Color(0xFF2E7D32),
+                  color: AppColors.accentGreen,
                 ),
                 if (hasNilai) ...[
                   _dividerV(),
@@ -212,7 +213,7 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                     label: 'Nilai',
                     value: _fmtRupiah(nilaiPanen),
                     icon: Icons.payments_outlined,
-                    color: const Color(0xFF1565C0),
+                    color: AppColors.accentBlue,
                   ),
                 ],
               ],
@@ -225,9 +226,9 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
               child: Text(
                 '📝 ${p.catatan}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
                 ),
               ),
