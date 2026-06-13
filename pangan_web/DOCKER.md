@@ -2,52 +2,214 @@
 
 Panduan lengkap untuk menjalankan aplikasi SIMHPSB menggunakan Docker dan Docker Compose.
 
-## 📋 Prerequisites
+---
+
+## 📋 Prerequisites (Yang Harus Diinstall Dulu)
 
 Pastikan sudah install:
-- **Docker Desktop** ([Download](https://www.docker.com/products/docker-desktop))
-- **Docker Compose** (biasanya include dengan Docker Desktop)
+1. **Docker Desktop** → [Download](https://www.docker.com/products/docker-desktop)
+2. **Git** → [Download](https://git-scm.com/download/win)
 
-Verifikasi instalasi:
-```bash
+Verifikasi instalasi dengan membuka **Command Prompt (CMD) / PowerShell**:
+
+```cmd
 docker --version
 docker compose version
+git --version
+```
+
+Jika semua 3 command keluar versi → **Siap lanjut!** ✅
+
+---
+
+## 🚀 Setup Lengkap di CMD (Copy-Paste Langsung)
+
+### **STEP 1: Clone Repository**
+
+Buka **Command Prompt** atau **PowerShell**, kemudian jalankan:
+
+```cmd
+git clone https://github.com/dzikri15/SIMHPSB-Kelompok4.git
+cd SIMHPSB-Kelompok4\pangan_web
+```
+
+### **STEP 2: Setup Environment**
+
+Copy file config:
+
+```cmd
+copy .env.example .env
+```
+
+✅ `.env` sudah siap pakai (password: `root`, sudah default di `.env`)
+
+### **STEP 3: Download & Jalankan Docker**
+
+```cmd
+docker compose down -v
+docker compose up -d --build
+```
+
+⏳ **Tunggu 2-3 menit** sampai semua services ready (terutama MySQL)
+
+Cek status services:
+
+```cmd
+docker compose ps
+```
+
+Semua harus status **"Up"** atau **"healthy"** ✅
+
+### **STEP 4: Setup Laravel Cache & Config**
+
+```cmd
+docker compose exec app php artisan config:clear
+docker compose exec app php artisan cache:clear
+```
+
+✅ Selesai! Laravel sudah ready.
+
+---
+
+## 🌐 Akses Aplikasi
+
+| Service | URL | Akun Login |
+|---------|-----|-----------|
+| **Web App** | http://localhost | - |
+| **API** | http://localhost:8000/api | - |
+| **phpMyAdmin** | http://localhost:8080 | User: `root`, Pass: `root` |
+
+**Login ke aplikasi:**
+- Email: `petugas@simhpsb.com`
+- Password: `password`
+
+---
+
+## 📱 Test API di CMD
+
+Login & dapatkan token:
+
+```cmd
+curl -X POST http://localhost:8000/api/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"petugas@simhpsb.com\",\"password\":\"password\"}"
+```
+
+Cek dashboard data:
+
+```cmd
+curl -X GET http://localhost:8000/api/stok/summary ^
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🛑 Stop & Clean Up
 
-### 1️⃣ Clone Repository
-```bash
-git clone https://github.com/dzikri15/SIMHPSB-Kelompok4.git
-cd SIMHPSB-Kelompok4/pangan_web
+**Stop containers (data tetap):**
+
+```cmd
+docker compose stop
 ```
 
-### 2️⃣ Siapkan Environment File
-```bash
-cp .env.example .env
+**Start ulang:**
+
+```cmd
+docker compose start
 ```
 
-Edit file `.env` jika perlu menyesuaikan database credentials:
-```env
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=simhpsb
-DB_USERNAME=laravel
-DB_PASSWORD=password
+**Hapus semua (termasuk data database):**
 
-REDIS_HOST=redis
-REDIS_PORT=6379
+```cmd
+docker compose down -v
 ```
 
-### 3️⃣ Build & Start Containers
-```bash
-# Build image dan jalankan services
-docker compose up -d
+---
 
-# Lihat status semua services
+## 🔧 Troubleshooting
+
+### **1. MySQL tidak healthy**
+
+```cmd
+docker compose logs db
+docker compose restart db
+```
+
+### **2. Cache error**
+
+```cmd
+docker compose exec app php artisan cache:clear
+docker compose exec app php artisan config:clear
+```
+
+### **3. Rebuild image (jika ada perubahan Dockerfile/composer.json)**
+
+```cmd
+docker compose up -d --build
+```
+
+### **4. Lihat error detail**
+
+```cmd
+docker compose logs app
+docker compose logs db
+docker compose logs
+```
+
+---
+
+## 📂 File Penting
+
+- `.env` - Configuration (DB password, JWT secret, Redis host)
+- `docker-compose.yml` - Services configuration
+- `simhpsb_db.sql` - Database dump (auto-import saat MySQL start)
+
+**Jangan ubah kecuali ada instruksi khusus!**
+
+---
+
+## ✅ Checklist Sebelum Deploy
+
+- [ ] Docker Desktop sudah running
+- [ ] Semua 6 services status "Up" (`docker compose ps`)
+- [ ] Bisa login ke http://localhost
+- [ ] phpMyAdmin bisa diakses di http://localhost:8080
+- [ ] API response 200 (bukan 500)
+
+---
+
+## 📞 Quick Command Reference
+
+```cmd
+# Lihat semua services
 docker compose ps
+
+# Lihat logs real-time
+docker compose logs -f
+
+# Lihat logs service tertentu
+docker compose logs app
+docker compose logs db
+
+# Enter container terminal
+docker compose exec app bash
+
+# Restart semua services
+docker compose restart
+
+# Stop semua services (data tetap)
+docker compose stop
+
+# Start kembali
+docker compose start
+
+# Hapus semua (WARNING: data hilang!)
+docker compose down -v
+```
+
+---
+
+**Selesai! 🎉 Aplikasi SIMHPSB sudah berjalan di Docker.**
 ```
 
 Output yang diharapkan:

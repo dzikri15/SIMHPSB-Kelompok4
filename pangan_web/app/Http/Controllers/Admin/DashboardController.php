@@ -35,6 +35,7 @@ class DashboardController extends Controller
         $alertOpenCount = $alertAktif->count() + $alertProses->count();
 
         $distribusiTerkini = Stok::where('jenis_transaksi', 'keluar')
+            ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
             ->orderByDesc($dateColumn)
             ->limit(4)
             ->get()
@@ -53,6 +54,7 @@ class DashboardController extends Controller
 
         $stokBerasHistory = $chartMonths->map(function ($month) use ($dateColumn) {
             return (float) Stok::where('komoditas', 'Beras')
+                ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
                 ->whereYear($dateColumn, $month->year)
                 ->whereMonth($dateColumn, $month->month)
                 ->orderByDesc($dateColumn)
@@ -62,6 +64,7 @@ class DashboardController extends Controller
         $trenPanenGabah = $chartMonths->map(function ($month) use ($dateColumn) {
             return (float) Stok::where('komoditas', 'Gabah')
                 ->where('jenis_transaksi', 'masuk')
+                ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
                 ->whereYear($dateColumn, $month->year)
                 ->whereMonth($dateColumn, $month->month)
                 ->sum('jumlah');
@@ -105,7 +108,8 @@ class DashboardController extends Controller
 
     private function getCurrentStock(string $komoditas): float
     {
-        $query = Stok::where('komoditas', $komoditas);
+        $query = Stok::where('komoditas', $komoditas)
+            ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); });
 
         $dateColumn = $this->getDateColumn();
 

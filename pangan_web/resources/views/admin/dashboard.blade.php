@@ -34,7 +34,7 @@
 <div class="stat-grid">
     <div class="stat-card green animate-in">
         <div class="stat-icon"><i class="fas fa-warehouse"></i></div>
-        <div class="stat-value">{{ number_format($stokBeras ?? 450) }} <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small></div>
+        <div id="statStokBeras" class="stat-value">{{ number_format($stokBeras ?? 450) }} <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Stok Beras</div>
         <div class="stat-change up">
             <i class="fas fa-arrow-up"></i>
@@ -49,7 +49,7 @@
 
     <div class="stat-card amber animate-in">
         <div class="stat-icon"><i class="fas fa-seedling"></i></div>
-        <div class="stat-value">{{ number_format($stokGabah ?? 800) }} <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small></div>
+        <div id="statStokGabah" class="stat-value">{{ number_format($stokGabah ?? 800) }} <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Stok Gabah</div>
         <div class="stat-change up">
             <i class="fas fa-arrow-up"></i>
@@ -337,6 +337,52 @@ function refreshDashboardIfVisible() {
 
 setInterval(refreshDashboardIfVisible, dashboardRefreshInterval);
 window.addEventListener('focus', refreshDashboardIfVisible);
+
+// Live update when stok page toggles a status in another tab
+window.addEventListener('storage', function(e) {
+    if (e.key === 'stok:updated') {
+        console.log('dashboard received storage event stok:updated', e.newValue);
+        // fetch small summary and update the two stat cards
+        fetch('{{ route('admin.stok.summary') }}', { headers: { 'Accept': 'application/json' } })
+            .then(r => r.json())
+            .then(data => {
+                if (data.stokBeras !== undefined) {
+                    const el = document.getElementById('statStokBeras');
+                    if (el) el.innerHTML = Number(data.stokBeras).toLocaleString() + ' <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small>';
+                }
+                if (data.stokGabah !== undefined) {
+                    const el2 = document.getElementById('statStokGabah');
+                    if (el2) el2.innerHTML = Number(data.stokGabah).toLocaleString() + ' <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small>';
+                }
+            })
+            .catch(err => console.error('Gagal memuat ringkasan stok:', err));
+    }
+});
+
+// Also listen via BroadcastChannel for more reliable same-origin tab messaging
+try {
+    const bc = new BroadcastChannel('stok_channel');
+    bc.onmessage = function(ev) {
+        console.log('dashboard received BroadcastChannel message', ev.data);
+        if (ev.data && ev.data.updated) {
+            fetch('{{ route('admin.stok.summary') }}', { headers: { 'Accept': 'application/json' } })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.stokBeras !== undefined) {
+                        const el = document.getElementById('statStokBeras');
+                        if (el) el.innerHTML = Number(data.stokBeras).toLocaleString() + ' <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small>';
+                    }
+                    if (data.stokGabah !== undefined) {
+                        const el2 = document.getElementById('statStokGabah');
+                        if (el2) el2.innerHTML = Number(data.stokGabah).toLocaleString() + ' <small style="font-size:14px;font-weight:600;color:var(--text-muted);">kg</small>';
+                    }
+                })
+                .catch(err => console.error('Gagal memuat ringkasan stok:', err));
+        }
+    };
+} catch (e) {
+    // ignore if not supported
+}
 
 // Mark first active alert as handled
 function markFirstAlertHandled() {
