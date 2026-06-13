@@ -46,7 +46,7 @@
                             <td>{{ $t->nama }}</td>
                             <td style="font-size:12px;color:var(--text-muted);">{{ $t->created_at?->format('Y-m-d') ?? '-' }}</td>
                             <td>
-                                <form method="POST" action="{{ route('tujuan-distribusi.destroy', $t->id) }}" onsubmit="return false;" class="inline-form">
+                                <form method="POST" action="{{ route('admin.tujuan-distribusi.destroy', $t->id) }}" onsubmit="return false;" class="inline-form">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $t->id }}, '{{ addslashes($t->nama) }}')">
@@ -73,7 +73,6 @@
             <div class="modal-title">Tambah Tujuan Distribusi</div>
             <button class="modal-close" onclick="closeModal('modalTambahTujuan')"><i class="fas fa-times"></i></button>
         </div>
-        <form method="POST" action="{{ route('tujuan-distribusi.store') }}">
         <form method="POST" action="{{ route('admin.tujuan-distribusi.store') }}">
             @csrf
             <div class="modal-body">
@@ -86,7 +85,7 @@
                 <button type="button" class="btn btn-secondary" onclick="closeModal('modalTambahTujuan')">Batal</button>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
             </div>
-                                <form method="POST" action="{{ route('admin.tujuan-distribusi.destroy', $t->id) }}" onsubmit="return false;" class="inline-form">
+        </form>
     </div>
 </div>
 
