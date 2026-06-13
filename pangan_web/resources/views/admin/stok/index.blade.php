@@ -229,15 +229,16 @@
 
                 <div class="form-group" id="tujuanGroup" style="display:none;">
                     <label>Tujuan Distribusi <span style="color:var(--red-500)">*</span></label>
-                    <select name="tujuan_distribusi">
-                        <option value="">Pilih tujuan</option>
-                        <option value="MBG Dapur 1">MBG Dapur 1</option>
-                        <option value="MBG Dapur 2">MBG Dapur 2</option>
-                        <option value="MBG Dapur 3">MBG Dapur 3</option>
-                        <option value="Toko Rudi">Toko Rudi</option>
-                        <option value="Toko Barokah">Toko Barokah</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <select name="tujuan_distribusi" id="tujuanSelect" style="flex:1;">
+                            <option value="">Pilih tujuan</option>
+                            @foreach(($tujuans ?? []) as $t)
+                                <option value="{{ $t->nama }}">{{ $t->nama }}</option>
+                            @endforeach
+                            <option value="__add_new">+ Tambah tujuan baru</option>
+                        </select>
+                        <input type="text" id="quickAddTujuanInput" placeholder="Tambah tujuan..." style="display:none;min-width:160px;" />
+                    </div>
                 </div>
 
                 <div class="form-group" id="sumberGroup">
@@ -316,6 +317,59 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function() {
             ensureTanggalIsSet();
         });
+    }
+
+    // Quick-add tujuan distribusi from transaksi modal
+    const tujuanSelect = document.getElementById('tujuanSelect');
+    const quickInput = document.getElementById('quickAddTujuanInput');
+    if (tujuanSelect) {
+        tujuanSelect.addEventListener('change', function() {
+            if (this.value === '__add_new') {
+                quickInput.style.display = 'block';
+                quickInput.focus();
+            } else {
+                quickInput.style.display = 'none';
+            }
+        });
+    }
+
+    if (quickInput) {
+        quickInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const name = this.value.trim();
+                if (!name) return;
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                fetch('{{ route('admin.tujuan-distribusi.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ nama: name })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const opt = document.createElement('option');
+                        opt.value = data.data.nama;
+                        opt.textContent = data.data.nama;
+                        const addOpt = Array.from(tujuanSelect.options).find(o => o.value === '__add_new');
+                        tujuanSelect.insertBefore(opt, addOpt);
+                        tujuanSelect.value = data.data.nama;
+                        quickInput.value = '';
+                        quickInput.style.display = 'none';
+                    } else {
+                        alert('Gagal menambahkan tujuan');
+                        console.error(data);
+                    }
+                })
+                .catch(err => { alert('Gagal menghubungi server'); console.error(err); });
+            }
+        });
+
+        quickInput.addEventListener('blur', function() { setTimeout(() => { quickInput.style.display = 'none'; tujuanSelect.value = ''; }, 200); });
     }
 });
 </script>

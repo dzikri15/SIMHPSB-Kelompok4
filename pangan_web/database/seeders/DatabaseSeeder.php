@@ -13,6 +13,7 @@ use App\Models\Stok;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Database\Seeders\TujuanDistribusiSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -215,5 +216,8 @@ class DatabaseSeeder extends Seeder
                 'ditangani_oleh' => User::where('role', 'petugas')->first()->id,
             ]
         );
+
+        // Seed tujuan distribusi (dropdown options)
+        $this->call(TujuanDistribusiSeeder::class);
     }
 }
