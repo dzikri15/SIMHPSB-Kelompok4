@@ -7,6 +7,37 @@
 
 @section('content')
 
+@if(session('warning'))
+<div id="warningModal" class="modal-overlay active" onclick="if(event.target === this) this.classList.remove('active')">
+    <div class="modal-box">
+        <div class="modal-icon">⚠️</div>
+        <h3 class="modal-title" style="color:#d97706;">Tidak Bisa Diselesaikan</h3>
+        <p class="modal-message">{{ session('warning') }}</p>
+        <div class="modal-actions">
+            <button class="btn-confirm" style="background:#d97706;" onclick="closeWarningModal()">Mengerti</button>
+        </div>
+    </div>
+</div>
+<script>
+function closeWarningModal() {
+    document.getElementById('warningModal').classList.remove('active');
+}
+</script>
+@endif
+
+@if(session('success'))
+<div id="successModal" class="modal-overlay active">
+    <div class="modal-box">
+        <div class="modal-icon">✅</div>
+        <h3 class="modal-title">Berhasil</h3>
+        <p class="modal-message">{{ session('success') }}</p>
+        <div class="modal-actions">
+            <button class="btn-confirm" onclick="document.getElementById('successModal').classList.remove('active')">OK</button>
+        </div>
+    </div>
+</div>
+@endif
+
 @if ($errors->any())
     <div class="alert-banner danger" style="margin-bottom:20px;">
         <i class="fas fa-exclamation-circle"></i>
@@ -35,6 +66,36 @@
         </div>
         <div class="card-body">
             <style>
+            .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+    z-index: 99999;
+    pointer-events: none;
+}
+.modal-overlay.active { 
+    opacity: 1; 
+    visibility: visible; 
+    pointer-events: auto;
+}
+
+.modal-box {
+    background: #fff; border-radius: 16px; padding: 28px; width: 360px;
+    text-align: center; transform: scale(0.9) translateY(20px); opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+.modal-overlay.active .modal-box { transform: scale(1) translateY(0); opacity: 1; }
+.modal-icon { font-size: 40px; margin-bottom: 8px; }
+.modal-title { font-size: 18px; font-weight: 700; color: #2E7D32; margin-bottom: 8px; }
+.modal-message { font-size: 14px; color: #555; margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
+.btn-confirm {
+    padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: 0.2s;
+    background: #2E7D32; color: #fff;
+}
+.btn-confirm:hover { background: #256428; }
                 .alert-stock-card { background: var(--surface-2); border-radius: 16px; padding: 18px; }
                 .stock-status-pill { display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;}
                 .stock-status-pill.red { background: var(--red-100); color: #991b1b; }
@@ -322,6 +383,27 @@ function postUpdateAlert(alertId, newStatus, message) {
     showSuccessMessage(message || 'Alert berhasil diperbarui');
 }
 
+function showWarningModal(message) {
+    let modal = document.getElementById('warningModalJS');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'warningModalJS';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-box">
+                <div class="modal-icon">⚠️</div>
+                <h3 class="modal-title" style="color:#d97706;">Tidak Bisa Diselesaikan</h3>
+                <p class="modal-message" id="warningModalMsg"></p>
+                <div class="modal-actions">
+                    <button class="btn-confirm" style="background:#d97706;" onclick="this.closest('.modal-overlay').classList.remove('active')">Mengerti</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+    }
+    modal.querySelector('#warningModalMsg').textContent = message;
+    requestAnimationFrame(() => modal.classList.add('active'));
+}
+
 function tandaiDitangani(alertId) {
     if (!confirm('Tandai alert ini sebagai sedang ditangani?')) return;
 
@@ -360,10 +442,12 @@ function tandaiSelesai(alertId) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            postUpdateAlert(alertId, 'selesai', data.message || 'Alert berhasil diselesaikan');
-        }
-    })
+    if (data.success) {
+        postUpdateAlert(alertId, 'selesai', data.message || 'Alert berhasil diselesaikan');
+    } else {
+        showWarningModal(data.message);
+    }
+})
     .catch(error => {
         console.error('Error:', error);
         alert('Gagal memperbarui alert');

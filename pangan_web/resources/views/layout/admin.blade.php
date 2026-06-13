@@ -995,6 +995,13 @@
             </a>
 
             @role('admin')
+                <a href="{{ route('admin.tujuan-distribusi.index') }}" class="nav-item {{ request()->routeIs('admin.tujuan-distribusi.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                    Tujuan Distribusi
+                </a>
+            @endrole
+
+            @role('admin')
                 <span class="nav-section-label">Gudang & Harga</span>
 
                 <a href="{{ route('admin.harga.index') }}" class="nav-item {{ request()->routeIs('admin.harga.*') ? 'active' : '' }}">

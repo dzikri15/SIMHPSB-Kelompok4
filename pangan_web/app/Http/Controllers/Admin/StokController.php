@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\AlertConfiguration;
 use App\Models\Stok;
+use App\Models\TujuanDistribusi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -63,6 +64,7 @@ class StokController extends Controller
             'keluarBerasBulanIni' => $keluarBerasBulanIni,
             'masukGabahBulanIni' => $masukGabahBulanIni,
             'keluarGabahBulanIni' => $keluarGabahBulanIni,
+            'tujuans' => TujuanDistribusi::orderBy('nama')->get(),
         ]);
     }
 

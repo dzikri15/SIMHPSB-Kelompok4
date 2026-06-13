@@ -48,30 +48,39 @@ class LaporanController extends Controller
                 : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
 
             $komoditasList = Stok::distinct()->pluck('komoditas')->filter()->values()->toArray();
-            $stokQuery = Stok::with('gudang')->whereBetween($dateColumn, [$dari, $sampai]);
+            $stokQuery = Stok::with('gudang')
+    ->whereDate($dateColumn, '>=', $dari)
+    ->whereDate($dateColumn, '<=', $sampai);
 
             if ($komoditas) {
                 $stokQuery->where('komoditas', $komoditas);
             }
 
-            $laporanData = $stokQuery->get();
+            $allStokData = $stokQuery->get();
+
+$laporanData = $allStokData
+    ->groupBy('komoditas')
+    ->map(fn($items) => $items->sortByDesc('created_at')->first())
+    ->values();
             $totalStok = $laporanData->sum('jumlah_stok');
             $totalGudang = $laporanData->pluck('gudang.nama_gudang')->unique()->filter()->count();
             $lowStockCount = $laporanData->filter(function($item) {
                 return $item->jumlah_stok < $item->batas_minimum;
             })->count();
 
-            $stockByDate = $laporanData->groupBy(function($item) use ($dateColumn) {
-                return optional($item->{$dateColumn})->format('Y-m-d');
-            });
+            $stockByDate = $allStokData->groupBy(function($item) use ($dateColumn) {
+    return optional($item->{$dateColumn})->format('Y-m-d');
+});
             $chartLabels = $stockByDate->keys()->toArray();
             $chartDatasets = [
-                [
-                    'label' => 'Jumlah Stok (kg)',
-                    'data' => $stockByDate->map(fn($items) => $items->sum('jumlah_stok'))->values()->toArray(),
-                    'backgroundColor' => 'rgba(56,161,105,.75)',
-                ]
-            ];
+    [
+        'label' => 'Jumlah Stok (kg)',
+        'data' => $stockByDate->map(function($items) {
+            return $items->sortByDesc('created_at')->first()->saldo_setelah ?? $items->sortByDesc('created_at')->first()->jumlah_stok;
+        })->values()->toArray(),
+        'backgroundColor' => 'rgba(56,161,105,.75)',
+    ]
+];
         } else {
             $panenQuery = Panen::with(['petani','lahan'])->whereBetween('tanggal_panen', [$dari, $sampai]);
             if ($petaniId) {
@@ -169,12 +178,18 @@ class LaporanController extends Controller
                 ? 'tanggal_update'
                 : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
 
-            $items = Stok::with('gudang')->whereBetween($dateColumn, [$dari, $sampai]);
-            if ($komoditas) {
-                $items->where('komoditas', $komoditas);
-            }
-            $items = $items->get();
+       $items = Stok::with('gudang')
+    ->whereDate($dateColumn, '>=', $dari)
+    ->whereDate($dateColumn, '<=', $sampai);
+    if ($komoditas) {
+    $items->where('komoditas', $komoditas);
+}
+    $items = $items->get()
+    ->groupBy('komoditas')
+    ->map(fn($g) => $g->sortByDesc('created_at')->first())
+    ->values();
         } else {
+            
             $panenQuery = Panen::with(['petani','lahan'])->whereBetween('tanggal_panen', [$dari, $sampai]);
             if ($petaniId) {
                 $panenQuery->where('petani_id', $petaniId);

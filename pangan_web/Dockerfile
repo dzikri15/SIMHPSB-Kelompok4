@@ -59,6 +59,7 @@ RUN mkdir -p \
 # Copy entrypoint
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN ln -snf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
 USER laravel
 
