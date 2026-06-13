@@ -47,10 +47,12 @@ class LaporanController extends Controller
                 ? 'tanggal_update'
                 : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
 
-            $komoditasList = Stok::distinct()->pluck('komoditas')->filter()->values()->toArray();
+            $komoditasList = Stok::when(Schema::hasColumn('stok_beras', 'status'), fn($query) => $query->where('status', 'aktif'))
+                ->distinct()->pluck('komoditas')->filter()->values()->toArray();
             $stokQuery = Stok::with('gudang')
-    ->whereDate($dateColumn, '>=', $dari)
-    ->whereDate($dateColumn, '<=', $sampai);
+                ->when(Schema::hasColumn('stok_beras', 'status'), fn($query) => $query->where('status', 'aktif'))
+                ->whereDate($dateColumn, '>=', $dari)
+                ->whereDate($dateColumn, '<=', $sampai);
 
             if ($komoditas) {
                 $stokQuery->where('komoditas', $komoditas);
@@ -178,13 +180,14 @@ $laporanData = $allStokData
                 ? 'tanggal_update'
                 : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
 
-       $items = Stok::with('gudang')
-    ->whereDate($dateColumn, '>=', $dari)
-    ->whereDate($dateColumn, '<=', $sampai);
-    if ($komoditas) {
-    $items->where('komoditas', $komoditas);
-}
-    $items = $items->get()
+            $items = Stok::with('gudang')
+                ->when(Schema::hasColumn('stok_beras', 'status'), fn($query) => $query->where('status', 'aktif'))
+                ->whereDate($dateColumn, '>=', $dari)
+                ->whereDate($dateColumn, '<=', $sampai);
+            if ($komoditas) {
+                $items->where('komoditas', $komoditas);
+            }
+            $items = $items->get()
     ->groupBy('komoditas')
     ->map(fn($g) => $g->sortByDesc('created_at')->first())
     ->values();

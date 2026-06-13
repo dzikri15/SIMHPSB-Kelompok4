@@ -217,6 +217,10 @@ class AlertController extends Controller
     {
         $query = Stok::where('komoditas', $komoditas);
 
+        if (Schema::hasColumn('stok_beras', 'status')) {
+            $query->where('status', 'aktif');
+        }
+
         if (Schema::hasColumn('stok_beras', 'tanggal_update')) {
             $query->orderByDesc('tanggal_update');
         } elseif (Schema::hasColumn('stok_beras', 'tanggal')) {

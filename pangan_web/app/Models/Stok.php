@@ -18,6 +18,7 @@ class Stok extends Model
         'keterangan',
         'catatan',
         'jumlah_stok',
+        'status',
         'batas_minimum',
         'tanggal_update',
         'tanggal',
