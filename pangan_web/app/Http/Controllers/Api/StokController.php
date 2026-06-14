@@ -254,6 +254,7 @@ class StokController extends Controller
             'keterangan'        => 'nullable|string|max:500',
             'catatan'           => 'nullable|string|max:1000',
             'tanggal'           => 'nullable|date',
+            'foto_bukti'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         // Tentukan gudang (pakai pertama jika tidak dikirim)
@@ -281,6 +282,13 @@ class StokController extends Controller
             ? \Carbon\Carbon::parse($data['tanggal'])
             : now();
 
+        // Upload foto bukti jika ada
+        $fotoBuktiPath = null;
+        if ($request->hasFile('foto_bukti')) {
+            $fotoBuktiPath = $request->file('foto_bukti')
+                ->store('stok/bukti', 'public');
+        }
+
         $stok = Stok::create([
             'gudang_id'       => $gudangId,
             'jenis_transaksi' => $data['jenis_transaksi'],
@@ -288,6 +296,8 @@ class StokController extends Controller
             'jumlah'          => $jumlah,
             'keterangan'      => $data['keterangan'] ?? null,
             'catatan'         => $data['catatan'] ?? null,
+            'foto_bukti'      => $fotoBuktiPath,
+            'status'          => 'aktif',
             'user_id'         => Auth::id(),
             'jumlah_stok'     => $saldoBaru,
             'batas_minimum'   => $batasMin,
@@ -311,7 +321,57 @@ class StokController extends Controller
         $stok->load(['gudang', 'user']);
         $stok->dicatat_oleh  = $stok->user?->name ?? 'Admin';
         $stok->tanggal_label = $tanggal->format('Y-m-d H:i');
+        $stok->foto_bukti_url = $stok->foto_bukti
+            ? asset('storage/' . $stok->foto_bukti)
+            : null;
 
         return response()->json($stok, 201);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // PATCH /api/stok/{id}/batalkan
+    // Batalkan transaksi (ubah status menjadi 'dibatalkan')
+    // ──────────────────────────────────────────────────────────────────────
+    public function batalkan(Stok $stok)
+    {
+        if ($stok->status === 'dibatalkan') {
+            return response()->json(['message' => 'Transaksi sudah dibatalkan sebelumnya.'], 422);
+        }
+
+        // Rollback saldo: balik jumlah transaksi ini
+        $komoditas    = $stok->komoditas;
+        $jumlah       = (float) $stok->jumlah;
+        $jenisAsli    = $stok->jenis_transaksi;
+
+        $saldoSekarang = (float) Stok::where('komoditas', $komoditas)
+            ->where('status', 'aktif')
+            ->latest('tanggal_update')
+            ->value('jumlah_stok') ?? 0;
+
+        // Balik: jika transaksi asal "masuk" maka rollback "kurangi", vice versa
+        $saldoBaru = $jenisAsli === 'masuk'
+            ? $saldoSekarang - $jumlah
+            : $saldoSekarang + $jumlah;
+
+        DB::transaction(function () use ($stok, $saldoBaru) {
+            $stok->update(['status' => 'dibatalkan']);
+
+            // Catat koreksi otomatis sebagai transaksi pembatalan
+            Stok::create([
+                'gudang_id'       => $stok->gudang_id,
+                'jenis_transaksi' => 'koreksi',
+                'komoditas'       => $stok->komoditas,
+                'jumlah'          => 0,
+                'keterangan'      => 'Pembatalan transaksi #' . $stok->id,
+                'catatan'         => 'Otomatis - Rollback dari pembatalan',
+                'status'          => 'aktif',
+                'user_id'         => Auth::id(),
+                'jumlah_stok'     => $saldoBaru,
+                'batas_minimum'   => $stok->batas_minimum,
+                'tanggal_update'  => now(),
+            ]);
+        });
+
+        return response()->json(['message' => 'Transaksi berhasil dibatalkan.', 'stok_id' => $stok->id]);
     }
 }
