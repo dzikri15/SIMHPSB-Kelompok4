@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AlertController;
 use App\Http\Controllers\Api\DistribusiController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\PetaniProfileController;
+use App\Http\Controllers\Api\TujuanDistribusiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,4 +71,12 @@ Route::middleware('auth:api')->group(function () {
     // ── Distribusi (admin & petugas only) ──────────────────────────────
     Route::apiResource('distribusi', DistribusiController::class)
         ->middleware('role:admin,petugas');
+
+    // ── Tujuan Distribusi (untuk dropdown Flutter) ─────────────────────────────
+    Route::get('tujuan-distribusi',          [TujuanDistribusiController::class, 'index']);
+    Route::post('tujuan-distribusi',         [TujuanDistribusiController::class, 'store']);
+    Route::delete('tujuan-distribusi/{id}',  [TujuanDistribusiController::class, 'destroy']);
+
+    // ── Batalkan transaksi stok ────────────────────────────────────────────────
+    Route::patch('stok/{stok}/batalkan', [StokController::class, 'batalkan']);
 });
