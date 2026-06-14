@@ -1026,6 +1026,11 @@
                         <span class="nav-badge">{{ $alertCount }}</span>
                     @endif
                 </a>
+
+                <a href="https://t.me/tedbow_bot" target="_blank" rel="noopener noreferrer" class="nav-item">
+                    <span class="icon"><i class="fab fa-telegram-plane"></i></span>
+                    Chatbot Telegram
+                </a>
             @endif
         @endif
     </nav>
