@@ -8,7 +8,7 @@
 @section('content')
 
 @if(session('warning'))
-<div id="warningModal" class="modal-overlay active" onclick="if(event.target === this) this.classList.remove('active')">
+<div id="warningModal" class="modal-overlay open" onclick="if(event.target === this) this.classList.remove('open')">
     <div class="modal-box">
         <div class="modal-icon">⚠️</div>
         <h3 class="modal-title" style="color:#d97706;">Tidak Bisa Diselesaikan</h3>
@@ -20,19 +20,19 @@
 </div>
 <script>
 function closeWarningModal() {
-    document.getElementById('warningModal').classList.remove('active');
+    document.getElementById('warningModal').classList.remove('open');
 }
 </script>
 @endif
 
 @if(session('success'))
-<div id="successModal" class="modal-overlay active">
+<div id="successModal" class="modal-overlay open">
     <div class="modal-box">
         <div class="modal-icon">✅</div>
         <h3 class="modal-title">Berhasil</h3>
         <p class="modal-message">{{ session('success') }}</p>
         <div class="modal-actions">
-            <button class="btn-confirm" onclick="document.getElementById('successModal').classList.remove('active')">OK</button>
+            <button class="btn-confirm" onclick="document.getElementById('successModal').classList.remove('open')">OK</button>
         </div>
     </div>
 </div>
@@ -73,7 +73,7 @@ function closeWarningModal() {
     z-index: 99999;
     pointer-events: none;
 }
-.modal-overlay.active { 
+.modal-overlay.open { 
     opacity: 1; 
     visibility: visible; 
     pointer-events: auto;
@@ -85,7 +85,7 @@ function closeWarningModal() {
     transition: all 0.3s ease;
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
-.modal-overlay.active .modal-box { transform: scale(1) translateY(0); opacity: 1; }
+.modal-overlay.open .modal-box { transform: scale(1) translateY(0); opacity: 1; }
 .modal-icon { font-size: 40px; margin-bottom: 8px; }
 .modal-title { font-size: 18px; font-weight: 700; color: #2E7D32; margin-bottom: 8px; }
 .modal-message { font-size: 14px; color: #555; margin-bottom: 20px; }
@@ -395,13 +395,13 @@ function showWarningModal(message) {
                 <h3 class="modal-title" style="color:#d97706;">Tidak Bisa Diselesaikan</h3>
                 <p class="modal-message" id="warningModalMsg"></p>
                 <div class="modal-actions">
-                    <button class="btn-confirm" style="background:#d97706;" onclick="this.closest('.modal-overlay').classList.remove('active')">Mengerti</button>
+                    <button class="btn-confirm" style="background:#d97706;" onclick="this.closest('.modal-overlay').classList.remove('open')">Mengerti</button>
                 </div>
             </div>`;
         document.body.appendChild(modal);
     }
     modal.querySelector('#warningModalMsg').textContent = message;
-    requestAnimationFrame(() => modal.classList.add('active'));
+    requestAnimationFrame(() => modal.classList.add('open'));
 }
 
 function tandaiDitangani(alertId) {

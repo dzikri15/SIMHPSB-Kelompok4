@@ -10,18 +10,25 @@ class TujuanDistribusiController extends Controller
 {
     /**
      * GET /api/tujuan-distribusi
-     * Ambil semua tujuan distribusi (untuk dropdown Flutter)
+     * Ambil semua tujuan distribusi
      */
     public function index()
     {
-        $tujuans = TujuanDistribusi::orderBy('nama')->get();
+        $tujuanList = TujuanDistribusi::orderBy('nama')->get();
+        return response()->json($tujuanList);
+    }
 
-        return response()->json($tujuans);
+    /**
+     * GET /api/tujuan-distribusi/{id}
+     */
+    public function show(TujuanDistribusi $tujuanDistribusi)
+    {
+        return response()->json($tujuanDistribusi);
     }
 
     /**
      * POST /api/tujuan-distribusi
-     * Tambah tujuan distribusi baru
+     * Buat tujuan distribusi baru (admin only)
      */
     public function store(Request $request)
     {
@@ -29,31 +36,33 @@ class TujuanDistribusiController extends Controller
             'nama' => 'required|string|max:255|unique:tujuan_distribusi,nama',
         ]);
 
-        $tujuan = TujuanDistribusi::create(['nama' => trim($data['nama'])]);
+        $tujuan = TujuanDistribusi::create($data);
 
         return response()->json($tujuan, 201);
     }
 
     /**
-     * DELETE /api/tujuan-distribusi/{id}
-     * Hapus tujuan distribusi (hanya jika belum dipakai di transaksi)
+     * PUT /api/tujuan-distribusi/{id}
+     * Update tujuan distribusi (admin only)
      */
-    public function destroy(int $id)
+    public function update(Request $request, TujuanDistribusi $tujuanDistribusi)
     {
-        $tujuan = TujuanDistribusi::findOrFail($id);
+        $data = $request->validate([
+            'nama' => 'sometimes|required|string|max:255|unique:tujuan_distribusi,nama,' . $tujuanDistribusi->id,
+        ]);
 
-        // Cek apakah sudah dipakai di kolom keterangan stok
-        $used = \App\Models\Stok::whereNotNull('keterangan')
-            ->where('keterangan', 'like', "%{$tujuan->nama}%")
-            ->exists();
+        $tujuanDistribusi->update($data);
 
-        if ($used) {
-            return response()->json([
-                'message' => 'Tujuan distribusi tidak dapat dihapus karena sudah digunakan di transaksi.',
-            ], 422);
-        }
+        return response()->json($tujuanDistribusi);
+    }
 
-        $tujuan->delete();
+    /**
+     * DELETE /api/tujuan-distribusi/{id}
+     * Hapus tujuan distribusi (admin only)
+     */
+    public function destroy(TujuanDistribusi $tujuanDistribusi)
+    {
+        $tujuanDistribusi->delete();
 
         return response()->json(null, 204);
     }

@@ -7,6 +7,7 @@
 
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
+import '../core/constants.dart';
 import '../widgets/app_top_bar.dart';
 import '../widgets/catat_transaksi_dialog.dart';
 import '../services/transaksi_stok_service.dart';
@@ -65,11 +66,11 @@ class _GudangScreenState extends State<GudangScreen> {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            // ── Judul + Summary Cards (padding normal) ────────────────
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // ── Judul ──────────────────────────────────────────
                   Text('Stok Gudang',
                       style: TextStyle(
                           fontSize: 32,
@@ -83,20 +84,30 @@ class _GudangScreenState extends State<GudangScreen> {
                         fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 18),
-
-                  // ── 8 Summary Cards ────────────────────────────────
                   _buildSummarySection(),
                   const SizedBox(height: 28),
+                ]),
+              ),
+            ),
 
-                  // ── Header Mutasi + Tombol Catat ───────────────────
+            // ── Header Mutasi + Filter (padding normal) ───────────────
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   _buildMutasiHeader(),
                   const SizedBox(height: 14),
-
-                  // ── Filter Bar ─────────────────────────────────────
                   _buildFilterBar(),
                   const SizedBox(height: 14),
+                ]),
+              ),
+            ),
 
-                  // ── Tabel Transaksi ────────────────────────────────
+            // ── Tabel Transaksi — full width, padding minimal ─────────
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 32),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
                   _buildTransaksiSection(),
                 ]),
               ),
@@ -544,37 +555,38 @@ class _GudangScreenState extends State<GudangScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButton<String>(
         value: value,
         hint: Text(hint,
             style: TextStyle(
-                fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         isExpanded: true,
         underline: const SizedBox(),
         borderRadius: BorderRadius.circular(12),
-        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
+        style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
         items: [
           DropdownMenuItem<String>(
               value: null,
               child: Text(hint,
                   style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: Theme.of(context).colorScheme.onSurfaceVariant))),
           ...items.map((i) =>
               DropdownMenuItem<String>(value: i, child: Text(i))),
         ],
         onChanged: onChanged,
-        dropdownColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        dropdownColor: Theme.of(context).colorScheme.surface,
       ),
     );
   }
 
+
   // ══════════════════════════════════════════════════════════════════════
-  // DAFTAR TRANSAKSI
+  // TRANSAKSI SECTION — responsive: tabel di desktop, card list di mobile
   // ══════════════════════════════════════════════════════════════════════
   Widget _buildTransaksiSection() {
     return FutureBuilder<List<TransaksiStokModel>>(
@@ -591,186 +603,371 @@ class _GudangScreenState extends State<GudangScreen> {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-        if (snap.hasError) {
-          return _errorCard('${snap.error}');
-        }
+        if (snap.hasError) return _errorCard('${snap.error}');
         final list = snap.data ?? [];
-        if (list.isEmpty) {
-          return _emptyCard('Belum ada data transaksi.');
-        }
+        if (list.isEmpty) return _emptyCard('Belum ada data transaksi.');
 
-        return Column(
-          children: list
-              .map((t) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _transaksiTile(t),
-                  ))
-              .toList(),
-        );
+        return LayoutBuilder(builder: (ctx, constraints) {
+          // Gunakan tabel di layar >= 800px, card di bawahnya
+          if (constraints.maxWidth >= 800) {
+            return _buildDesktopTable(list, constraints.maxWidth);
+          }
+          return _buildMobileList(list);
+        });
       },
     );
   }
 
-  Widget _transaksiTile(TransaksiStokModel t) {
-    final surfaceColor = Theme.of(context).colorScheme.surface;
-    final isMasuk = t.isMasuk;
-    final jenisColor  = isMasuk ? AppColors.accentBlue : AppColors.accentRed;
-    final jenisIconBg = isMasuk
-        ? AppColors.accentBlueLight
-        : AppColors.accentRedLight;
-    final jenisIcon = isMasuk ? Icons.login_rounded : Icons.logout_rounded;
-    final jenisLabel = isMasuk ? 'Masuk' : 'Keluar';
+  // ── DESKTOP: Tabel full width ────────────────────────────────────────
+  Widget _buildDesktopTable(List<TransaksiStokModel> list, double availableWidth) {
+    const borderWidth = 2.0;
+    final usable = availableWidth - borderWidth;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    // Lebar fixed per kolom, kolom Tujuan/Sumber menyerap sisa
+    const fixedWidths = [48.0, 130.0, 72.0, 80.0, 90.0, 72.0, 72.0, 52.0, 120.0, 52.0];
+    final fixedTotal  = fixedWidths.fold(0.0, (a, b) => a + b);
+    final tujuanW     = (usable - fixedTotal).clamp(120.0, 300.0);
+
+    final colWidths = [
+      fixedWidths[0], // No
+      fixedWidths[1], // Tanggal
+      fixedWidths[2], // Jenis
+      fixedWidths[3], // Komoditas
+      fixedWidths[4], // Jumlah (kg)
+      tujuanW,        // Tujuan/Sumber — fleksibel
+      fixedWidths[5], // Catatan
+      fixedWidths[6], // Status
+      fixedWidths[7], // Bukti
+      fixedWidths[8], // Dicatat Oleh
+      fixedWidths[9], // Aksi
+    ];
+    final headers = ['No','Tanggal','Jenis','Komoditas','Jumlah (kg)','Tujuan/Sumber','Catatan','Status','Bukti','Dicatat Oleh','Aksi'];
+    final numericCols = {4}; // Jumlah (kg)
+
+    final tableW = colWidths.fold(0.0, (a, b) => a + b);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: availableWidth,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        child: SizedBox(
+          width: tableW,
+          child: Column(
             children: [
-              // Icon jenis
+              // Header
               Container(
-                width: 48, height: 48,
-                decoration: BoxDecoration(
-                    color: jenisIconBg,
-                    borderRadius: BorderRadius.circular(14)),
-                child: Icon(jenisIcon, color: jenisColor, size: 24),
-              ),
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Komoditas
-                              Text(t.komoditasDisplay,
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: Theme.of(context).colorScheme.onSurface)),
-                              const SizedBox(height: 2),
-                              // Keterangan
-                              Text(t.keteranganDisplay,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Jumlah
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(t.jumlahDisplay,
-                                style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w900,
-                                    color: jenisColor)),
-                            const SizedBox(height: 2),
-                            // Jenis badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: jenisColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                    color: jenisColor.withValues(alpha: 0.3)),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(jenisIcon,
-                                      size: 10, color: jenisColor),
-                                  const SizedBox(width: 4),
-                                  Text(jenisLabel,
-                                      style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w700,
-                                          color: jenisColor)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                child: Row(
+                  children: List.generate(headers.length, (i) => SizedBox(
+                    width: colWidths[i],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                      child: Text(
+                        headers[i],
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+                        textAlign: numericCols.contains(i) ? TextAlign.right : TextAlign.left,
+                      ),
                     ),
-                  ],
+                  )),
                 ),
               ),
+              const Divider(height: 1, thickness: 1),
+              // Rows
+              ...List.generate(list.length, (idx) {
+                final t = list[idx];
+                final jenisColor = t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
+                return Container(
+                  color: !t.isAktif
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                      : idx % 2 == 0
+                          ? Theme.of(context).colorScheme.surface
+                          : Theme.of(context).colorScheme.surfaceContainerLow,
+                  child: Column(children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // No
+                        SizedBox(width: colWidths[0], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text('${idx+1}', style: const TextStyle(fontSize: 11)),
+                        )),
+                        // Tanggal
+                        SizedBox(width: colWidths[1], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text(t.tanggalLabel ?? '-', style: const TextStyle(fontSize: 11)),
+                        )),
+                        // Jenis badge
+                        SizedBox(width: colWidths[2], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: _jenisBadge(t, jenisColor),
+                        )),
+                        // Komoditas
+                        SizedBox(width: colWidths[3], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text(t.komoditasDisplay, style: const TextStyle(fontSize: 11)),
+                        )),
+                        // Jumlah
+                        SizedBox(width: colWidths[4], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text(t.jumlahDisplay,
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                            textAlign: TextAlign.right),
+                        )),
+                        // Tujuan/Sumber
+                        SizedBox(width: colWidths[5], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text(
+                            t.tujuanDistribusiNama ?? t.keteranganDisplay,
+                            style: const TextStyle(fontSize: 11),
+                            maxLines: 2, overflow: TextOverflow.ellipsis,
+                          ),
+                        )),
+                        // Catatan
+                        SizedBox(width: colWidths[6], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text(t.catatan ?? '-',
+                            style: const TextStyle(fontSize: 10),
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        )),
+                        // Status
+                        SizedBox(width: colWidths[7], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: _statusBadge(t),
+                        )),
+                        // Bukti
+                        SizedBox(width: colWidths[8], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: t.fotoBukti != null && t.fotoBukti!.isNotEmpty
+                              ? GestureDetector(
+                                  onTap: () => _showFotoPreview(t.fotoBukti!),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Icon(Icons.image, size: 16, color: AppColors.primary),
+                                  ),
+                                )
+                              : const Text('-', style: TextStyle(fontSize: 10)),
+                        )),
+                        // Dicatat Oleh
+                        SizedBox(width: colWidths[9], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                          child: Text(t.dicatatOleh ?? 'Admin',
+                            style: const TextStyle(fontSize: 11),
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        )),
+                        // Aksi
+                        SizedBox(width: colWidths[10], child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: _aksiButton(t),
+                        )),
+                      ],
+                    ),
+                    if (idx < list.length - 1)
+                      Divider(height: 1, thickness: 0.5,
+                        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                  ]),
+                );
+              }),
             ],
           ),
+        ),
+      ),
+    );
+  }
 
-          const SizedBox(height: 12),
-
-          // ── Bottom row: tanggal / saldo / dicatat oleh ─────────────
-          Container(
-            padding: const EdgeInsets.all(10),
+  // ── MOBILE: Card list yang menampilkan semua field ──────────────────
+  Widget _buildMobileList(List<TransaksiStokModel> list) {
+    return Column(
+      children: List.generate(list.length, (idx) {
+        final t = list[idx];
+        final jenisColor = t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
+        return Opacity(
+          opacity: t.isAktif ? 1.0 : 0.6,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(10),
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+                  blurRadius: 4, offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: Row(
+            child: Column(
               children: [
-                _infoChip(Icons.schedule_outlined,
-                    t.tanggalLabel ?? '-'),
-                const SizedBox(width: 8),
-                _infoChip(
-                    Icons.account_balance_wallet_outlined,
-                    'Saldo: ${t.saldoDisplay}'),
-                const Spacer(),
-                _infoChip(Icons.person_outline,
-                    t.dicatatOleh ?? 'Admin'),
+                // ── Header baris: nomor + jenis badge + jumlah ──────
+                Container(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  decoration: BoxDecoration(
+                    color: jenisColor.withValues(alpha: 0.06),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  ),
+                  child: Row(children: [
+                    Text('#${idx + 1}',
+                      style: TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      )),
+                    const SizedBox(width: 8),
+                    _jenisBadge(t, jenisColor),
+                    const Spacer(),
+                    Text(t.jumlahDisplay,
+                      style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w900,
+                        color: jenisColor,
+                      )),
+                  ]),
+                ),
+                // ── Body: semua field dalam grid 2 kolom ────────────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                  child: Column(
+                    children: [
+                      _mobileRow('Tanggal',      t.tanggalLabel ?? '-'),
+                      _mobileRow('Komoditas',    t.komoditasDisplay),
+                      _mobileRow('Tujuan/Sumber',
+                        t.tujuanDistribusiNama ?? t.keteranganDisplay),
+                      if ((t.catatan ?? '').isNotEmpty)
+                        _mobileRow('Catatan', t.catatan!),
+                      _mobileRow('Dicatat Oleh', t.dicatatOleh ?? 'Admin'),
+                    ],
+                  ),
+                ),
+                // ── Footer: status + bukti + aksi ───────────────────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
+                  child: Row(children: [
+                    _statusBadge(t),
+                    const SizedBox(width: 8),
+                    if (t.fotoBukti != null && t.fotoBukti!.isNotEmpty)
+                      GestureDetector(
+                        onTap: () => _showFotoPreview(t.fotoBukti!),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                            Icon(Icons.image, size: 13, color: AppColors.primary),
+                            SizedBox(width: 4),
+                            Text('Bukti', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                          ]),
+                        ),
+                      ),
+                    const Spacer(),
+                    _aksiButton(t),
+                  ]),
+                ),
               ],
             ),
           ),
+        );
+      }),
+    );
+  }
+
+  // ── Helper: satu baris field di mobile card ─────────────────────────
+  Widget _mobileRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(label,
+              style: TextStyle(
+                fontSize: 11, fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              )),
+          ),
+          const Text(': ', style: TextStyle(fontSize: 11)),
+          Expanded(
+            child: Text(value,
+              style: const TextStyle(fontSize: 11),
+              maxLines: 3, overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _infoChip(IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-        const SizedBox(width: 4),
-        Text(text,
-            style: TextStyle(
-                fontSize: 10,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500),
-            overflow: TextOverflow.ellipsis),
-      ],
+  // ── Shared widgets ──────────────────────────────────────────────────
+  Widget _jenisBadge(TransaksiStokModel t, Color jenisColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: jenisColor.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: jenisColor.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        t.isMasuk ? 'Masuk' : 'Keluar',
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: jenisColor),
+      ),
     );
   }
 
-  // ══════════════════════════════════════════════════════════════════════
+  Widget _statusBadge(TransaksiStokModel t) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: (t.isAktif ? Colors.green : Colors.grey).withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        t.isAktif ? 'Aktif' : 'Dibatalkan',
+        style: TextStyle(
+          fontSize: 10, fontWeight: FontWeight.w600,
+          color: t.isAktif ? Colors.green[700] : Colors.grey[600],
+        ),
+      ),
+    );
+  }
+
+  Widget _aksiButton(TransaksiStokModel t) {
+    if (t.isAktif) {
+      return Tooltip(
+        message: 'Batalkan transaksi',
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+          icon: const Icon(Icons.cancel_outlined, size: 20, color: AppColors.accentRed),
+          onPressed: () => _toggleStatus(t),
+        ),
+      );
+    }
+    return Tooltip(
+      message: 'Aktifkan kembali',
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        icon: const Icon(Icons.replay, size: 20, color: AppColors.primary),
+        onPressed: () => _toggleStatus(t),
+      ),
+    );
+  }
+
   // HELPERS
   // ══════════════════════════════════════════════════════════════════════
   String _fmtKg(double v) {
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)} T';
     return '${v.toStringAsFixed(0)} kg';
   }
 
@@ -827,43 +1024,145 @@ class _GudangScreenState extends State<GudangScreen> {
     showDialog(
       context: context,
       builder: (_) => CatatTransaksiDialog(
-        onSave: (data) => _saveCatatTransaksi(data),
+        onSave: () {
+          // Dialog berhasil menyimpan transaksi ke API
+          // Refresh UI untuk menampilkan data terbaru
+          _refresh();
+        },
       ),
     );
   }
 
-  Future<void> _saveCatatTransaksi(Map<String, dynamic> data) async {
+  // ══════════════════════════════════════════════════════════════════════
+  // PREVIEW FOTO BUKTI
+  // ══════════════════════════════════════════════════════════════════════
+  Future<void> _toggleStatus(TransaksiStokModel t) async {
+    final isAktif = t.isAktif;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(isAktif ? 'Batalkan Transaksi' : 'Aktifkan Kembali'),
+        content: Text(isAktif
+            ? 'Transaksi ini akan ditandai sebagai dibatalkan dan saldo stok akan dihitung ulang. Lanjutkan?'
+            : 'Transaksi ini akan diaktifkan kembali dan saldo stok akan dihitung ulang. Lanjutkan?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Ya, Lanjutkan'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
     try {
-      await _transaksiService.create(data);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(children: [
-              Icon(Icons.check_circle, color: Colors.white, size: 18),
-              SizedBox(width: 10),
-              Text('Transaksi berhasil dicatat'),
-            ]),
-            backgroundColor: AppColors.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        _refresh();
-      }
+      await _transaksiService.toggleStatus(t.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isAktif
+              ? '✅ Transaksi dibatalkan & saldo diperbarui\nAlert akan di-refresh otomatis'
+              : '✅ Transaksi diaktifkan kembali & saldo diperbarui\nAlert akan di-refresh otomatis'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      _refresh();
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal: ${e.toString()}'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('❌ Gagal memperbarui status: $e')),
+      );
     }
+  }
+
+  void _showFotoPreview(String fotoPath) {
+    // Build image URL dari path database
+    // Database simpan: "bukti-distribusi/1781358313_26bd614233f90.png"
+    // Gunakan helper dari AppConstants untuk build URL
+    String imageUrl = AppConstants.getStorageFileUrl(fotoPath);
+
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.broken_image, 
+                              color: Colors.white70, size: 48),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                'Gagal memuat foto\n\nPath: $fotoPath\nURL: $imageUrl\n\nError: $error\n\n⚠️ Pastikan telah jalankan: php artisan storage:link',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: progress.expectedTotalBytes != null
+                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                : null,
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

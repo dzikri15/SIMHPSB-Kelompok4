@@ -33,6 +33,22 @@ class StokService {
     return StokModel.fromJson(data);
   }
 
+  /// Ambil stok terkini untuk komoditas tertentu (untuk validasi client-side)
+  /// Returns: {jumlah_stok, batas_minimum, komoditas}
+  Future<Map<String, dynamic>> getCurrentStok(String komoditas) async {
+    try {
+      final data = await _api.get('stok/current?komoditas=$komoditas') as Map<String, dynamic>;
+      return data;
+    } catch (e) {
+      // Jika API gagal, kembalikan default nilai aman
+      return {
+        'jumlah_stok': 0,
+        'batas_minimum': 500,
+        'komoditas': komoditas,
+      };
+    }
+  }
+
   Future<StokModel> create(Map<String, dynamic> body) async {
     final data = await _api.post('stok', body) as Map<String, dynamic>;
     return StokModel.fromJson(data);

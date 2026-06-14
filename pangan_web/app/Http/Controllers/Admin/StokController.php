@@ -85,6 +85,7 @@ class StokController extends Controller
         if ($dateColumn) {
             $query->orderByDesc($dateColumn);
         }
+        $query->orderByDesc('id');
 
         return (float) ($query->value('jumlah_stok') ?: 0);
     }
@@ -232,12 +233,16 @@ $path = $file->storeAs('bukti-distribusi', $filename, 'public');            // s
         $saldo = 0;
         $transaksi = Stok::where('komoditas', $komoditas)
             ->where('status', 'aktif')
-            ->orderBy('created_at')
+            ->orderBy('tanggal_update')
+            ->orderBy('id')
             ->get();
 
         foreach ($transaksi as $t) {
             $saldo += $t->jenis_transaksi === 'masuk' ? $t->jumlah : -$t->jumlah;
-            $t->saldo_setelah = $saldo;
+            $t->jumlah_stok = $saldo;
+            if (Schema::hasColumn('stok_beras', 'saldo_setelah')) {
+                $t->saldo_setelah = $saldo;
+            }
             $t->save();
         }
     }

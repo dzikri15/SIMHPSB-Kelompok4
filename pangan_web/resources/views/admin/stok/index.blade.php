@@ -73,13 +73,13 @@
     </div>
 
     <div class="stat-card red" style="border-top:3px solid var(--red-500);">
-        <div class="stat-icon"><i class="fas fa-outbox"></i></div>
+        <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($keluarBerasBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Keluar Beras Bulan Ini</div>
     </div>
 
-    <div class="stat-card red" style="border-top:3px solid var(--gray-700);">
-        <div class="stat-icon"><i class="fas fa-outbox"></i></div>
+    <div class="stat-card red" style="border-top:3px solid var(--red-500);">
+        <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($keluarGabahBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Keluar Gabah Bulan Ini</div>
     </div>

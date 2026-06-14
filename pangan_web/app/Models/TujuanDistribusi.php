@@ -12,4 +12,9 @@ class TujuanDistribusi extends Model
     protected $table = 'tujuan_distribusi';
 
     protected $fillable = ['nama'];
+
+    public function stoks()
+    {
+        return $this->hasMany(Stok::class);
+    }
 }

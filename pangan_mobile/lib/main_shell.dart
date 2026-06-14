@@ -6,6 +6,7 @@ import 'main.dart'; // themeNotifier
 import 'screens/beranda_screen.dart';
 import 'screens/panen_screen.dart';
 import 'screens/gudang_screen.dart';
+import 'screens/distribusi_tujuan_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
 
@@ -27,6 +28,7 @@ class _MainShellState extends State<MainShell> {
     ),
     const PanenScreen(),
     const GudangScreen(),
+    const DistribusiTujuanScreen(),
   ];
 
   Future<void> _logout() async {
@@ -74,6 +76,7 @@ class _MainShellState extends State<MainShell> {
       {'icon': Icons.home_outlined,        'iconFill': Icons.home,        'label': 'BERANDA'},
       {'icon': Icons.agriculture_outlined, 'iconFill': Icons.agriculture, 'label': 'PANEN'},
       {'icon': Icons.warehouse_outlined,   'iconFill': Icons.warehouse,   'label': 'GUDANG'},
+      {'icon': Icons.location_on_outlined, 'iconFill': Icons.location_on, 'label': 'DISTRIBUSI'},
     ];
 
     return Container(

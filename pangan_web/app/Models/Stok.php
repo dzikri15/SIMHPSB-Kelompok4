@@ -24,6 +24,8 @@ class Stok extends Model
         'batas_minimum',
         'tanggal_update',
         'tanggal',
+        'user_id',
+        'foto_bukti',
     ];
 
     protected $casts = [
@@ -52,5 +54,10 @@ class Stok extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tujuanDistribusi()
+    {
+        return $this->belongsTo(TujuanDistribusi::class);
     }
 }

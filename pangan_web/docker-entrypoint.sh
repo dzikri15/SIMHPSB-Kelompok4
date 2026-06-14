@@ -36,6 +36,10 @@ else
     php artisan key:generate --force
 fi
 
+# Create storage symlink untuk akses public files
+echo "Creating storage symlink..."
+php artisan storage:link 2>/dev/null || true
+
 # Cek apakah tabel sudah ada (dari init.sql)
 TABLE_EXISTS=$(php artisan tinker --execute="echo Schema::hasTable('users') ? 'yes' : 'no';" 2>/dev/null | tail -1)
 

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../core/constants.dart';
 import 'auth_service.dart';
 
@@ -73,6 +74,17 @@ class ApiService {
     return _parse(response);
   }
 
+  Future<dynamic> patch(String path, [Map<String, dynamic>? body]) async {
+    final response = await _handleResponse(
+      (h) => http.patch(
+        Uri.parse('${AppConstants.baseUrl}/$path'),
+        headers: h,
+        body: body != null ? jsonEncode(body) : null,
+      ),
+    );
+    return _parse(response);
+  }
+
   Future<void> delete(String path) async {
     final response = await _handleResponse(
       (h) => http.delete(
@@ -80,6 +92,84 @@ class ApiService {
     );
     if (response.statusCode != 204 && response.statusCode != 200) {
       throw ApiException('Gagal menghapus data (${response.statusCode})');
+    }
+  }
+
+  /// Upload file dengan multipart form-data
+  /// 
+  /// Parameters:
+  ///   - path: API endpoint path
+  ///   - file: File to upload
+  ///   - fileFieldName: Form field name for the file (default: 'file')
+  ///   - additionalFields: Other form fields to include
+  Future<dynamic> uploadMultipart(
+    String path, {
+    required List<int> fileBytes,
+    required String fileName,
+    required String fileFieldName,
+    Map<String, String>? additionalFields,
+  }) async {
+    final token = await AuthService().getToken();
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${AppConstants.baseUrl}/$path'),
+    );
+
+    // Add headers
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    });
+
+    // Add file (works on web & native; sets contentType from extension)
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        fileFieldName,
+        fileBytes,
+        filename: fileName,
+        contentType: _mimeTypeFor(fileName),
+      ),
+    );
+
+    // Add additional fields
+    if (additionalFields != null) {
+      request.fields.addAll(additionalFields);
+    }
+
+    final response = await request.send();
+    final responseData = await http.Response.fromStream(response);
+
+    // Handle 401 Unauthorized - try refreshing token
+    if (responseData.statusCode == 401) {
+      try {
+        final newToken = await AuthService().refreshToken();
+        if (newToken.isNotEmpty) {
+          // Retry with new token
+          request.headers['Authorization'] = 'Bearer $newToken';
+          final retryResponse = await request.send();
+          final retryData = await http.Response.fromStream(retryResponse);
+          return _parse(retryData);
+        }
+      } catch (_) {
+        // If refresh fails, return original error
+      }
+    }
+
+    return _parse(responseData);
+  }
+
+  MediaType _mimeTypeFor(String fileName) {
+    final ext = fileName.toLowerCase().split('.').last;
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return MediaType('image', 'jpeg');
+      case 'png':
+        return MediaType('image', 'png');
+      case 'webp':
+        return MediaType('image', 'webp');
+      default:
+        return MediaType('application', 'octet-stream');
     }
   }
 
