@@ -4,17 +4,18 @@
 //  routes/web.php  –  SIMHPSB Admin Routes
 // ============================================================
 
-use Illuminate\Support\Facades\Route;use Illuminate\Support\Facades\Auth;use App\Http\Controllers\Admin\{
-    DashboardController,
-    PetaniController,
-    PanenController,
-    StokController,
-    HargaController,
-    AlertController,
-    LaporanController,
-    PenggunaController,
-    PengaturanController,
-};
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PetaniController;
+use App\Http\Controllers\Admin\PanenController;
+use App\Http\Controllers\Admin\StokController;
+use App\Http\Controllers\Admin\HargaController;
+use App\Http\Controllers\Admin\AlertController;
+use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\PenggunaController;
+use App\Http\Controllers\Admin\PengaturanController;
+use App\Http\Controllers\Admin\TujuanDistribusiController;
 use App\Http\Controllers\PetaniDashboardController;
 
 // INTRO PAGE
@@ -51,6 +52,7 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::get('alert', [AlertController::class, 'index'])->name('alert.index');
     Route::put('alert/konfigurasi', [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
     Route::patch('alert/{alert}/tangani', [AlertController::class, 'tangani'])->name('alert.tangani');
+    Route::patch('/admin/alert/{id}/selesai', [App\Http\Controllers\Admin\AlertController::class, 'selesai'])->name('admin.alert.selesai');
 });
 // AUTH
 Route::middleware('guest')->group(function () {
@@ -77,6 +79,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
     Route::get ('stok',       [StokController::class, 'index'])->name('stok.index');
     Route::post('stok',       [StokController::class, 'store'])->name('stok.store');
     Route::get ('stok/{id}',  [StokController::class, 'show'])->name('stok.show');
+    Route::patch('stok/{id}/toggle-status', [StokController::class, 'toggleStatus'])->name('stok.toggle-status');
+    Route::get('stok/summary', [StokController::class, 'summary'])->name('stok.summary');
 
     // Alert dapat diakses oleh admin dan petugas. Harga, laporan, pengguna, dan pengaturan hanya untuk admin.
     Route::middleware('role:admin,petugas')->group(function () {
@@ -107,5 +111,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         // Pengaturan
         Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
         Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+
+        // Tujuan Distribusi (manajemen)
+        Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index'])->name('tujuan-distribusi.index');
+        Route::post('tujuan-distribusi', [TujuanDistribusiController::class, 'store'])->name('tujuan-distribusi.store');
+        Route::delete('tujuan-distribusi/{id}', [TujuanDistribusiController::class, 'destroy'])->name('tujuan-distribusi.destroy');
     });
 });

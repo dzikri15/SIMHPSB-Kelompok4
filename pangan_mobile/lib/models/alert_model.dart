@@ -46,7 +46,7 @@ class AlertModel {
       };
 
   bool get isAktif  => status == 'aktif';
-  bool get isProses => status == 'proses';
+  bool get isProses => status == 'proses' || status == 'dalam_penanganan';
   bool get isSelesai => status == 'selesai';
 
   double get defisit => batasMinimum - stokSaatIni;

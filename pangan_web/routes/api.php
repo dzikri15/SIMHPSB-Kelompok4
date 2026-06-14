@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\PetaniController;
 use App\Http\Controllers\Api\LahanController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Api\StokController;
 use App\Http\Controllers\Api\HargaController;
 use App\Http\Controllers\Api\AlertController;
 use App\Http\Controllers\Api\DistribusiController;
+use App\Http\Controllers\Api\TujuanDistribusiController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\PetaniProfileController;
 
@@ -40,8 +42,10 @@ Route::middleware('auth:api')->group(function () {
     // ── Stok (custom routes BEFORE apiResource to avoid /stok/{id} clash)
     Route::get('stok/monitoring',  [StokController::class, 'monitoring']);
     Route::get('stok/summary',     [StokController::class, 'summary']);
+    Route::get('stok/current',     [StokController::class, 'current']);
     Route::get('stok/transaksi',   [StokController::class, 'transaksi']);
     Route::post('stok/catat',      [StokController::class, 'catat']);
+    Route::patch('stok/{id}/toggle-status', [StokController::class, 'toggleStatus']);
     Route::apiResource('stok', StokController::class);
 
     // ── Harga (custom route BEFORE apiResource)
@@ -70,4 +74,30 @@ Route::middleware('auth:api')->group(function () {
     // ── Distribusi (admin & petugas only) ──────────────────────────────
     Route::apiResource('distribusi', DistribusiController::class)
         ->middleware('role:admin,petugas');
+
+    // ── Tujuan Distribusi ──────────────────────────────────────────────
+    // GET list - semua yang terauth bisa lihat
+    Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index']);
+    Route::get('tujuan-distribusi/{tujuanDistribusi}', [TujuanDistribusiController::class, 'show']);
+
+    // POST/PUT/DELETE - admin & petugas (allow petugas to manage distribution targets)
+    Route::middleware('role:admin,petugas')->group(function () {
+        Route::post('tujuan-distribusi', [TujuanDistribusiController::class, 'store']);
+        Route::put('tujuan-distribusi/{tujuanDistribusi}', [TujuanDistribusiController::class, 'update']);
+        Route::delete('tujuan-distribusi/{tujuanDistribusi}', [TujuanDistribusiController::class, 'destroy']);
+    });
 });
+// ── Public file proxy (CORS-friendly, for Flutter Web preview images) ─────
+Route::get('file/{path}', function (string $path) {
+    if (! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    $fullPath = Storage::disk('public')->path($path);
+    $mime = Storage::disk('public')->mimeType($path) ?: 'application/octet-stream';
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mime,
+        'Access-Control-Allow-Origin' => '*',
+    ]);
+})->where('path', '.*');

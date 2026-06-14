@@ -95,6 +95,47 @@ class AlertController extends Controller
         throw new HttpException(405, 'Method not allowed');
     }
 
+    public function tangani(Request $request, Alert $alert)
+{
+    $newStatus = $request->input('status');
+
+    if (! $newStatus) {
+        $newStatus = $this->nextStatus($alert->status);
+    }
+
+    $newStatus = $this->normalizeStatus($newStatus);
+
+    if ($newStatus === 'selesai') {
+    $stokTerkini = $this->getCurrentStock($alert->komoditas);
+
+    if ($stokTerkini < $alert->batas_minimum) {
+        $msg = "Stok {$alert->komoditas} masih {$stokTerkini} kg, di bawah batas minimum {$alert->batas_minimum} kg. Tambahkan stok terlebih dahulu.";
+        if ($request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => $msg], 422);
+        }
+        return redirect()->back()->with('warning', $msg);
+    }
+}
+
+    if ($newStatus !== 'aktif' && ! $alert->ditangani_oleh) {
+        $alert->ditangani_oleh = Auth::id();
+    }
+
+    $alert->status = $newStatus;
+    $alert->save();
+
+    if ($request->wantsJson()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Alert berhasil diperbarui',
+            'status' => $newStatus,
+            'alert_id' => $alert->id,
+        ]);
+    }
+
+    return redirect()->back()->with('success', 'Alert berhasil diperbarui');
+}
+
     public function update(Request $request, Alert $alert)
     {
         $data = $request->validate([
@@ -140,34 +181,7 @@ class AlertController extends Controller
         return redirect()->back()->with('success', 'Konfigurasi alert berhasil disimpan');
     }
 
-    public function tangani(Request $request, Alert $alert)
-    {
-        $newStatus = $request->input('status');
 
-        if (! $newStatus) {
-            $newStatus = $this->nextStatus($alert->status);
-        }
-
-        $newStatus = $this->normalizeStatus($newStatus);
-
-        if ($newStatus !== 'aktif' && ! $alert->ditangani_oleh) {
-            $alert->ditangani_oleh = Auth::id();
-        }
-
-        $alert->status = $newStatus;
-        $alert->save();
-
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Alert berhasil diperbarui',
-                'status' => $newStatus,
-                'alert_id' => $alert->id,
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Alert berhasil diperbarui');
-    }
 
     public function selesai(Request $request, Alert $alert)
     {
@@ -202,6 +216,10 @@ class AlertController extends Controller
     private function getCurrentStock(string $komoditas): float
     {
         $query = Stok::where('komoditas', $komoditas);
+
+        if (Schema::hasColumn('stok_beras', 'status')) {
+            $query->where('status', 'aktif');
+        }
 
         if (Schema::hasColumn('stok_beras', 'tanggal_update')) {
             $query->orderByDesc('tanggal_update');

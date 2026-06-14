@@ -24,7 +24,7 @@
 <div class="stat-grid" style="margin-bottom:24px;">
     <div class="stat-card green">
         <div class="stat-icon"><i class="fas fa-box-open"></i></div>
-        <div class="stat-value">{{ number_format($stokBeras ?? 450) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div id="statStokBerasPage" class="stat-value">{{ number_format($stokBeras ?? 450) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Saldo Beras</div>
         <div style="margin-top:10px;">
             <div class="progress-bar">
@@ -36,7 +36,7 @@
 
     <div class="stat-card amber">
         <div class="stat-icon"><i class="fas fa-seedling"></i></div>
-        <div class="stat-value">{{ number_format($stokGabah ?? 800) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
+        <div id="statStokGabahPage" class="stat-value">{{ number_format($stokGabah ?? 800) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Saldo Gabah</div>
         <div style="margin-top:10px;">
             <div class="progress-bar">
@@ -73,13 +73,13 @@
     </div>
 
     <div class="stat-card red" style="border-top:3px solid var(--red-500);">
-        <div class="stat-icon"><i class="fas fa-outbox"></i></div>
+        <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($keluarBerasBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Keluar Beras Bulan Ini</div>
     </div>
 
-    <div class="stat-card red" style="border-top:3px solid var(--gray-700);">
-        <div class="stat-icon"><i class="fas fa-outbox"></i></div>
+    <div class="stat-card red" style="border-top:3px solid var(--red-500);">
+        <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($keluarGabahBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
         <div class="stat-label">Keluar Gabah Bulan Ini</div>
     </div>
@@ -124,13 +124,15 @@
                     <th>Tujuan / Sumber</th>
                     <th>Catatan</th>
                     <th>Saldo Setelah</th>
+                    <th>Status</th>
+                    <th>Bukti</th>
                     <th>Dicatat Oleh</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($transaksis ?? [] as $i => $t)
-                    <tr>
+                    <tr id="stokRow-{{ $t->id }}" class="{{ $t->status !== 'aktif' ? 'muted-row' : '' }} clickable-row" onclick="if(!event.target.closest('.row-action, .bukti-cell, .bukti-link')) window.location.href='{{ route('admin.stok.show', $t->id) }}';" style="cursor:pointer;">
                         <td style="color:var(--text-muted);font-size:12px;">{{ $i+1 }}</td>
                         <td>{{ ($t->tanggal ?? $t->tanggal_update) ? \Carbon\Carbon::parse($t->tanggal ?? $t->tanggal_update)->format('Y-m-d H:i') : '-' }}</td>
                         <td>
@@ -144,11 +146,32 @@
                         <td>{{ $t->keterangan }}</td>
                         <td>{{ $t->catatan ?? '-' }}</td>
                         <td>{{ number_format($t->saldo_setelah ?? $t->jumlah) }} kg</td>
-                        <td style="font-size:12px;color:var(--text-muted);">{{ optional($t->user)->name ?? '-' }}</td>
                         <td>
+                            @if($t->status === 'aktif')
+                                <span class="badge badge-green">Aktif</span>
+                            @else
+                                <span class="badge badge-gray">Dibatalkan</span>
+                            @endif
+                        </td>
+                        <td class="bukti-cell" data-src="{{ !empty($t->foto_bukti) ? asset('storage/' . $t->foto_bukti) : '' }}" onclick="if(this.dataset.src) openImageModal(this.dataset.src)" style="text-align:center;cursor:pointer;">
+                            @if(!empty($t->foto_bukti))
+                                <a href="javascript:void(0)" class="bukti-link" data-src="{{ asset('storage/' . $t->foto_bukti) }}" title="Lihat bukti" onclick="event.preventDefault(); openImageModal(this.dataset.src);">
+                                    <img src="{{ asset('storage/' . $t->foto_bukti) }}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;" alt="Bukti">
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td style="font-size:12px;color:var(--text-muted);">{{ optional($t->user)->name ?? '-' }}</td>
+                        <td class="row-action" style="display:flex;gap:8px;justify-content:flex-end;">
                             <a href="{{ route('admin.stok.show', $t->id) }}" class="btn btn-secondary btn-icon btn-sm" title="Lihat detail transaksi">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            @if($t->status === 'aktif')
+                                <button class="btn btn-danger btn-icon btn-sm" onclick="event.stopPropagation(); performToggle({{ $t->id }})" title="Batalkan transaksi"><i class="fas fa-times"></i></button>
+                            @else
+                                <button class="btn btn-primary btn-icon btn-sm" onclick="event.stopPropagation(); performToggle({{ $t->id }})" title="Aktifkan kembali"><i class="fas fa-redo"></i></button>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -194,7 +217,7 @@
             <div class="modal-title">Catat Transaksi Stok</div>
             <button class="modal-close" onclick="closeModal('modalTransaksi')"><i class="fas fa-times"></i></button>
         </div>
-        <form method="POST" action="{{ route('admin.stok.store') }}">
+        <form method="POST" action="{{ route('admin.stok.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="modal-body">
                 <div class="grid-2">
@@ -229,15 +252,16 @@
 
                 <div class="form-group" id="tujuanGroup" style="display:none;">
                     <label>Tujuan Distribusi <span style="color:var(--red-500)">*</span></label>
-                    <select name="tujuan_distribusi">
-                        <option value="">Pilih tujuan</option>
-                        <option value="MBG Dapur 1">MBG Dapur 1</option>
-                        <option value="MBG Dapur 2">MBG Dapur 2</option>
-                        <option value="MBG Dapur 3">MBG Dapur 3</option>
-                        <option value="Toko Rudi">Toko Rudi</option>
-                        <option value="Toko Barokah">Toko Barokah</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <select name="tujuan_distribusi" id="tujuanSelect" style="flex:1;">
+                            <option value="">Pilih tujuan</option>
+                            @foreach(($tujuans ?? []) as $t)
+                                <option value="{{ $t->nama }}">{{ $t->nama }}</option>
+                            @endforeach
+                            <option value="__add_new">+ Tambah tujuan baru</option>
+                        </select>
+                        <input type="text" id="quickAddTujuanInput" placeholder="Tambah tujuan..." style="display:none;min-width:160px;" />
+                    </div>
                 </div>
 
                 <div class="form-group" id="sumberGroup">
@@ -248,6 +272,14 @@
                 <div class="form-group">
                     <label>Catatan Tambahan</label>
                     <textarea name="catatan" rows="2" placeholder="Opsional"></textarea>
+                </div>
+
+                <div class="form-group" id="fotoBuktiGroup" style="display:none;">
+                    <label>Foto Bukti Pengiriman <small style="color:var(--text-muted);font-size:12px;">(jpg, png, webp — max 2MB)</small></label>
+                    <input type="file" name="foto_bukti" id="fotoBuktiInput" accept="image/*">
+                    <div id="fotoPreview" style="margin-top:8px;display:none;">
+                        <img id="fotoPreviewImg" src="" alt="Preview" style="width:120px;height:80px;object-fit:cover;border-radius:6px;border:2px solid #e8f5e9;">
+                    </div>
                 </div>
 
                 {{-- VALIDASI STOK REAL-TIME --}}
@@ -268,6 +300,93 @@
 
 @push('scripts')
 <script>
+// Styles for muted row
+const style = document.createElement('style');
+style.innerHTML = `
+    .muted-row { opacity: 0.6; text-decoration: line-through; }
+    .badge-gray { background:#9CA3AF; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; }
+`;
+document.head.appendChild(style);
+
+// Toggle status aksi
+function performToggle(id) {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`{{ url('admin/stok') }}/${id}/toggle-status`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data || !data.success) {
+            alert(data?.message || 'Gagal memperbarui status');
+            return;
+        }
+
+        // update row inline
+        const row = document.getElementById(`stokRow-${id}`);
+        if (row) {
+            const statusCell = row.querySelector('td:nth-child(9)');
+            const actionCell = row.querySelector('td:nth-child(11)');
+            if (statusCell) {
+                statusCell.innerHTML = data.status === 'aktif'
+                    ? '<span class="badge badge-green">Aktif</span>'
+                    : '<span class="badge badge-gray">Dibatalkan</span>';
+            }
+            if (actionCell) {
+                if (data.status === 'aktif') {
+                    actionCell.querySelectorAll('button').forEach(b => b.remove());
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-danger btn-icon btn-sm';
+                    btn.title = 'Batalkan transaksi';
+                    btn.onclick = () => performToggle(id);
+                    btn.innerHTML = '<i class="fas fa-times"></i>';
+                    actionCell.appendChild(btn);
+                } else {
+                    actionCell.querySelectorAll('button').forEach(b => b.remove());
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary btn-icon btn-sm';
+                    btn.title = 'Aktifkan kembali';
+                    btn.onclick = () => performToggle(id);
+                    btn.innerHTML = '<i class="fas fa-redo"></i>';
+                    actionCell.appendChild(btn);
+                }
+            }
+            row.classList.toggle('muted-row', data.status !== 'aktif');
+        }
+
+        // notify other tabs (dashboard) to refresh summary
+        // update page-level stat cards if server returned a summary
+        try {
+            if (data.summary) {
+                if (data.summary.stokBeras !== undefined) {
+                    const elb = document.getElementById('statStokBerasPage');
+                    if (elb) elb.innerHTML = Number(data.summary.stokBeras).toLocaleString() + ' <small style="font-size:13px;color:var(--text-muted);">kg</small>';
+                }
+                if (data.summary.stokGabah !== undefined) {
+                    const elg = document.getElementById('statStokGabahPage');
+                    if (elg) elg.innerHTML = Number(data.summary.stokGabah).toLocaleString() + ' <small style="font-size:13px;color:var(--text-muted);">kg</small>';
+                }
+            }
+        } catch (e) { console.error('Failed to update local stat cards', e); }
+
+        try { localStorage.setItem('stok:updated', Date.now()); console.log('stok:updated set in localStorage', Date.now()); } catch(e) {}
+        try {
+            const bc = new BroadcastChannel('stok_channel');
+            bc.postMessage({ updated: Date.now() });
+            console.log('BroadcastChannel posted stok_channel', Date.now());
+            bc.close();
+        } catch (e) {
+            // BroadcastChannel not supported
+            console.log('BroadcastChannel not supported', e);
+        }
+    })
+    .catch(err => { alert('Gagal menghubungi server'); console.error(err); });
+}
+
 function filterStok() {
     const q = document.getElementById('searchStok').value.toLowerCase();
     const j = document.getElementById('filterJenis').value.toLowerCase();
@@ -287,6 +406,50 @@ function toggleTujuan() {
     const warning = document.getElementById('stokWarning');
     tujuan.style.display = jenis === 'keluar' ? 'block' : 'none';
     warning.style.display = jenis === 'keluar' ? 'flex' : 'none';
+    // foto bukti only for keluar
+    const fotoGroup = document.getElementById('fotoBuktiGroup');
+    const fotoInput = document.getElementById('fotoBuktiInput');
+    if (fotoGroup) {
+        fotoGroup.style.display = jenis === 'keluar' ? 'block' : 'none';
+        if (fotoInput) {
+            if (jenis === 'keluar') {
+                fotoInput.setAttribute('required', 'required');
+            } else {
+                fotoInput.removeAttribute('required');
+            }
+        }
+    }
+}
+
+// preview foto bukti
+function setupFotoPreview() {
+    const input = document.getElementById('fotoBuktiInput');
+    const preview = document.getElementById('fotoPreview');
+    const img = document.getElementById('fotoPreviewImg');
+    if (!input) return;
+    input.addEventListener('change', function(e) {
+        const file = this.files && this.files[0];
+        if (!file) { preview.style.display = 'none'; img.src = ''; return; }
+        const allowed = ['image/jpeg','image/png','image/webp'];
+        if (!allowed.includes(file.type)) {
+            alert('Format file tidak didukung. Gunakan jpg/png/webp.');
+            this.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Ukuran file terlalu besar. Maks 2MB.');
+            this.value = '';
+            preview.style.display = 'none';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            img.src = ev.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function getCurrentLocalDatetime() {
@@ -316,6 +479,109 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function() {
             ensureTanggalIsSet();
         });
+    }
+
+    // Quick-add tujuan distribusi from transaksi modal
+    const tujuanSelect = document.getElementById('tujuanSelect');
+    const quickInput = document.getElementById('quickAddTujuanInput');
+    if (tujuanSelect) {
+        tujuanSelect.addEventListener('change', function() {
+            if (this.value === '__add_new') {
+                quickInput.style.display = 'block';
+                quickInput.focus();
+            } else {
+                quickInput.style.display = 'none';
+            }
+        });
+    }
+
+    if (quickInput) {
+        quickInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const name = this.value.trim();
+                if (!name) return;
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                fetch('{{ route('admin.tujuan-distribusi.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ nama: name })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const opt = document.createElement('option');
+                        opt.value = data.data.nama;
+                        opt.textContent = data.data.nama;
+                        const addOpt = Array.from(tujuanSelect.options).find(o => o.value === '__add_new');
+                        tujuanSelect.insertBefore(opt, addOpt);
+                        tujuanSelect.value = data.data.nama;
+                        quickInput.value = '';
+                        quickInput.style.display = 'none';
+                    } else {
+                        alert('Gagal menambahkan tujuan');
+                        console.error(data);
+                    }
+                })
+                .catch(err => { alert('Gagal menghubungi server'); console.error(err); });
+            }
+        });
+
+        quickInput.addEventListener('blur', function() { setTimeout(() => { quickInput.style.display = 'none'; tujuanSelect.value = ''; }, 200); });
+    }
+
+    // setup foto preview handler
+    setupFotoPreview();
+});
+</script>
+<div class="modal-overlay" id="modalImageLightbox" style="display:none;">
+    <div class="modal" style="max-width:900px;max-height:90vh;background:transparent;box-shadow:none;">
+        <div style="position:relative;background:linear-gradient(180deg, rgba(46,125,50,0.95), rgba(16,64,20,0.95));padding:16px;border-radius:8px;display:flex;justify-content:flex-end;">
+            <button class="modal-close" onclick="closeImageModal()" style="position:absolute;right:12px;top:12px;color:#fff;background:transparent;border:none;font-size:20px;"><i class="fas fa-times"></i></button>
+            <div style="width:100%;display:flex;align-items:center;justify-content:center;padding:24px;">
+                <img id="modalImageFull" src="" alt="Bukti" style="max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.4);transform:scale(0.98);opacity:0;transition:all .25s ease-in-out;" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openImageModal(src) {
+    const overlay = document.getElementById('modalImageLightbox');
+    const img = document.getElementById('modalImageFull');
+    if (!overlay || !img) return;
+    img.style.opacity = 0; img.style.transform = 'scale(0.98)';
+    img.src = src;
+    overlay.style.display = 'flex';
+    setTimeout(() => { img.style.opacity = 1; img.style.transform = 'scale(1)'; }, 40);
+}
+function closeImageModal() {
+    const overlay = document.getElementById('modalImageLightbox');
+    const img = document.getElementById('modalImageFull');
+    if (!overlay || !img) return;
+    img.style.opacity = 0; img.style.transform = 'scale(0.98)';
+    setTimeout(() => { overlay.style.display = 'none'; img.src = ''; }, 220);
+}
+
+document.addEventListener('click', function(e) {
+    const anchor = e.target.closest && e.target.closest('.bukti-link');
+    if (anchor) {
+        e.preventDefault();
+        const src = anchor.dataset.src;
+        if (src) {
+            openImageModal(src);
+        }
+        return;
+    }
+
+    const cell = e.target.closest && e.target.closest('.bukti-cell');
+    if (cell && cell.dataset.src) {
+        e.preventDefault();
+        openImageModal(cell.dataset.src);
     }
 });
 </script>

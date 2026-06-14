@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'core/app_colors.dart';
 import 'screens/login_screen.dart';
 import 'screens/alert_screen.dart';
+import 'screens/distribusi_tujuan_screen.dart';
 import 'main_shell.dart';
 import 'petani_shell.dart';
 import 'models/user_model.dart';
@@ -99,6 +100,7 @@ class SimhpsbApp extends StatelessWidget {
           home: const AuthGate(),
           routes: {
             '/alert': (context) => const AlertScreen(),
+            '/distribusi-tujuan': (context) => const DistribusiTujuanScreen(),
           },
         );
       },

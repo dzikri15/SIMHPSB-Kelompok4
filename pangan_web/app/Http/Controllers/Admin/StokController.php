@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\AlertConfiguration;
 use App\Models\Stok;
+use App\Models\TujuanDistribusi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,7 @@ class StokController extends Controller
 
         $transactions = Stok::with('user')
             ->whereNotNull('jenis_transaksi')
+            // show all transactions in list (including dibatalkan) but ensure stock calculations below use only 'aktif'
             ->orderByDesc($dateColumn)
             ->get();
 
@@ -32,24 +34,28 @@ class StokController extends Controller
         $stokGabah = $this->getCurrentStock('Gabah');
 
         $masukBerasBulanIni = Stok::where('komoditas', 'Beras')
+            ->where('status', 'aktif')
             ->where('jenis_transaksi', 'masuk')
             ->whereYear($dateColumn, $currentYear)
             ->whereMonth($dateColumn, $currentMonth)
             ->sum('jumlah');
 
         $masukGabahBulanIni = Stok::where('komoditas', 'Gabah')
+            ->where('status', 'aktif')
             ->where('jenis_transaksi', 'masuk')
             ->whereYear($dateColumn, $currentYear)
             ->whereMonth($dateColumn, $currentMonth)
             ->sum('jumlah');
 
         $keluarBerasBulanIni = Stok::where('komoditas', 'Beras')
+            ->where('status', 'aktif')
             ->where('jenis_transaksi', 'keluar')
             ->whereYear($dateColumn, $currentYear)
             ->whereMonth($dateColumn, $currentMonth)
             ->sum('jumlah');
 
         $keluarGabahBulanIni = Stok::where('komoditas', 'Gabah')
+            ->where('status', 'aktif')
             ->where('jenis_transaksi', 'keluar')
             ->whereYear($dateColumn, $currentYear)
             ->whereMonth($dateColumn, $currentMonth)
@@ -63,6 +69,7 @@ class StokController extends Controller
             'keluarBerasBulanIni' => $keluarBerasBulanIni,
             'masukGabahBulanIni' => $masukGabahBulanIni,
             'keluarGabahBulanIni' => $keluarGabahBulanIni,
+            'tujuans' => TujuanDistribusi::orderBy('nama')->get(),
         ]);
     }
 
@@ -72,11 +79,13 @@ class StokController extends Controller
             ? 'tanggal_update'
             : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
 
-        $query = Stok::where('komoditas', $komoditas);
+        $query = Stok::where('komoditas', $komoditas)
+            ->where('status', 'aktif');
 
         if ($dateColumn) {
             $query->orderByDesc($dateColumn);
         }
+        $query->orderByDesc('id');
 
         return (float) ($query->value('jumlah_stok') ?: 0);
     }
@@ -92,6 +101,7 @@ class StokController extends Controller
             'tujuan_distribusi' => 'nullable|string',
             'keterangan' => 'nullable|string',
             'catatan' => 'nullable|string',
+            'foto_bukti' => 'required_if:jenis,keluar|image|mimes:jpeg,jpg,png,webp|max:2048',
         ]);
 
         // Normalize datetime-local (2026-05-21T05:40) → 'Y-m-d H:i:s'
@@ -108,7 +118,8 @@ class StokController extends Controller
 
         // Calculate running stock after this transaction so jumlah_stok is always present.
         $previousStockQuery = Stok::where('gudang_id', 1)
-            ->where('komoditas', $data['komoditas']);
+            ->where('komoditas', $data['komoditas'])
+            ->where('status', 'aktif');
 
         if (Schema::hasColumn('stok_beras', 'tanggal_update')) {
             $previousStockQuery->orderByDesc('tanggal_update');
@@ -147,6 +158,16 @@ class StokController extends Controller
             $payload['tanggal'] = $tanggal;
         }
 
+        // Handle uploaded foto bukti for distribusi (keluar)
+        if ($request->hasFile('foto_bukti')) {
+            $file = $request->file('foto_bukti');
+            $ext = $file->getClientOriginalExtension();
+            $filename = time() . '_' . bin2hex(random_bytes(6)) . '.' . $ext;
+            // store in storage/app/public/bukti-distribusi
+$path = $file->storeAs('bukti-distribusi', $filename, 'public');            // save relative path without 'public/' prefix so asset('storage/...') works
+            $payload['foto_bukti'] = 'bukti-distribusi/' . $filename;
+        }
+
         DB::table('stok_beras')->insert($payload);
 
         if ($data['jenis'] === 'keluar') {
@@ -159,6 +180,71 @@ class StokController extends Controller
         }
 
         return redirect()->back()->with('success', 'Transaksi stok tersimpan.');
+    }
+
+    /**
+     * Toggle status antara 'aktif' dan 'dibatalkan' untuk sebuah transaksi stok.
+     * Recalculate saldo setelah update.
+     */
+    public function toggleStatus(int $id)
+    {
+        $stok = Stok::findOrFail($id);
+
+        $stok->status = ($stok->status === 'aktif') ? 'dibatalkan' : 'aktif';
+        $stok->save();
+
+        // Recalculate saldo for this komoditas
+        $this->recalculateSaldo($stok->komoditas);
+
+        // also include updated summary so other pages can update without reload
+        $stokBeras = $this->getCurrentStock('Beras');
+        $stokGabah = $this->getCurrentStock('Gabah');
+
+        return response()->json([
+            'success' => true,
+            'status' => $stok->status,
+            'message' => 'Status transaksi diperbarui',
+            'summary' => [
+                'stokBeras' => max(0, $stokBeras),
+                'stokGabah' => max(0, $stokGabah),
+            ],
+        ]);
+    }
+
+    /**
+     * Return a small JSON summary of current stocks for dashboard updates.
+     */
+    public function summary()
+    {
+        $stokBeras = $this->getCurrentStock('Beras');
+        $stokGabah = $this->getCurrentStock('Gabah');
+
+        return response()->json([
+            'stokBeras' => max(0, $stokBeras),
+            'stokGabah' => max(0, $stokGabah),
+        ]);
+    }
+
+    /**
+     * Recalculate saldo_setelah untuk semua transaksi aktif dari komoditas tertentu.
+     */
+    public function recalculateSaldo(string $komoditas)
+    {
+        $saldo = 0;
+        $transaksi = Stok::where('komoditas', $komoditas)
+            ->where('status', 'aktif')
+            ->orderBy('tanggal_update')
+            ->orderBy('id')
+            ->get();
+
+        foreach ($transaksi as $t) {
+            $saldo += $t->jenis_transaksi === 'masuk' ? $t->jumlah : -$t->jumlah;
+            $t->jumlah_stok = $saldo;
+            if (Schema::hasColumn('stok_beras', 'saldo_setelah')) {
+                $t->saldo_setelah = $saldo;
+            }
+            $t->save();
+        }
     }
 
     public function show(int $id)

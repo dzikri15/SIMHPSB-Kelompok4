@@ -31,13 +31,50 @@ class TransaksiStokService {
         .toList();
   }
 
-  /// Catat transaksi baru.
-  /// Body yang dikirim:
-  ///   jenis, komoditas, jumlah, tanggal (opsional), 
-  ///   tujuan_distribusi (opsional), keterangan (opsional), catatan (opsional)
-  Future<TransaksiStokModel> create(Map<String, dynamic> body) async {
-    final data = await _api.post('stok/catat', body) as Map<String, dynamic>;
+  /// Catat transaksi baru dengan support file upload.
+  /// 
+  /// Parameters:
+  ///   - body: form data (jenis_transaksi, komoditas, jumlah, tujuan_distribusi_id, etc)
+  ///   - fotoBuktiBytes: optional bytes file untuk bukti pengiriman (foto)
+  ///   - fotoBuktiName: nama file (dengan ekstensi), wajib jika fotoBuktiBytes ada
+  Future<TransaksiStokModel> create(
+    Map<String, dynamic> body,
+    List<int>? fotoBuktiBytes, {
+    String? fotoBuktiName,
+  }) async {
+    late dynamic data;
+
+    if (fotoBuktiBytes != null) {
+      // Convert body values to String for multipart, skip null values
+      final formFields = <String, String>{};
+      body.forEach((key, value) {
+        // Skip null values - jangan include di form fields
+        if (value != null) {
+          formFields[key] = value.toString();
+        }
+      });
+
+      data = await _api.uploadMultipart(
+        'stok/catat',
+        fileBytes: fotoBuktiBytes,
+        fileName: fotoBuktiName ?? 'bukti.jpg',
+        fileFieldName: 'foto_bukti',
+        additionalFields: formFields,
+      ) as Map<String, dynamic>;
+    } else {
+      // Normal POST jika tidak ada file
+      data = await _api.post('stok/catat', body) as Map<String, dynamic>;
+    }
+
     return TransaksiStokModel.fromJson(data);
+  }
+
+  /// Toggle status transaksi antara 'aktif' dan 'dibatalkan'.
+  /// Mengembalikan status baru setelah toggle.
+  Future<String> toggleStatus(int id) async {
+    final data = await _api.patch('stok/$id/toggle-status') as Map<String, dynamic>;
+    final updated = data['data'] as Map<String, dynamic>?;
+    return updated?['status'] as String? ?? '';
   }
 
   /// Daftar pilihan komoditas

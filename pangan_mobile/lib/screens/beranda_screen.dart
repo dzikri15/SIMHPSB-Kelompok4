@@ -2,6 +2,7 @@
 // Beranda SIMHPSB — data real-time dari API
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../core/app_colors.dart';
 import '../models/transaksi_stok_model.dart';
 import '../services/api_service.dart';
@@ -73,8 +74,10 @@ class _BerandaScreenState extends State<BerandaScreen> {
   // ── Format helpers ─────────────────────────────────────────────────────
   String _fmtKg(dynamic v) {
     final val = (v is num) ? v.toDouble() : double.tryParse(v.toString()) ?? 0;
-    if (val >= 1000) return '${(val / 1000).toStringAsFixed(1)} T';
-    return '${val.toStringAsFixed(0)} kg';
+    final n = NumberFormat('#,##0', 'id_ID');
+    // Nilai negatif tetap tampil dengan tanda minus
+    if (val < 0) return '-${n.format(val.abs())} kg';
+    return '${n.format(val)} kg';
   }
 
   String _greeting() {
@@ -259,6 +262,8 @@ class _BerandaScreenState extends State<BerandaScreen> {
           'Catat hasil panen baru', 1),
       const _Menu(Icons.warehouse_outlined,  'Stok Gudang',
           'Mutasi & saldo gudang',   2),
+      const _Menu(Icons.location_on_outlined, 'Distribusi Tujuan',
+          'Daftar tujuan & riwayat distribusi', 3),
     ];
 
     return Column(

@@ -15,6 +15,10 @@ class TransaksiStokModel {
   final String? tanggalLabel; // formatted 'YYYY-MM-DD HH:mm'
   final String? dicatatOleh;
   final GudangModel? gudang;
+  final int? tujuanDistribusiId;
+  final String? tujuanDistribusiNama;
+  final String? fotoBukti;
+  final String status; // 'aktif' / 'dibatalkan'
 
   const TransaksiStokModel({
     required this.id,
@@ -28,6 +32,10 @@ class TransaksiStokModel {
     this.tanggalLabel,
     this.dicatatOleh,
     this.gudang,
+    this.tujuanDistribusiId,
+    this.tujuanDistribusiNama,
+    this.fotoBukti,
+    this.status = 'aktif',
   });
 
   factory TransaksiStokModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +62,16 @@ class TransaksiStokModel {
       } catch (_) {}
     }
 
+    // Parse tujuan distribusi
+    String? tujuanNama;
+    if (json['tujuan_distribusi_nama'] != null) {
+      // Prioritas: field flat dari API response
+      tujuanNama = json['tujuan_distribusi_nama'] as String?;
+    } else if (json['tujuan_distribusi'] != null && json['tujuan_distribusi'] is Map) {
+      // Fallback: dari nested object jika ada
+      tujuanNama = json['tujuan_distribusi']['nama'] as String?;
+    }
+
     return TransaksiStokModel(
       id:            _toInt(json['id']),
       gudangId:      json['gudang_id'] != null ? _toInt(json['gudang_id']) : null,
@@ -66,10 +84,16 @@ class TransaksiStokModel {
       tanggalLabel:  tglLabel,
       dicatatOleh:   json['dicatat_oleh'] as String? ?? json['user']?['name'] as String?,
       gudang:        gudang,
+      tujuanDistribusiId: json['tujuan_distribusi_id'] != null ? _toInt(json['tujuan_distribusi_id']) : null,
+      tujuanDistribusiNama: tujuanNama,
+      fotoBukti:     json['foto_bukti'] as String?,
+      status:        (json['status'] as String?) ?? 'aktif',
     );
   }
 
   bool get isMasuk => (jenisTransaksi ?? '').toLowerCase() == 'masuk';
+
+  bool get isAktif => status == 'aktif';
 
   String get komoditasDisplay => komoditas ?? '-';
 
@@ -77,17 +101,13 @@ class TransaksiStokModel {
 
   String get saldoDisplay {
     if (jumlahStok == null) return '-';
-    final v = jumlahStok!;
-    return v >= 1000
-        ? '${(v / 1000).toStringAsFixed(1)} Ton'
-        : '${v.toStringAsFixed(0)} kg';
+    return '${jumlahStok!.toStringAsFixed(0)} kg';
   }
 
   String get jumlahDisplay {
     if (jumlah == null) return '-';
     final prefix = isMasuk ? '+' : '-';
-    final v = jumlah!;
-    return '$prefix${v >= 1000 ? (v / 1000).toStringAsFixed(1) : v.toStringAsFixed(0)} kg';
+    return '$prefix${jumlah!.toStringAsFixed(0)} kg';
   }
 }
 

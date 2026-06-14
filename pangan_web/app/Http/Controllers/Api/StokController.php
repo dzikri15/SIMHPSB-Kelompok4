@@ -22,6 +22,39 @@ class StokController extends Controller
         return $stok->load('gudang');
     }
 
+    // ──────────────────────────────────────────────────────────────────────
+    // GET /api/stok/current?komoditas=Beras
+    // Ambil stok terkini untuk komoditas tertentu (untuk validasi client-side)
+    // ──────────────────────────────────────────────────────────────────────
+    public function current(Request $request)
+    {
+        $komoditas = $request->query('komoditas');
+        if (!$komoditas) {
+            return response()->json(['error' => 'Parameter komoditas required'], 400);
+        }
+        
+        $latestStok = Stok::where('komoditas', $komoditas)
+            ->where('status', 'aktif')
+            ->latest('tanggal_update')
+            ->latest('id')
+            ->first();
+        
+        if (!$latestStok) {
+            // Jika belum ada data, return default values
+            return response()->json([
+                'jumlah_stok' => 0,
+                'batas_minimum' => 500,
+                'komoditas' => $komoditas,
+            ]);
+        }
+        
+        return response()->json([
+            'jumlah_stok' => (float) $latestStok->jumlah_stok,
+            'batas_minimum' => (float) $latestStok->batas_minimum,
+            'komoditas' => $latestStok->komoditas,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -32,6 +65,7 @@ class StokController extends Controller
             'catatan'        => 'nullable|string',
         ]);
 
+        $data['status'] = 'aktif';
         $stok = Stok::create($data);
 
         if (! empty($stok->komoditas)) {
@@ -83,31 +117,45 @@ class StokController extends Controller
 
     public function monitoring()
     {
-        // Group by KOMODITAS agar Beras & Gabah selalu muncul terpisah
-        // meski memakai gudang yang sama
-        $latestIds = Stok::selectRaw('MAX(id) as id')
-            ->whereNotNull('komoditas')
-            ->groupBy('komoditas')
-            ->pluck('id');
+        // ✅ PERBAIKI: Ambil data terkini per komoditas berdasarkan tanggal_update (bukan MAX id)
+        // Beras terkini
+        $stokBeras = Stok::where('komoditas', 'Beras')
+            ->where('status', 'aktif')
+            ->latest('tanggal_update')
+            ->latest('id')
+            ->first();
 
-        $results = Stok::with('gudang')
-            ->whereIn('id', $latestIds)
-            ->where('jumlah_stok', '>=', 0)
-            ->get()
-            ->map(function ($item) {
-                $item->status = $item->jumlah_stok < $item->batas_minimum ? 'low' : 'ok';
-                return $item;
-            });
+        // Gabah terkini
+        $stokGabah = Stok::where('komoditas', 'Gabah')
+            ->where('status', 'aktif')
+            ->latest('tanggal_update')
+            ->latest('id')
+            ->first();
 
-        // Fallback: jika kolom komoditas kosong/null, group by gudang_id
+        $results = collect();
+
+        if ($stokBeras) {
+            $stokBeras->status = $stokBeras->jumlah_stok < $stokBeras->batas_minimum ? 'low' : 'ok';
+            $stokBeras->load('gudang');
+            $results->push($stokBeras);
+        }
+
+        if ($stokGabah) {
+            $stokGabah->status = $stokGabah->jumlah_stok < $stokGabah->batas_minimum ? 'low' : 'ok';
+            $stokGabah->load('gudang');
+            $results->push($stokGabah);
+        }
+
+        // Fallback jika tidak ada data per komoditas, ambil per gudang
         if ($results->isEmpty()) {
-            $fallbackIds = Stok::selectRaw('MAX(id) as id')
+            $latestIds = Stok::where('status', 'aktif')
+                ->latest('tanggal_update')
+                ->latest('id')
                 ->groupBy('gudang_id')
                 ->pluck('id');
 
             $results = Stok::with('gudang')
-                ->whereIn('id', $fallbackIds)
-                ->where('jumlah_stok', '>=', 0)
+                ->whereIn('id', $latestIds)
                 ->get()
                 ->map(function ($item) {
                     $item->status = $item->jumlah_stok < $item->batas_minimum ? 'low' : 'ok';
@@ -129,12 +177,17 @@ class StokController extends Controller
         $tahunIni   = $now->year;
 
         // Saldo terkini per komoditas = jumlah_stok dari baris terakhir per komoditas
+        // (hanya transaksi dengan status 'aktif')
         $saldoBeras = (float) Stok::where('komoditas', 'Beras')
-            ->latest('tanggal_update')
+            ->where('status', 'aktif')
+            ->orderByDesc('tanggal_update')
+            ->orderByDesc('id')
             ->value('jumlah_stok') ?? 0;
 
         $saldoGabah = (float) Stok::where('komoditas', 'Gabah')
-            ->latest('tanggal_update')
+            ->where('status', 'aktif')
+            ->orderByDesc('tanggal_update')
+            ->orderByDesc('id')
             ->value('jumlah_stok') ?? 0;
 
         // Kapasitas gudang (sum dari semua gudang aktif)
@@ -143,8 +196,9 @@ class StokController extends Controller
         $kapasitasBeras = $kapasitasTotal / 2;
         $kapasitasGabah = $kapasitasTotal / 2;
 
-        // Transaksi bulan ini
-        $transaksiBase = Stok::whereMonth('tanggal_update', $bulanIni)
+        // Transaksi bulan ini (hanya transaksi aktif)
+        $transaksiBase = Stok::where('status', 'aktif')
+            ->whereMonth('tanggal_update', $bulanIni)
             ->whereYear('tanggal_update', $tahunIni)
             ->whereNotNull('jenis_transaksi');
 
@@ -198,6 +252,7 @@ class StokController extends Controller
     public function transaksi(Request $request)
     {
         $query = Stok::with(['gudang', 'user'])
+            ->where('status', 'aktif')
             ->whereNotNull('jenis_transaksi')
             ->latest('tanggal_update');
 
@@ -234,6 +289,7 @@ class StokController extends Controller
             $item->tanggal_label = $item->tanggal_update
                 ? \Carbon\Carbon::parse($item->tanggal_update)->format('Y-m-d H:i')
                 : null;
+            $item->status = $item->status ?? 'aktif';
             return $item;
         });
 
@@ -247,13 +303,14 @@ class StokController extends Controller
     public function catat(Request $request)
     {
         $data = $request->validate([
-            'jenis_transaksi'   => 'required|in:masuk,keluar',
-            'komoditas'         => 'required|string',
-            'jumlah'            => 'required|numeric|min:0.01',
-            'gudang_id'         => 'nullable|integer|exists:gudang,id',
-            'keterangan'        => 'nullable|string|max:500',
-            'catatan'           => 'nullable|string|max:1000',
-            'tanggal'           => 'nullable|date',
+            'jenis_transaksi'       => 'required|in:masuk,keluar',
+            'komoditas'             => 'required|string',
+            'jumlah'                => 'required|numeric|min:0.01',
+            'gudang_id'             => 'nullable|integer|exists:gudang,id',
+            'keterangan'            => 'nullable|string|max:500',
+            'catatan'               => 'nullable|string|max:1000',
+            'tanggal'               => 'nullable|date',
+            'foto_bukti'            => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         // Tentukan gudang (pakai pertama jika tidak dikirim)
@@ -262,9 +319,11 @@ class StokController extends Controller
             return response()->json(['message' => 'Tidak ada gudang tersedia.'], 422);
         }
 
-        // Hitung saldo terkini untuk komoditas ini
+        // Hitung saldo terkini untuk komoditas ini (hanya transaksi aktif)
         $saldoSekarang = (float) Stok::where('komoditas', $data['komoditas'])
+            ->where('status', 'aktif')
             ->latest('tanggal_update')
+            ->latest('id')
             ->value('jumlah_stok') ?? 0;
 
         $jumlah = (float) $data['jumlah'];
@@ -272,26 +331,38 @@ class StokController extends Controller
             ? $saldoSekarang + $jumlah
             : $saldoSekarang - $jumlah;
 
-        // Ambil batas minimum dari entri sebelumnya
+        // Ambil batas minimum dari entri sebelumnya (hanya transaksi aktif)
         $batasMin = (float) Stok::where('komoditas', $data['komoditas'])
+            ->where('status', 'aktif')
             ->latest('tanggal_update')
+            ->latest('id')
             ->value('batas_minimum') ?? 500;
 
         $tanggal = isset($data['tanggal'])
             ? \Carbon\Carbon::parse($data['tanggal'])
             : now();
 
+        // Handle file upload untuk foto bukti
+        $fotoBuktiPath = null;
+        if ($request->hasFile('foto_bukti')) {
+            $file = $request->file('foto_bukti');
+            $filename = now()->format('Y-m-d-His') . '-' . \Illuminate\Support\Str::random(12) . '.' . $file->getClientOriginalExtension();
+            $fotoBuktiPath = $file->storeAs('bukti-distribusi', $filename, 'public');
+        }
+
         $stok = Stok::create([
-            'gudang_id'       => $gudangId,
-            'jenis_transaksi' => $data['jenis_transaksi'],
-            'komoditas'       => $data['komoditas'],
-            'jumlah'          => $jumlah,
-            'keterangan'      => $data['keterangan'] ?? null,
-            'catatan'         => $data['catatan'] ?? null,
-            'user_id'         => Auth::id(),
-            'jumlah_stok'     => $saldoBaru,
-            'batas_minimum'   => $batasMin,
-            'tanggal_update'  => $tanggal,
+            'gudang_id'              => $gudangId,
+            'jenis_transaksi'        => $data['jenis_transaksi'],
+            'komoditas'              => $data['komoditas'],
+            'jumlah'                 => $jumlah,
+            'keterangan'             => $data['keterangan'] ?? null,
+            'catatan'                => $data['catatan'] ?? null,
+            'user_id'                => Auth::id(),
+            'jumlah_stok'            => $saldoBaru,
+            'batas_minimum'          => $batasMin,
+            'tanggal_update'         => $tanggal,
+            'foto_bukti'             => $fotoBuktiPath,
+            'status'                 => 'aktif',
         ]);
 
         // Cek dan buat alert otomatis jika stok rendah
@@ -308,10 +379,87 @@ class StokController extends Controller
             (int) $batasMinimum
         );
 
-        $stok->load(['gudang', 'user']);
+        $stok->load(['gudang', 'user', 'tujuanDistribusi']);
         $stok->dicatat_oleh  = $stok->user?->name ?? 'Admin';
         $stok->tanggal_label = $tanggal->format('Y-m-d H:i');
+        $stok->tujuan_distribusi_nama = $stok->tujuanDistribusi?->nama;
 
         return response()->json($stok, 201);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────
+    // PATCH /api/stok/{id}/toggle-status
+    // Toggle status transaksi antara 'aktif' dan 'dibatalkan',
+    // lalu hitung ulang saldo berjalan untuk komoditas terkait.
+    // ──────────────────────────────────────────────────────────────────────
+    public function toggleStatus(int $id)
+    {
+        $stok = Stok::findOrFail($id);
+        $komoditas = $stok->komoditas;
+
+        $stok->status = ($stok->status === 'aktif') ? 'dibatalkan' : 'aktif';
+        $stok->save();
+
+        $this->recalculateSaldo($komoditas);
+
+        // ➕ TAMBAH: Cek dan buat alert setelah hitung ulang saldo
+        $saldoTerkini = $this->getCurrentStockValue($komoditas);
+        $config = \Illuminate\Support\Facades\Schema::hasTable('alert_configurations')
+            ? \App\Models\AlertConfiguration::first()
+            : null;
+        $batasMinimum = $komoditas === 'Beras'
+            ? ($config?->batas_min_beras ?? 400)
+            : ($config?->batas_min_gabah ?? 1000);
+
+        AlertController::checkAndCreateAlert($komoditas, $saldoTerkini, (int) $batasMinimum);
+
+        $stok->refresh()->load(['gudang', 'user', 'tujuanDistribusi']);
+        $stok->dicatat_oleh  = $stok->user?->name ?? 'Admin';
+        $stok->tanggal_label = $stok->tanggal_update
+            ? \Carbon\Carbon::parse($stok->tanggal_update)->format('Y-m-d H:i')
+            : null;
+        $stok->tujuan_distribusi_nama = $stok->tujuanDistribusi?->nama;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status transaksi diperbarui',
+            'data'    => $stok,
+            'summary' => [
+                'stokBeras' => max(0, $this->getCurrentStockValue('Beras')),
+                'stokGabah' => max(0, $this->getCurrentStockValue('Gabah')),
+            ],
+        ]);
+    }
+
+    /**
+     * Recalculate saldo_setelah / jumlah_stok untuk semua transaksi aktif
+     * dari komoditas tertentu, berurutan berdasarkan tanggal_update.
+     */
+    private function recalculateSaldo(string $komoditas): void
+    {
+        $saldo = 0;
+        $transaksi = Stok::where('komoditas', $komoditas)
+            ->where('status', 'aktif')
+            ->orderBy('tanggal_update')
+            ->orderBy('id')
+            ->get();
+
+        foreach ($transaksi as $t) {
+            $saldo += $t->jenis_transaksi === 'masuk' ? $t->jumlah : -$t->jumlah;
+            $t->jumlah_stok = $saldo;
+            if (\Illuminate\Support\Facades\Schema::hasColumn('stok_beras', 'saldo_setelah')) {
+                $t->saldo_setelah = $saldo;
+            }
+            $t->save();
+        }
+    }
+
+    private function getCurrentStockValue(string $komoditas): float
+    {
+        return (float) (Stok::where('komoditas', $komoditas)
+            ->where('status', 'aktif')
+            ->orderByDesc('tanggal_update')
+            ->orderByDesc('id')
+            ->value('jumlah_stok') ?? 0);
     }
 }

@@ -19,7 +19,7 @@ class AlertScreen extends StatefulWidget {
   State<AlertScreen> createState() => _AlertScreenState();
 }
 
-class _AlertScreenState extends State<AlertScreen> {
+class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
   final AlertService _alertService = AlertService();
   final StokService  _stokService  = StokService();
 
@@ -36,7 +36,24 @@ class _AlertScreenState extends State<AlertScreen> {
   @override
   void initState() {
     super.initState();
+    // ➕ TAMBAH: Listen app lifecycle untuk auto-refresh saat kembali active
+    WidgetsBinding.instance.addObserver(this);
     _loadAll();
+  }
+
+  @override
+  void dispose() {
+    // ➕ TAMBAH: Remove observer saat dispose
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // ➕ TAMBAH: Auto-refresh saat app kembali ke foreground
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      _loadAll();
+    }
   }
 
   Future<void> _loadAll() async {
@@ -78,13 +95,89 @@ class _AlertScreenState extends State<AlertScreen> {
   }
 
   // ── Update status alert ──────────────────────────────────────────────
-  Future<void> _markAsHandled(int alertId, String newStatus) async {
+  Future<void> _markAsHandled(int alertId, String newStatus, {AlertModel? alert}) async {
+    // Jika mau tandai Selesai, cek dulu apakah stok sudah di atas batas minimum
+    if (newStatus == 'selesai' && alert != null) {
+      // Ambil stok real-time: pakai cache _stokList dulu, kalau kosong baru hit API
+      double stokTerkini = _getStokRealtime(alert.komoditas);
+      if (stokTerkini < 0) {
+        // Cache belum ada, fetch ulang dari API
+        try {
+          final list = await _stokService.getMonitoring();
+          if (mounted) setState(() => _stokList = list);
+          final match = list.where((s) =>
+            (s.komoditas ?? '').toLowerCase() == alert.komoditas.toLowerCase()
+          ).toList();
+          stokTerkini = match.isNotEmpty ? match.first.jumlahStok : alert.stokSaatIni;
+        } catch (_) {
+          stokTerkini = alert.stokSaatIni; // last resort fallback ke snapshot
+        }
+      }
+
+      // Gunakan batas minimum dari konfigurasi terkini, bukan dari snapshot alert
+      final batasTerkini = alert.komoditas.toLowerCase() == 'gabah'
+          ? _batasMinGabah
+          : _batasMinBeras;
+
+      if (stokTerkini < batasTerkini) {
+        // Stok masih di bawah minimum — tampilkan dialog seperti web
+        if (!mounted) return;
+        await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.warning_amber_rounded, color: Color(0xFFF57C00), size: 48),
+                const SizedBox(height: 12),
+                const Text('Tidak Bisa Diselesaikan',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFFF57C00)),
+                  textAlign: TextAlign.center),
+                const SizedBox(height: 10),
+                Text(
+                  'Stok ${alert.komoditas} masih ${_fmtNum(stokTerkini)} kg, '
+                  'di bawah batas minimum ${_fmtNum(batasTerkini)} kg. '
+                  'Tambahkan stok terlebih dahulu.',
+                  style: const TextStyle(fontSize: 13),
+                  textAlign: TextAlign.center),
+              ],
+            ),
+            actions: [
+              SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF57C00),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Mengerti',
+                      style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+        return; // Jangan lanjutkan update status
+      }
+    }
+
+    // Lanjutkan update status ke API
     try {
       await _alertService.update(alertId, {'status': newStatus});
       _loadAlerts();
       if (mounted) {
+        final msg = (newStatus == 'proses' || newStatus == 'dalam_penanganan')
+            ? 'Alert ditandai dalam penanganan'
+            : 'Alert berhasil diselesaikan';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Status diupdate ke $newStatus'),
+          content: Text(msg),
           backgroundColor: AppColors.primary,
           duration: const Duration(seconds: 2),
         ));
@@ -247,10 +340,11 @@ class _AlertScreenState extends State<AlertScreen> {
                         _batasMinBeras = newBeras;
                         _batasMinGabah = newGabah;
                       });
-                      await _loadStok();
+                      // ➕ TAMBAH: Reload alert data setelah konfigurasi berubah
+                      await Future.wait([_loadAlerts(), _loadStok()]);
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('Konfigurasi berhasil disimpan'),
+                          content: Text('✅ Konfigurasi berhasil disimpan & alert di-perbarui'),
                           backgroundColor: AppColors.primary,
                         ));
                       }
@@ -268,40 +362,55 @@ class _AlertScreenState extends State<AlertScreen> {
   // ── Helpers status ────────────────────────────────────────────────────
   Color _statusColor(String s) {
     switch (s.toLowerCase()) {
-      case 'aktif':   return AppColors.accentRed;
-      case 'proses':  return AppColors.accentOrange;
-      case 'selesai': return AppColors.accentGreen;
-      default:        return AppColors.onSurfaceVariant;
+      case 'aktif':            return AppColors.accentRed;
+      case 'proses':
+      case 'dalam_penanganan': return AppColors.accentOrange;
+      case 'selesai':          return AppColors.accentGreen;
+      default:                 return AppColors.onSurfaceVariant;
     }
   }
   String _statusLabel(String s) {
     switch (s.toLowerCase()) {
-      case 'aktif':   return 'Alert Aktif';
-      case 'proses':  return 'Dalam Penanganan';
-      case 'selesai': return 'Sudah Ditangani';
-      default:        return s;
+      case 'aktif':            return 'Alert Aktif';
+      case 'proses':
+      case 'dalam_penanganan': return 'Dalam Penanganan';
+      case 'selesai':          return 'Sudah Ditangani';
+      default:                 return s;
     }
   }
   IconData _statusIcon(String s) {
     switch (s.toLowerCase()) {
-      case 'aktif':   return Icons.warning_rounded;
-      case 'proses':  return Icons.hourglass_bottom_rounded;
-      case 'selesai': return Icons.check_circle_rounded;
-      default:        return Icons.info_rounded;
+      case 'aktif':            return Icons.warning_rounded;
+      case 'proses':
+      case 'dalam_penanganan': return Icons.hourglass_bottom_rounded;
+      case 'selesai':          return Icons.check_circle_rounded;
+      default:                 return Icons.info_rounded;
     }
   }
 
   // Sesuai web: merah jika < batas, kuning jika < 1.5x batas, hijau jika aman
   Color _stokColor(double stok, double batas) {
+    if (stok < 0) return AppColors.accentRed;
     if (stok >= batas) return AppColors.accentGreen;
     if (stok >= batas * 0.5) return AppColors.accentOrange;
     return AppColors.accentRed;
   }
   String _stokLabel(double stok, double batas) {
+    if (stok < 0) return 'Kritis';
     if (stok >= batas) return 'Aman';
     if (stok >= batas * 0.5) return 'Rendah';
     return 'Kritis';
   }
+
+
+
+
+
+
+
+
+
+
 
   // ── Build kartu stok (tampilan sesuai web) ────────────────────────────
   Widget _buildStokCards() {
@@ -362,7 +471,7 @@ class _AlertScreenState extends State<AlertScreen> {
         final cap     = c['kapasitas'] as double;
         final color   = _stokColor(stok, batas);
         final label   = _stokLabel(stok, batas);
-        final persen  = cap > 0 ? (stok / cap * 100).clamp(0.0, 100.0) : 0.0;
+        final persen  = cap > 0 ? (stok / cap * 100) : 0.0;  // TIDAK di-clamp, biarkan negatif
         final sisa    = cap - stok;
 
         return Expanded(
@@ -465,11 +574,11 @@ class _AlertScreenState extends State<AlertScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                // Progress bar
+                // Progress bar — value di-clamp 0-1 hanya untuk visual bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
-                    value: persen / 100,
+                    value: (persen / 100).clamp(0.0, 1.0),
                     backgroundColor: AppColors.outlineVariant,
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 6,
@@ -486,7 +595,7 @@ class _AlertScreenState extends State<AlertScreen> {
                           fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     Text(
-                      cap > 0 ? '${_fmtNum(sisa.clamp(0, double.infinity))} kg tersisa' : '',
+                      cap > 0 ? '${_fmtNum(sisa)} kg tersisa' : '',   // tampilkan negatif jika minus
                       style: TextStyle(
                           fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
@@ -500,8 +609,19 @@ class _AlertScreenState extends State<AlertScreen> {
     );
   }
 
+  /// Ambil stok real-time dari _stokList (monitoring API), bukan dari snapshot alert
+  double _getStokRealtime(String komoditas) {
+    final match = _stokList.where((s) =>
+      (s.komoditas ?? '').toLowerCase() == komoditas.toLowerCase()
+    ).toList();
+    if (match.isNotEmpty) return match.first.jumlahStok;
+    return -1; // -1 = belum loaded / tidak ditemukan
+  }
+
   String _fmtNum(double v) {
     final n = NumberFormat('#,##0', 'id_ID');
+    // Pastikan nilai negatif tampil dengan tanda minus
+    if (v < 0) return '-${n.format(v.abs())}';
     return n.format(v);
   }
 
@@ -723,14 +843,24 @@ class _AlertScreenState extends State<AlertScreen> {
                             fontSize: 14, fontWeight: FontWeight.w700,
                             color: Theme.of(context).colorScheme.onSurface)),
                     const SizedBox(height: 4),
-                    Wrap(spacing: 8, children: [
-                      Text('Stok: ${alert.stokSaatIni.toStringAsFixed(0)} kg',
-                          style: TextStyle(
-                              fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                      Text('Batas Min: ${alert.batasMinimum.toStringAsFixed(0)} kg',
-                          style: TextStyle(
-                              fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                    ]),
+                    Builder(builder: (context) {
+                      final stokRealtime = _getStokRealtime(alert.komoditas);
+                      final stokLabel = stokRealtime >= 0
+                          ? '${_fmtNum(stokRealtime)} kg'
+                          : '${alert.stokSaatIni.toStringAsFixed(0)} kg'; // fallback ke snapshot jika monitoring belum load
+                      // Pakai batas minimum dari konfigurasi terkini, bukan snapshot alert
+                      final batasTerkini = alert.komoditas.toLowerCase() == 'gabah'
+                          ? _batasMinGabah
+                          : _batasMinBeras;
+                      return Wrap(spacing: 8, children: [
+                        Text('Stok: $stokLabel',
+                            style: TextStyle(
+                                fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        Text('Batas Min: ${batasTerkini.toStringAsFixed(0)} kg',
+                            style: TextStyle(
+                                fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      ]);
+                    }),
                     const SizedBox(height: 2),
                     Text(
                       alert.createdAt != null
@@ -773,10 +903,10 @@ class _AlertScreenState extends State<AlertScreen> {
           const SizedBox(height: 12),
           if (alert.isAktif)
             _actionBtn('Tandai Ditangani', const Color(0xFFF57C00),
-                () => _markAsHandled(alert.id, 'proses'))
+                () => _markAsHandled(alert.id, 'dalam_penanganan'))
           else if (alert.isProses)
             _actionBtn('Tandai Selesai', AppColors.primary,
-                () => _markAsHandled(alert.id, 'selesai'))
+                () => _markAsHandled(alert.id, 'selesai', alert: alert))
           else
             Container(
               width: double.infinity,

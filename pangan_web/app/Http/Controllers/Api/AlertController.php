@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Admin\AlertController as AdminAlertController;
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use App\Models\AlertConfiguration;
@@ -41,7 +42,7 @@ class AlertController extends Controller
             'komoditas' => 'sometimes|required|string|max:255',
             'stok_saat_ini' => 'sometimes|required|numeric|min:0',
             'batas_minimum' => 'sometimes|required|numeric|min:0',
-            'status' => 'nullable|in:aktif,proses,selesai',
+            'status' => 'nullable|in:aktif,proses,dalam_penanganan,selesai',
             'ditangani_oleh' => 'nullable|integer|exists:users,id',
         ]);
 
@@ -119,8 +120,33 @@ class AlertController extends Controller
         \App\Models\Stok::where('komoditas', 'Gabah')
             ->update(['batas_minimum' => $data['batas_min_gabah']]);
 
+        // Update batas_minimum pada alerts yang ada agar validasi Flutter konsisten
+        Alert::where('komoditas', 'Beras')
+            ->update(['batas_minimum' => $data['batas_min_beras']]);
+
+        Alert::where('komoditas', 'Gabah')
+            ->update(['batas_minimum' => $data['batas_min_gabah']]);
+
+        // ➕ TAMBAH: Cek dan buat alert untuk kedua komoditas dengan konfigurasi baru
+        // Ambil stok terkini per komoditas
+        $stokBeras = (float) (\App\Models\Stok::where('komoditas', 'Beras')
+            ->where('status', 'aktif')
+            ->orderByDesc('tanggal_update')
+            ->orderByDesc('id')
+            ->value('jumlah_stok') ?? 0);
+
+        $stokGabah = (float) (\App\Models\Stok::where('komoditas', 'Gabah')
+            ->where('status', 'aktif')
+            ->orderByDesc('tanggal_update')
+            ->orderByDesc('id')
+            ->value('jumlah_stok') ?? 0);
+
+        // Trigger alert check dengan konfigurasi baru
+        AdminAlertController::checkAndCreateAlert('Beras', $stokBeras, (int) $data['batas_min_beras']);
+        AdminAlertController::checkAndCreateAlert('Gabah', $stokGabah, (int) $data['batas_min_gabah']);
+
         return response()->json([
-            'message' => 'Konfigurasi berhasil disimpan',
+            'message' => 'Konfigurasi berhasil disimpan & alert di-perbarui',
             'batas_min_beras' => $config->batas_min_beras,
             'batas_min_gabah' => $config->batas_min_gabah,
         ]);
