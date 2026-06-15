@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'core/app_colors.dart';
-import 'main.dart'; // themeNotifier
 import 'screens/beranda_screen.dart';
 import 'screens/panen_screen.dart';
 import 'screens/gudang_screen.dart';

@@ -171,6 +171,10 @@ class _PanenScreenState extends State<PanenScreen> {
       _snack('Pilih petani terlebih dahulu', isError: true);
       return;
     }
+    if (_selectedMusim == null) {
+      _snack('Pilih musim tanam terlebih dahulu', isError: true);
+      return;
+    }
     if (_tonaseGabah <= 0) {
       _snack('Tonase gabah harus lebih dari 0', isError: true);
       return;

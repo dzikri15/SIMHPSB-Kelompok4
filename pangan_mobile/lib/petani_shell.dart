@@ -3,7 +3,6 @@
 
 import 'package:flutter/material.dart';
 import 'core/app_colors.dart';
-import 'main.dart'; // themeNotifier
 import 'screens/petani/petani_beranda_screen.dart';
 import 'screens/petani/petani_panen_screen.dart';
 import 'screens/petani/petani_profil_screen.dart';

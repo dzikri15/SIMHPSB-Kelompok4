@@ -59,7 +59,6 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
   // ── Format helpers ─────────────────────────────────────────────────────
   String _fmtKg(dynamic v) {
     final val = (v is num) ? v.toDouble() : double.tryParse(v.toString()) ?? 0;
-    if (val >= 1000) return '${(val / 1000).toStringAsFixed(1)} T';
     return '${val.toStringAsFixed(0)} kg';
   }
 
