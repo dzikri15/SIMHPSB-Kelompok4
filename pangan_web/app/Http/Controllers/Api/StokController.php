@@ -251,8 +251,9 @@ class StokController extends Controller
     // ──────────────────────────────────────────────────────────────────────
     public function transaksi(Request $request)
     {
+        // Tampilkan SEMUA transaksi (aktif & dibatalkan) agar riwayat lengkap
+        // dan petugas bisa mengaktifkan kembali yang dibatalkan
         $query = Stok::with(['gudang', 'user'])
-            ->where('status', 'aktif')
             ->whereNotNull('jenis_transaksi')
             ->latest('tanggal_update');
 
@@ -266,6 +267,12 @@ class StokController extends Controller
 
         if ($request->filled('tanggal')) {
             $query->whereDate('tanggal_update', $request->tanggal);
+        }
+
+        // Filter status opsional: ?status=aktif atau ?status=dibatalkan
+        // Jika tidak diisi, tampilkan semua
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
         if ($request->filled('q')) {

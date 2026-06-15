@@ -1066,8 +1066,8 @@ class _GudangScreenState extends State<GudangScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(isAktif
-              ? '✅ Transaksi dibatalkan & saldo diperbarui\nAlert akan di-refresh otomatis'
-              : '✅ Transaksi diaktifkan kembali & saldo diperbarui\nAlert akan di-refresh otomatis'),
+              ? ' Transaksi dibatalkan'
+              : ' Transaksi diaktifkan kembali'),
           duration: const Duration(seconds: 3),
         ),
       );
