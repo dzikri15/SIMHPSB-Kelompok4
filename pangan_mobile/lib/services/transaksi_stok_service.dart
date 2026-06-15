@@ -10,19 +10,21 @@ class TransaksiStokService {
   final ApiService _api = ApiService();
 
   /// Ambil daftar transaksi mutasi (paginated).
-  /// Params opsional: jenis, komoditas, tanggal (YYYY-MM-DD), q (search)
+  /// Params opsional: jenis, komoditas, tanggal (YYYY-MM-DD), q (search), status (aktif/dibatalkan)
   Future<List<TransaksiStokModel>> getAll({
     int page = 1,
     String? jenis,
     String? komoditas,
     String? tanggal,
     String? q,
+    String? status, // null = semua, 'aktif', atau 'dibatalkan'
   }) async {
     final params = StringBuffer('stok/transaksi?page=$page');
-    if (jenis != null && jenis.isNotEmpty)     params.write('&jenis=$jenis');
+    if (jenis != null && jenis.isNotEmpty)         params.write('&jenis=$jenis');
     if (komoditas != null && komoditas.isNotEmpty) params.write('&komoditas=$komoditas');
-    if (tanggal != null && tanggal.isNotEmpty) params.write('&tanggal=$tanggal');
-    if (q != null && q.isNotEmpty)             params.write('&q=${Uri.encodeQueryComponent(q)}');
+    if (tanggal != null && tanggal.isNotEmpty)     params.write('&tanggal=$tanggal');
+    if (q != null && q.isNotEmpty)                 params.write('&q=${Uri.encodeQueryComponent(q)}');
+    if (status != null && status.isNotEmpty)       params.write('&status=$status');
 
     final data = await _api.get(params.toString()) as Map<String, dynamic>;
     final list = data['data'] as List<dynamic>;

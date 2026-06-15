@@ -12,13 +12,11 @@ class Stok extends Model
 
     protected $fillable = [
         'gudang_id',
-        'user_id',
         'jenis_transaksi',
         'komoditas',
         'jumlah',
         'keterangan',
         'catatan',
-        'foto_bukti',
         'jumlah_stok',
         'status',
         'batas_minimum',

@@ -71,7 +71,31 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         child: child!,
       ),
     );
-    if (picked != null) setState(() => _selectedDate = picked);
+    if (picked != null) {
+      // Setelah pilih tanggal, langsung tampilkan time picker
+      if (!mounted) return;
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+        builder: (ctx, child) => Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              primary: Theme.of(ctx).colorScheme.primary,
+            ),
+          ),
+          child: child!,
+        ),
+      );
+      setState(() {
+        _selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          pickedTime?.hour ?? _selectedDate.hour,
+          pickedTime?.minute ?? _selectedDate.minute,
+        );
+      });
+    }
   }
 
   Future<void> _pickFile() async {
@@ -147,7 +171,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       'jenis_transaksi': _selectedJenis!.toLowerCase(),
       'komoditas': _selectedKomoditas,
       'jumlah': jumlah,
-      'tanggal': DateFormat('yyyy-MM-dd').format(_selectedDate),
+      'tanggal': DateFormat('yyyy-MM-dd HH:mm:ss').format(_selectedDate),
       'keterangan': keteranganBuffer.toString().isEmpty
           ? null
           : keteranganBuffer.toString(),
@@ -432,64 +456,76 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Jumlah + Tanggal
-                    Row(children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _label('Jumlah'),
-                            const SizedBox(height: 8),
-                            _textField(
-                              controller: _jumlahCtrl,
-                              hint: '0 kg',
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[\d,.]'))
+                    // Jumlah
+                    _label('Jumlah'),
+                    const SizedBox(height: 8),
+                    _textField(
+                      controller: _jumlahCtrl,
+                      hint: '0 kg',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'[\d,.]'))
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Tanggal & Jam
+                    _label('Tanggal & Jam'),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: _pickDate,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          border: Border.all(
+                              color: Theme.of(context).colorScheme.outline, width: 1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(children: [
+                          Icon(Icons.calendar_today,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy').format(_selectedDate),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colorScheme.onSurface),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(Icons.access_time,
+                                        size: 13,
+                                        color: Theme.of(context).colorScheme.primary),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      DateFormat('HH:mm').format(_selectedDate),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          Icon(Icons.edit_calendar_outlined,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ]),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _label('Tanggal'),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: _pickDate,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  border: Border.all(
-                                      color: Theme.of(context).colorScheme.outline, width: 1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(children: [
-                                  Icon(Icons.calendar_today,
-                                      size: 18,
-                                      color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      DateFormat('dd/MM/yyyy')
-                                          .format(_selectedDate),
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
-                                    ),
-                                  ),
-                                ]),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]),
+                    ),
                     const SizedBox(height: 18),
 
                     // Sumber / Tujuan Distribusi (label dinamis)
