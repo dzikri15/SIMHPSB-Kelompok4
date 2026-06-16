@@ -37,6 +37,8 @@ class _GudangScreenState extends State<GudangScreen> {
   final _searchCtrl = TextEditingController();
   String? _filterJenis;
   String? _filterKomoditas;
+  DateTime? _filterTanggalMulai;
+  DateTime? _filterTanggalAkhir;
 
 
   @override
@@ -523,12 +525,15 @@ class _GudangScreenState extends State<GudangScreen> {
               _applyFilter();
             },
           )),
-          if (_filterJenis != null || _filterKomoditas != null) ...[
+          if (_filterJenis != null || _filterKomoditas != null ||
+              _filterTanggalMulai != null || _filterTanggalAkhir != null) ...[
             const SizedBox(width: 8),
             IconButton(
               onPressed: () {
                 _filterJenis = null;
                 _filterKomoditas = null;
+                _filterTanggalMulai = null;
+                _filterTanggalAkhir = null;
                 _applyFilter();
               },
               icon: Icon(Icons.filter_alt_off,
@@ -542,9 +547,175 @@ class _GudangScreenState extends State<GudangScreen> {
             ),
           ]
         ]),
+        const SizedBox(height: 10),
+        // Filter Tanggal
+        _buildDateRangeFilter(),
       ],
     );
   }
+
+  // ── Date Range Filter ─────────────────────────────────────────────────
+  Widget _buildDateRangeFilter() {
+    final bool hasDate = _filterTanggalMulai != null || _filterTanggalAkhir != null;
+    return Row(
+      children: [
+        Expanded(
+          child: _buildDatePickerButton(
+            label: _filterTanggalMulai != null
+                ? _fmtDate(_filterTanggalMulai!)
+                : 'Dari Tanggal',
+            icon: Icons.calendar_today_outlined,
+            isActive: _filterTanggalMulai != null,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _filterTanggalMulai ?? DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: _filterTanggalAkhir ?? DateTime.now(),
+                builder: (ctx, child) => _datePickerTheme(ctx, child),
+              );
+              if (picked != null) {
+                setState(() => _filterTanggalMulai = picked);
+                _applyFilter();
+              }
+            },
+            onClear: _filterTanggalMulai != null
+                ? () {
+                    setState(() => _filterTanggalMulai = null);
+                    _applyFilter();
+                  }
+                : null,
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          child: Text('–', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+        ),
+        Expanded(
+          child: _buildDatePickerButton(
+            label: _filterTanggalAkhir != null
+                ? _fmtDate(_filterTanggalAkhir!)
+                : 'Sampai Tanggal',
+            icon: Icons.calendar_today_outlined,
+            isActive: _filterTanggalAkhir != null,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _filterTanggalAkhir ??
+                    (_filterTanggalMulai != null
+                        ? _filterTanggalMulai!
+                        : DateTime.now()),
+                firstDate: _filterTanggalMulai ?? DateTime(2020),
+                lastDate: DateTime.now().add(const Duration(days: 1)),
+                builder: (ctx, child) => _datePickerTheme(ctx, child),
+              );
+              if (picked != null) {
+                setState(() => _filterTanggalAkhir = picked);
+                _applyFilter();
+              }
+            },
+            onClear: _filterTanggalAkhir != null
+                ? () {
+                    setState(() => _filterTanggalAkhir = null);
+                    _applyFilter();
+                  }
+                : null,
+          ),
+        ),
+        if (hasDate) ...[
+          const SizedBox(width: 6),
+          Tooltip(
+            message: 'Reset tanggal',
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _filterTanggalMulai = null;
+                  _filterTanggalAkhir = null;
+                });
+                _applyFilter();
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.accentRedLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.clear, size: 18, color: AppColors.accentRed),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDatePickerButton({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required VoidCallback onTap,
+    VoidCallback? onClear,
+  }) {
+    final color = isActive ? AppColors.primary : Theme.of(context).colorScheme.onSurfaceVariant;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppColors.primary.withValues(alpha: 0.08)
+              : Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: isActive ? AppColors.primary : Theme.of(context).colorScheme.outline,
+            width: isActive ? 1.5 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                  color: color,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (onClear != null)
+              GestureDetector(
+                onTap: onClear,
+                child: Icon(Icons.close, size: 14, color: color),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _datePickerTheme(BuildContext ctx, Widget? child) {
+    return Theme(
+      data: Theme.of(ctx).copyWith(
+        colorScheme: Theme.of(ctx).colorScheme.copyWith(
+          primary: AppColors.primary,
+          onPrimary: Colors.white,
+          surface: Theme.of(ctx).colorScheme.surface,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
+      ),
+      child: child ?? const SizedBox.shrink(),
+    );
+  }
+
+  String _fmtDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
   Widget _filterDropdown({
     required String? value,
@@ -592,9 +763,19 @@ class _GudangScreenState extends State<GudangScreen> {
     return FutureBuilder<List<TransaksiStokModel>>(
       key: ValueKey('transaksi_$_transaksiKey'),
       future: _transaksiService.getAll(
-        jenis:     _filterJenis?.toLowerCase(),
-        komoditas: _filterKomoditas,
-        q:         _searchCtrl.text,
+        jenis:          _filterJenis?.toLowerCase(),
+        komoditas:      _filterKomoditas,
+        q:              _searchCtrl.text,
+        tanggalMulai:   _filterTanggalMulai != null
+            ? '${_filterTanggalMulai!.year.toString().padLeft(4, '0')}-'
+              '${_filterTanggalMulai!.month.toString().padLeft(2, '0')}-'
+              '${_filterTanggalMulai!.day.toString().padLeft(2, '0')}'
+            : null,
+        tanggalAkhir:   _filterTanggalAkhir != null
+            ? '${_filterTanggalAkhir!.year.toString().padLeft(4, '0')}-'
+              '${_filterTanggalAkhir!.month.toString().padLeft(2, '0')}-'
+              '${_filterTanggalAkhir!.day.toString().padLeft(2, '0')}'
+            : null,
       ),
       builder: (_, snap) {
         if (snap.connectionState == ConnectionState.waiting) {

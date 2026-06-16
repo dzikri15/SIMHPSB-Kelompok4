@@ -5,7 +5,7 @@ class AppConstants {
   // Emulator Android  : http://10.0.2.2:8000/api
   // Perangkat fisik   : http://<IP-LAN>:8000/api
   // Production        : https://yourdomain.com/api
-  
+
   // ⚠️ PENTING: localhost hanya bekerja di browser. Android perlu IP atau special alias
   // Ubah ke IP LAN kamu (contoh: 192.168.1.100) atau 10.0.2.2 untuk emulator
   static const String baseUrl = 'http://127.0.0.1:8000/api';
