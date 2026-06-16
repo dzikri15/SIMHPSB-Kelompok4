@@ -269,6 +269,14 @@ class StokController extends Controller
             $query->whereDate('tanggal_update', $request->tanggal);
         }
 
+        if ($request->filled('tanggal_mulai')) {
+            $query->whereDate('tanggal_update', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereDate('tanggal_update', '<=', $request->tanggal_akhir);
+        }
+
         // Filter status opsional: ?status=aktif atau ?status=dibatalkan
         // Jika tidak diisi, tampilkan semua
         if ($request->filled('status')) {
