@@ -61,9 +61,17 @@ COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN ln -snf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
+# Konfigurasi PHP-FPM agar listen di semua interface port 9000
+# dan jalan sebagai user 'laravel' (bukan default www-data)
+RUN sed -i \
+    -e 's/^listen = .*/listen = 0.0.0.0:9000/' \
+    -e 's/^user = .*/user = laravel/' \
+    -e 's/^group = .*/group = laravel/' \
+    /usr/local/etc/php-fpm.d/www.conf
+
 USER laravel
 
-EXPOSE 8000
+EXPOSE 9000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["php-fpm"]

@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\TujuanDistribusiController;
 use App\Http\Controllers\PetaniDashboardController;
+use App\Http\Controllers\ChatbotController;
+
 
 // INTRO PAGE
 Route::get('/intro', function () {
@@ -41,6 +43,11 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'role:petani'])->prefix('petani')->name('petani.')->group(function () {
     Route::get('/', [PetaniDashboardController::class, 'index'])->name('dashboard');
+});
+
+// Chatbot Prabowo — proxy ke n8n, bisa diakses admin & petugas yang sudah login
+Route::middleware(['auth'])->group(function () {
+    Route::post('chatbot/prabowo', [ChatbotController::class, 'send'])->name('chatbot.prabowo');
 });
 
 Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {

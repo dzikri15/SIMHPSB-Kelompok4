@@ -52,7 +52,7 @@ else
 fi
 
 echo "========================================="
-echo "  SIMHPSB is ready at http://localhost:8000"
+echo "  SIMHPSB is ready at http://localhost"
 echo "========================================="
 
 exec "$@"
