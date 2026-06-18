@@ -16,8 +16,9 @@ import '../models/tujuan_distribusi_model.dart';
 
 class CatatTransaksiDialog extends StatefulWidget {
   final Function()? onSave;
+  final BuildContext? parentContext;
 
-  const CatatTransaksiDialog({super.key, this.onSave});
+  const CatatTransaksiDialog({super.key, this.onSave, this.parentContext});
 
   @override
   State<CatatTransaksiDialog> createState() => _CatatTransaksiDialogState();
@@ -40,6 +41,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   final _catatanCtrl  = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
+  String? _errorMsg;
 
   late final List<String> _jenisList     = _service.getJenisTransaksi();
   late final List<String> _komoditasList = _service.getKomoditas();
@@ -111,7 +113,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         });
       }
     } catch (e) {
-      _snack('Gagal memilih foto: $e');
+      if (mounted) setState(() => _errorMsg = 'Gagal memilih foto: $e');
     }
   }
 
@@ -123,39 +125,42 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   }
 
   Future<void> _handleSave() async {
+    // Clear error dulu
+    setState(() => _errorMsg = null);
+
     if (_selectedJenis == null) {
-      _snack('Pilih jenis transaksi');
+      setState(() => _errorMsg = 'Pilih jenis transaksi terlebih dahulu');
       return;
     }
     if (_selectedKomoditas == null) {
-      _snack('Pilih komoditas');
+      setState(() => _errorMsg = 'Pilih komoditas terlebih dahulu');
       return;
     }
     final jumlah = double.tryParse(_jumlahCtrl.text.replaceAll(',', '.'));
     if (jumlah == null || jumlah <= 0) {
-      _snack('Jumlah harus lebih dari 0');
+      setState(() => _errorMsg = 'Jumlah harus lebih dari 0');
       return;
     }
 
     if (_selectedJenis == 'Masuk') {
       if (_sumberCtrl.text.trim().isEmpty) {
-        _snack('Sumber / Tujuan Distribusi wajib diisi');
+        setState(() => _errorMsg = 'Sumber / Tujuan Distribusi wajib diisi');
         return;
       }
     }
 
     if (_selectedJenis == 'Keluar') {
       if (_sumberCtrl.text.trim().isEmpty) {
-        _snack('Sumber / Keterangan wajib diisi');
+        setState(() => _errorMsg = 'Sumber / Keterangan wajib diisi');
         return;
       }
       if (_selectedTujuanId == null) {
-        _snack('Pilih tujuan distribusi');
+        setState(() => _errorMsg = 'Pilih tujuan distribusi');
         return;
       }
       // ── VALIDASI FOTO WAJIB ──────────────────────────
       if (_selectedXFile == null) {
-        _snack('Bukti pengiriman (foto) wajib diisi');
+        setState(() => _errorMsg = 'Bukti pengiriman (foto) wajib diisi');
         return;
       }
     }
@@ -201,24 +206,32 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
 
       if (!mounted) return;
 
-      _snack('Transaksi berhasil disimpan');
       widget.onSave?.call();
 
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) Navigator.pop(context);
+      // Tutup dialog dulu, baru tampilkan snackbar di atas Scaffold
+      Navigator.pop(context);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        final ctx = widget.parentContext;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Transaksi berhasil disimpan'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       });
     } catch (e) {
       if (mounted) {
-        setState(() => _isSaving = false);
-        _snack('Gagal menyimpan: $e');
+        setState(() {
+          _isSaving = false;
+          _errorMsg = 'Gagal menyimpan: $e';
+        });
       }
     }
   }
 
-  void _snack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
-  }
+
 
   Widget _buildTujuanDropdown() {
     return FutureBuilder<List<TujuanDistribusiModel>>(
@@ -613,6 +626,37 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                 ),
               ),
             ),
+
+            // ── Error Banner ───────────────────────────────────────
+            if (_errorMsg != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentRed.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.accentRed.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: AppColors.accentRed, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMsg!,
+                          style: const TextStyle(
+                            color: AppColors.accentRed,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             // ── Footer Buttons ─────────────────────────────────────
             Padding(

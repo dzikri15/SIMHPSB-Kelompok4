@@ -1205,6 +1205,7 @@ class _GudangScreenState extends State<GudangScreen> {
     showDialog(
       context: context,
       builder: (_) => CatatTransaksiDialog(
+        parentContext: context,
         onSave: () {
           // Dialog berhasil menyimpan transaksi ke API
           // Refresh UI untuk menampilkan data terbaru
