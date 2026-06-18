@@ -15,7 +15,6 @@ use App\Http\Controllers\Api\TujuanDistribusiController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\PetaniProfileController;
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
