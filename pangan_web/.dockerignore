@@ -20,3 +20,5 @@ vendor/laravel/framework/docs
 .editorconfig
 .env.example
 docker-compose.override.yml
+public/storage
+storage/app/public

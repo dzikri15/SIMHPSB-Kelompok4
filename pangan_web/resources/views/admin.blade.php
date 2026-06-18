@@ -1027,9 +1027,9 @@
                     @endif
                 </a>
 
-                <a href="https://t.me/tedbow_bot" target="_blank" rel="noopener noreferrer" class="nav-item">
-                    <span class="icon"><i class="fab fa-telegram-plane"></i></span>
-                    Chatbot Telegram
+                <a href="javascript:void(0)" onclick="document.getElementById('prabowo-chat-button').click()" class="nav-item">
+                    <span class="icon"><i class="fas fa-robot"></i></span>
+                    Chatbot Prabowo
                 </a>
             @endif
         @endif
