@@ -12,13 +12,13 @@ import 'package:intl/intl.dart';
 import '../core/app_colors.dart';
 import '../services/transaksi_stok_service.dart';
 import '../services/tujuan_distribusi_service.dart';
-import '../services/stok_service.dart';
 import '../models/tujuan_distribusi_model.dart';
 
 class CatatTransaksiDialog extends StatefulWidget {
-  final Function()? onSave;  // Callback ketika transaksi berhasil disimpan (untuk refresh parent)
+  final Function()? onSave;
+  final BuildContext? parentContext;
 
-  const CatatTransaksiDialog({super.key, this.onSave});
+  const CatatTransaksiDialog({super.key, this.onSave, this.parentContext});
 
   @override
   State<CatatTransaksiDialog> createState() => _CatatTransaksiDialogState();
@@ -27,21 +27,21 @@ class CatatTransaksiDialog extends StatefulWidget {
 class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   final TransaksiStokService _service = TransaksiStokService();
   final TujuanDistribusiService _tujuanService = TujuanDistribusiService();
-  final StokService _stokService = StokService();
   final ImagePicker _imagePicker = ImagePicker();
 
   String? _selectedJenis;
   String? _selectedKomoditas;
   int? _selectedTujuanId;
-  String? _selectedTujuanNama;  // Tambah untuk track nama tujuan
-  io.File? _selectedFile;  // Native only
-  XFile? _selectedXFile;   // Web support
+  String? _selectedTujuanNama;
+  io.File? _selectedFile;
+  XFile? _selectedXFile;
 
   final _jumlahCtrl   = TextEditingController();
   final _sumberCtrl   = TextEditingController();
   final _catatanCtrl  = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
+  String? _errorMsg;
 
   late final List<String> _jenisList     = _service.getJenisTransaksi();
   late final List<String> _komoditasList = _service.getKomoditas();
@@ -55,7 +55,6 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
     super.dispose();
   }
 
-  // ─────────────────────────────────────────
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -71,7 +70,30 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         child: child!,
       ),
     );
-    if (picked != null) setState(() => _selectedDate = picked);
+    if (picked != null) {
+      if (!mounted) return;
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+        builder: (ctx, child) => Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              primary: Theme.of(ctx).colorScheme.primary,
+            ),
+          ),
+          child: child!,
+        ),
+      );
+      setState(() {
+        _selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          pickedTime?.hour ?? _selectedDate.hour,
+          pickedTime?.minute ?? _selectedDate.minute,
+        );
+      });
+    }
   }
 
   Future<void> _pickFile() async {
@@ -85,14 +107,13 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       if (pickedFile != null) {
         setState(() {
           _selectedXFile = pickedFile;
-          // Only convert to io.File on native platform
           if (!kIsWeb) {
             _selectedFile = io.File(pickedFile.path);
           }
         });
       }
     } catch (e) {
-      _snack('Gagal memilih foto: $e');
+      if (mounted) setState(() => _errorMsg = 'Gagal memilih foto: $e');
     }
   }
 
@@ -104,37 +125,52 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   }
 
   Future<void> _handleSave() async {
+    // Clear error dulu
+    setState(() => _errorMsg = null);
+
     if (_selectedJenis == null) {
-      _snack('Pilih jenis transaksi');
+      setState(() => _errorMsg = 'Pilih jenis transaksi terlebih dahulu');
       return;
     }
     if (_selectedKomoditas == null) {
-      _snack('Pilih komoditas');
+      setState(() => _errorMsg = 'Pilih komoditas terlebih dahulu');
       return;
     }
     final jumlah = double.tryParse(_jumlahCtrl.text.replaceAll(',', '.'));
     if (jumlah == null || jumlah <= 0) {
-      _snack('Jumlah harus lebih dari 0');
+      setState(() => _errorMsg = 'Jumlah harus lebih dari 0');
       return;
     }
 
-    // Validasi khusus untuk transaksi keluar
-    if (_selectedJenis == 'Keluar') {
-      if (_selectedTujuanId == null) {
-        _snack('Pilih tujuan distribusi');
+    if (_selectedJenis == 'Masuk') {
+      if (_sumberCtrl.text.trim().isEmpty) {
+        setState(() => _errorMsg = 'Sumber / Tujuan Distribusi wajib diisi');
         return;
       }
     }
 
-    // Gabungkan tujuan distribusi + sumber menjadi 1 field keterangan
+    if (_selectedJenis == 'Keluar') {
+      if (_sumberCtrl.text.trim().isEmpty) {
+        setState(() => _errorMsg = 'Sumber / Keterangan wajib diisi');
+        return;
+      }
+      if (_selectedTujuanId == null) {
+        setState(() => _errorMsg = 'Pilih tujuan distribusi');
+        return;
+      }
+      // ── VALIDASI FOTO WAJIB ──────────────────────────
+      if (_selectedXFile == null) {
+        setState(() => _errorMsg = 'Bukti pengiriman (foto) wajib diisi');
+        return;
+      }
+    }
+
     final StringBuffer keteranganBuffer = StringBuffer();
-    
-    // Jika transaksi keluar, tambahkan tujuan distribusi
+
     if (_selectedJenis == 'Keluar' && _selectedTujuanNama != null) {
       keteranganBuffer.write(_selectedTujuanNama);
     }
-    
-    // Tambahkan sumber/tujuan dari text input
+
     final sumberText = _sumberCtrl.text.trim();
     if (sumberText.isNotEmpty) {
       if (keteranganBuffer.isNotEmpty) {
@@ -147,7 +183,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       'jenis_transaksi': _selectedJenis!.toLowerCase(),
       'komoditas': _selectedKomoditas,
       'jumlah': jumlah,
-      'tanggal': DateFormat('yyyy-MM-dd').format(_selectedDate),
+      'tanggal': DateFormat('yyyy-MM-dd HH:mm:ss').format(_selectedDate),
       'keterangan': keteranganBuffer.toString().isEmpty
           ? null
           : keteranganBuffer.toString(),
@@ -159,7 +195,6 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
     setState(() => _isSaving = true);
 
     try {
-      // Kirim ke API dengan file (jika ada), via bytes agar bekerja di web & native
       final fotoBytes = _selectedXFile != null
           ? await _selectedXFile!.readAsBytes()
           : null;
@@ -168,30 +203,35 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         fotoBytes,
         fotoBuktiName: _selectedXFile?.name,
       );
-      
+
       if (!mounted) return;
-      
-      _snack('Transaksi berhasil disimpan');
-      
-      // Panggil callback parent untuk refresh
+
       widget.onSave?.call();
-      
-      // Close dialog
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) Navigator.pop(context);
+
+      // Tutup dialog dulu, baru tampilkan snackbar di atas Scaffold
+      Navigator.pop(context);
+      Future.delayed(const Duration(milliseconds: 100), () {
+        final ctx = widget.parentContext;
+        if (ctx != null && ctx.mounted) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Transaksi berhasil disimpan'),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       });
     } catch (e) {
       if (mounted) {
-        setState(() => _isSaving = false);
-        _snack('Gagal menyimpan: $e');
+        setState(() {
+          _isSaving = false;
+          _errorMsg = 'Gagal menyimpan: $e';
+        });
       }
     }
   }
 
-  void _snack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
-  }
+
 
   Widget _buildTujuanDropdown() {
     return FutureBuilder<List<TujuanDistribusiModel>>(
@@ -216,7 +256,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
               ),
               const SizedBox(height: 4),
               TextButton.icon(
-                onPressed: () => setState(() {}), // trigger rebuild untuk retry
+                onPressed: () => setState(() {}),
                 icon: const Icon(Icons.refresh, size: 14),
                 label: const Text('Coba lagi', style: TextStyle(fontSize: 12)),
                 style: TextButton.styleFrom(
@@ -262,7 +302,6 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                 .toList(),
             onChanged: (selectedId) {
               if (selectedId != null) {
-                // Find nama dari tujuan list
                 final selected = tujuanList.firstWhere(
                   (t) => t.id == selectedId,
                   orElse: () => TujuanDistribusiModel(id: selectedId, nama: 'Unknown'),
@@ -280,11 +319,10 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
     );
   }
 
-  // ─────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
@@ -325,8 +363,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.add_box, 
-                        color: Theme.of(context).colorScheme.onPrimary, 
+                    child: Icon(Icons.add_box,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         size: 22),
                   ),
                   const SizedBox(width: 12),
@@ -362,7 +400,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Jenis Transaksi (masuk / keluar)
+                    // Jenis Transaksi
                     _label('Jenis Transaksi'),
                     const SizedBox(height: 8),
                     Row(
@@ -377,10 +415,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                             onTap: () => setState(() => _selectedJenis = j),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
-                              margin: EdgeInsets.only(
-                                  right: isMasuk ? 8 : 0),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 14),
+                              margin: EdgeInsets.only(right: isMasuk ? 8 : 0),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? color
@@ -432,68 +468,81 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Jumlah + Tanggal
-                    Row(children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _label('Jumlah'),
-                            const SizedBox(height: 8),
-                            _textField(
-                              controller: _jumlahCtrl,
-                              hint: '0 kg',
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[\d,.]'))
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _label('Tanggal'),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: _pickDate,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  border: Border.all(
-                                      color: Theme.of(context).colorScheme.outline, width: 1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(children: [
-                                  Icon(Icons.calendar_today,
-                                      size: 18,
-                                      color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      DateFormat('dd/MM/yyyy')
-                                          .format(_selectedDate),
-                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
-                                    ),
-                                  ),
-                                ]),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]),
+                    // Jumlah
+                    _label('Jumlah'),
+                    const SizedBox(height: 8),
+                    _textField(
+                      controller: _jumlahCtrl,
+                      hint: '0 kg',
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[\d,.]'))
+                      ],
+                    ),
                     const SizedBox(height: 18),
 
-                    // Sumber / Tujuan Distribusi (label dinamis)
-                    _label(_selectedJenis == 'Keluar' ? 'Sumber / Keterangan' : 'Sumber / Tujuan Distribusi'),
+                    // Tanggal & Jam
+                    _label('Tanggal & Jam'),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: _pickDate,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          border: Border.all(
+                              color: Theme.of(context).colorScheme.outline, width: 1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(children: [
+                          Icon(Icons.calendar_today,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy').format(_selectedDate),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colorScheme.onSurface),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(Icons.access_time,
+                                        size: 13,
+                                        color: Theme.of(context).colorScheme.primary),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      DateFormat('HH:mm').format(_selectedDate),
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.edit_calendar_outlined,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ]),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Sumber / Tujuan Distribusi
+                    _label(_selectedJenis == 'Keluar'
+                        ? 'Sumber / Keterangan'
+                        : 'Sumber / Tujuan Distribusi'),
                     const SizedBox(height: 8),
                     _textField(
                       controller: _sumberCtrl,
@@ -513,15 +562,15 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Tujuan Distribusi (hanya untuk Keluar)
+                    // Tujuan Distribusi + Bukti Foto (hanya Keluar)
                     if (_selectedJenis == 'Keluar') ...[
                       _label('Tujuan Distribusi'),
                       const SizedBox(height: 8),
                       _buildTujuanDropdown(),
                       const SizedBox(height: 18),
 
-                      // Bukti Pengiriman (Foto)
-                      _label('Bukti Pengiriman (Foto)'),
+                      // Bukti Pengiriman — wajib untuk Keluar
+                      _label('Bukti Pengiriman (Foto) *'),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -533,19 +582,34 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                                   ? 'File: ${_selectedXFile!.name}'
                                   : 'Pilih Foto'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.accentBlue,
+                                backgroundColor: _selectedXFile == null
+                                    ? AppColors.accentRed   // merah kalau belum dipilih
+                                    : AppColors.accentBlue, // biru kalau sudah
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                               ),
                             ),
                           ),
-                          if (_selectedFile != null)
+                          if (_selectedXFile != null)
                             IconButton(
                               onPressed: _clearFile,
                               icon: const Icon(Icons.close),
                             ),
                         ],
                       ),
+                      // Hint teks wajib
+                      if (_selectedXFile == null)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 4),
+                          child: Text(
+                            '* Foto bukti pengiriman wajib diisi',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.accentRed,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
                       if (_selectedFile != null && !kIsWeb)
                         Padding(
                           padding: const EdgeInsets.only(top: 12),
@@ -562,7 +626,37 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                 ),
               ),
             ),
-          
+
+            // ── Error Banner ───────────────────────────────────────
+            if (_errorMsg != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentRed.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.accentRed.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: AppColors.accentRed, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMsg!,
+                          style: const TextStyle(
+                            color: AppColors.accentRed,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
             // ── Footer Buttons ─────────────────────────────────────
             Padding(
@@ -573,14 +667,17 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     onPressed: () => Navigator.pop(context),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1.5),
+                      side: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 1.5),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
                     child: Text('Batal',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w600, fontSize: 14)),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -647,34 +744,36 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       maxLines: maxLines,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
+      style: TextStyle(
+          fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 13),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surface,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
+          borderSide:
+              BorderSide(color: Theme.of(context).colorScheme.outline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+          borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary, width: 2),
         ),
       ),
     );
   }
 
-  // Helper method to display image preview
-  // Hanya untuk native, tidak support web
   Widget _buildImagePreview(io.File file) {
     if (kIsWeb) {
       return Container(
@@ -682,9 +781,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         width: double.infinity,
         color: Colors.grey[300],
         child: const Center(
-          child: Text('Preview tidak didukung di web', 
-            style: TextStyle(fontSize: 11, color: Colors.grey),
-          ),
+          child: Text('Preview tidak didukung di web',
+              style: TextStyle(fontSize: 11, color: Colors.grey)),
         ),
       );
     }
@@ -705,7 +803,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                 children: [
                   Icon(Icons.broken_image, color: Colors.grey),
                   SizedBox(height: 8),
-                  Text('Gagal memuat foto', style: TextStyle(fontSize: 11)),
+                  Text('Gagal memuat foto',
+                      style: TextStyle(fontSize: 11)),
                 ],
               ),
             ),
@@ -718,7 +817,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         width: double.infinity,
         color: Colors.grey[300],
         child: Center(
-          child: Text('Error: $e', style: const TextStyle(fontSize: 10)),
+          child: Text('Error: $e',
+              style: const TextStyle(fontSize: 10)),
         ),
       );
     }
@@ -734,22 +834,28 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1),
+        border: Border.all(
+            color: Theme.of(context).colorScheme.outline, width: 1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButton<String>(
         value: value,
         hint: Text(hint,
             style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 13)),
         isExpanded: true,
         underline: const SizedBox(),
         borderRadius: BorderRadius.circular(12),
-        style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
+        style: TextStyle(
+            fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
         items: items
             .map((item) => DropdownMenuItem<String>(
                   value: item,
-                  child: Text(item, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
+                  child: Text(item,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface)),
                 ))
             .toList(),
         onChanged: onChanged,

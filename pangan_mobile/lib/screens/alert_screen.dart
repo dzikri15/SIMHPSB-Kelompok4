@@ -106,7 +106,7 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
           final list = await _stokService.getMonitoring();
           if (mounted) setState(() => _stokList = list);
           final match = list.where((s) =>
-            (s.komoditas ?? '').toLowerCase() == alert.komoditas.toLowerCase()
+          (s.komoditas ?? '').toLowerCase() == alert.komoditas.toLowerCase()
           ).toList();
           stokTerkini = match.isNotEmpty ? match.first.jumlahStok : alert.stokSaatIni;
         } catch (_) {
@@ -133,15 +133,15 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
                 const Icon(Icons.warning_amber_rounded, color: Color(0xFFF57C00), size: 48),
                 const SizedBox(height: 12),
                 const Text('Tidak Bisa Diselesaikan',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFFF57C00)),
-                  textAlign: TextAlign.center),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFFF57C00)),
+                    textAlign: TextAlign.center),
                 const SizedBox(height: 10),
                 Text(
-                  'Stok ${alert.komoditas} masih ${_fmtNum(stokTerkini)} kg, '
-                  'di bawah batas minimum ${_fmtNum(batasTerkini)} kg. '
-                  'Tambahkan stok terlebih dahulu.',
-                  style: const TextStyle(fontSize: 13),
-                  textAlign: TextAlign.center),
+                    'Stok ${alert.komoditas} masih ${_fmtNum(stokTerkini)} kg, '
+                        'di bawah batas minimum ${_fmtNum(batasTerkini)} kg. '
+                        'Tambahkan stok terlebih dahulu.',
+                    style: const TextStyle(fontSize: 13),
+                    textAlign: TextAlign.center),
               ],
             ),
             actions: [
@@ -157,7 +157,7 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
                     ),
                     onPressed: () => Navigator.pop(context),
                     child: const Text('Mengerti',
-                      style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                        style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
                   ),
                 ),
               ),
@@ -540,36 +540,44 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
                 // Batas min & Kapasitas
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Batas minimum',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                        Text('${_fmtNum(batas)} kg',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            )),
-                      ],
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Batas minimum',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          Text('${_fmtNum(batas)} kg',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('Kapasitas',
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                        Text(cap > 0 ? '${_fmtNum(cap)} kg' : '-',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            )),
-                      ],
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('Kapasitas',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          Text(cap > 0 ? '${_fmtNum(cap)} kg' : '-',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              overflow: TextOverflow.ellipsis),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -589,15 +597,23 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${persen.toStringAsFixed(0)}% dari kapasitas',
-                      style: TextStyle(
-                          fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Flexible(
+                      child: Text(
+                        '${persen.toStringAsFixed(0)}% dari kapasitas',
+                        style: TextStyle(
+                            fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    Text(
-                      cap > 0 ? '${_fmtNum(sisa)} kg tersisa' : '',   // tampilkan negatif jika minus
-                      style: TextStyle(
-                          fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        cap > 0 ? '${_fmtNum(sisa)} kg tersisa' : '',
+                        style: TextStyle(
+                            fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                      ),
                     ),
                   ],
                 ),
@@ -612,7 +628,7 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
   /// Ambil stok real-time dari _stokList (monitoring API), bukan dari snapshot alert
   double _getStokRealtime(String komoditas) {
     final match = _stokList.where((s) =>
-      (s.komoditas ?? '').toLowerCase() == komoditas.toLowerCase()
+    (s.komoditas ?? '').toLowerCase() == komoditas.toLowerCase()
     ).toList();
     if (match.isNotEmpty) return match.first.jumlahStok;
     return -1; // -1 = belum loaded / tidak ditemukan
@@ -759,9 +775,9 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
               else if (_errorAlerts != null)
                 _buildError()
               else if (_alerts.isEmpty)
-                _buildEmpty()
-              else
-                Column(children: _alerts.map(_buildAlertItem).toList()),
+                  _buildEmpty()
+                else
+                  Column(children: _alerts.map(_buildAlertItem).toList()),
             ],
           ),
         ),
@@ -865,7 +881,7 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
                     Text(
                       alert.createdAt != null
                           ? DateFormat('dd MMM yyyy HH:mm')
-                              .format(DateTime.parse(alert.createdAt!))
+                          .format(DateTime.parse(alert.createdAt!))
                           : 'Tanggal tidak tersedia',
                       style: TextStyle(
                           fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -903,10 +919,10 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
           const SizedBox(height: 12),
           if (alert.isAktif)
             _actionBtn('Tandai Ditangani', const Color(0xFFF57C00),
-                () => _markAsHandled(alert.id, 'dalam_penanganan'))
+                    () => _markAsHandled(alert.id, 'dalam_penanganan'))
           else if (alert.isProses)
             _actionBtn('Tandai Selesai', AppColors.primary,
-                () => _markAsHandled(alert.id, 'selesai', alert: alert))
+                    () => _markAsHandled(alert.id, 'selesai', alert: alert))
           else
             Container(
               width: double.infinity,
@@ -944,40 +960,40 @@ class _AlertScreenState extends State<AlertScreen> with WidgetsBindingObserver {
       );
 
   Widget _buildEmpty() => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_rounded, size: 48,
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
-            Text('Belum ada alert',
-                style: TextStyle(
-                    fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ],
-        ),
-      );
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.inbox_rounded, size: 48,
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4)),
+        const SizedBox(height: 12),
+        Text('Belum ada alert',
+            style: TextStyle(
+                fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      ],
+    ),
+  );
 
   Widget _buildError() => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 48,
-                color: AppColors.error.withValues(alpha: 0.6)),
-            const SizedBox(height: 12),
-            Text(_errorAlerts ?? 'Terjadi kesalahan',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadAlerts,
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary),
-              child: const Text('Coba Lagi'),
-            ),
-          ],
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.error_outline, size: 48,
+            color: AppColors.error.withValues(alpha: 0.6)),
+        const SizedBox(height: 12),
+        Text(_errorAlerts ?? 'Terjadi kesalahan',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: _loadAlerts,
+          style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary),
+          child: const Text('Coba Lagi'),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 // ── Widget terpisah agar StatefulBuilder tidak conflict dengan context dialog ──
@@ -1005,9 +1021,9 @@ class _SaveButtonState extends State<_SaveButton> {
       onPressed: _saving ? null : _handleSave,
       icon: _saving
           ? const SizedBox(
-              width: 14, height: 14,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-            )
+        width: 14, height: 14,
+        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+      )
           : const Icon(Icons.save_outlined, size: 16),
       label: Text(_saving ? 'Menyimpan...' : 'Simpan Konfigurasi'),
       style: ElevatedButton.styleFrom(
@@ -1024,14 +1040,14 @@ class _SaveButtonState extends State<_SaveButton> {
 
     if (newBeras == null || newBeras < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nilai batas beras tidak valid'),
-            backgroundColor: AppColors.error));
+          const SnackBar(content: Text('Nilai batas beras tidak valid'),
+              backgroundColor: AppColors.error));
       return;
     }
     if (newGabah == null || newGabah < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nilai batas gabah tidak valid'),
-            backgroundColor: AppColors.error));
+          const SnackBar(content: Text('Nilai batas gabah tidak valid'),
+              backgroundColor: AppColors.error));
       return;
     }
 

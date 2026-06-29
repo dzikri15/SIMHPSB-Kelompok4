@@ -37,6 +37,12 @@ class _GudangScreenState extends State<GudangScreen> {
   final _searchCtrl = TextEditingController();
   String? _filterJenis;
   String? _filterKomoditas;
+  DateTime? _filterTanggalMulai;
+  DateTime? _filterTanggalAkhir;
+
+  // Paging transaksi
+  static const int _pageSize = 10;
+  int _currentPage = 1;
 
 
   @override
@@ -49,10 +55,14 @@ class _GudangScreenState extends State<GudangScreen> {
     setState(() {
       _summaryKey++;
       _transaksiKey++;
+      _currentPage = 1;
     });
   }
 
-  void _applyFilter() => setState(() => _transaksiKey++);
+  void _applyFilter() => setState(() {
+    _transaksiKey++;
+    _currentPage = 1;
+  });
 
   // ──────────────────────────────────────────────────────────────────────
   @override
@@ -523,12 +533,15 @@ class _GudangScreenState extends State<GudangScreen> {
               _applyFilter();
             },
           )),
-          if (_filterJenis != null || _filterKomoditas != null) ...[
+          if (_filterJenis != null || _filterKomoditas != null ||
+              _filterTanggalMulai != null || _filterTanggalAkhir != null) ...[
             const SizedBox(width: 8),
             IconButton(
               onPressed: () {
                 _filterJenis = null;
                 _filterKomoditas = null;
+                _filterTanggalMulai = null;
+                _filterTanggalAkhir = null;
                 _applyFilter();
               },
               icon: Icon(Icons.filter_alt_off,
@@ -542,9 +555,175 @@ class _GudangScreenState extends State<GudangScreen> {
             ),
           ]
         ]),
+        const SizedBox(height: 10),
+        // Filter Tanggal
+        _buildDateRangeFilter(),
       ],
     );
   }
+
+  // ── Date Range Filter ─────────────────────────────────────────────────
+  Widget _buildDateRangeFilter() {
+    final bool hasDate = _filterTanggalMulai != null || _filterTanggalAkhir != null;
+    return Row(
+      children: [
+        Expanded(
+          child: _buildDatePickerButton(
+            label: _filterTanggalMulai != null
+                ? _fmtDate(_filterTanggalMulai!)
+                : 'Dari Tanggal',
+            icon: Icons.calendar_today_outlined,
+            isActive: _filterTanggalMulai != null,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _filterTanggalMulai ?? DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: _filterTanggalAkhir ?? DateTime.now(),
+                builder: (ctx, child) => _datePickerTheme(ctx, child),
+              );
+              if (picked != null) {
+                setState(() => _filterTanggalMulai = picked);
+                _applyFilter();
+              }
+            },
+            onClear: _filterTanggalMulai != null
+                ? () {
+                    setState(() => _filterTanggalMulai = null);
+                    _applyFilter();
+                  }
+                : null,
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          child: Text('–', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+        ),
+        Expanded(
+          child: _buildDatePickerButton(
+            label: _filterTanggalAkhir != null
+                ? _fmtDate(_filterTanggalAkhir!)
+                : 'Sampai Tanggal',
+            icon: Icons.calendar_today_outlined,
+            isActive: _filterTanggalAkhir != null,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _filterTanggalAkhir ??
+                    (_filterTanggalMulai != null
+                        ? _filterTanggalMulai!
+                        : DateTime.now()),
+                firstDate: _filterTanggalMulai ?? DateTime(2020),
+                lastDate: DateTime.now().add(const Duration(days: 1)),
+                builder: (ctx, child) => _datePickerTheme(ctx, child),
+              );
+              if (picked != null) {
+                setState(() => _filterTanggalAkhir = picked);
+                _applyFilter();
+              }
+            },
+            onClear: _filterTanggalAkhir != null
+                ? () {
+                    setState(() => _filterTanggalAkhir = null);
+                    _applyFilter();
+                  }
+                : null,
+          ),
+        ),
+        if (hasDate) ...[
+          const SizedBox(width: 6),
+          Tooltip(
+            message: 'Reset tanggal',
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _filterTanggalMulai = null;
+                  _filterTanggalAkhir = null;
+                });
+                _applyFilter();
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.accentRedLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.clear, size: 18, color: AppColors.accentRed),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDatePickerButton({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required VoidCallback onTap,
+    VoidCallback? onClear,
+  }) {
+    final color = isActive ? AppColors.primary : Theme.of(context).colorScheme.onSurfaceVariant;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppColors.primary.withValues(alpha: 0.08)
+              : Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: isActive ? AppColors.primary : Theme.of(context).colorScheme.outline,
+            width: isActive ? 1.5 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                  color: color,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (onClear != null)
+              GestureDetector(
+                onTap: onClear,
+                child: Icon(Icons.close, size: 14, color: color),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _datePickerTheme(BuildContext ctx, Widget? child) {
+    return Theme(
+      data: Theme.of(ctx).copyWith(
+        colorScheme: Theme.of(ctx).colorScheme.copyWith(
+          primary: AppColors.primary,
+          onPrimary: Colors.white,
+          surface: Theme.of(ctx).colorScheme.surface,
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
+      ),
+      child: child ?? const SizedBox.shrink(),
+    );
+  }
+
+  String _fmtDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
   Widget _filterDropdown({
     required String? value,
@@ -592,9 +771,19 @@ class _GudangScreenState extends State<GudangScreen> {
     return FutureBuilder<List<TransaksiStokModel>>(
       key: ValueKey('transaksi_$_transaksiKey'),
       future: _transaksiService.getAll(
-        jenis:     _filterJenis?.toLowerCase(),
-        komoditas: _filterKomoditas,
-        q:         _searchCtrl.text,
+        jenis:          _filterJenis?.toLowerCase(),
+        komoditas:      _filterKomoditas,
+        q:              _searchCtrl.text,
+        tanggalMulai:   _filterTanggalMulai != null
+            ? '${_filterTanggalMulai!.year.toString().padLeft(4, '0')}-'
+              '${_filterTanggalMulai!.month.toString().padLeft(2, '0')}-'
+              '${_filterTanggalMulai!.day.toString().padLeft(2, '0')}'
+            : null,
+        tanggalAkhir:   _filterTanggalAkhir != null
+            ? '${_filterTanggalAkhir!.year.toString().padLeft(4, '0')}-'
+              '${_filterTanggalAkhir!.month.toString().padLeft(2, '0')}-'
+              '${_filterTanggalAkhir!.day.toString().padLeft(2, '0')}'
+            : null,
       ),
       builder: (_, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
@@ -607,14 +796,149 @@ class _GudangScreenState extends State<GudangScreen> {
         final list = snap.data ?? [];
         if (list.isEmpty) return _emptyCard('Belum ada data transaksi.');
 
-        return LayoutBuilder(builder: (ctx, constraints) {
-          // Gunakan tabel di layar >= 800px, card di bawahnya
-          if (constraints.maxWidth >= 800) {
-            return _buildDesktopTable(list, constraints.maxWidth);
-          }
-          return _buildMobileList(list);
-        });
+        // ── Paging ────────────────────────────────────────────────
+        final totalPages = (list.length / _pageSize).ceil().clamp(1, 9999);
+        final safePage = _currentPage.clamp(1, totalPages);
+        final startIdx = (safePage - 1) * _pageSize;
+        final endIdx = (startIdx + _pageSize).clamp(0, list.length);
+        final pagedList = list.sublist(startIdx, endIdx);
+
+        return Column(
+          children: [
+            LayoutBuilder(builder: (ctx, constraints) {
+              if (constraints.maxWidth >= 800) {
+                return _buildDesktopTable(pagedList, constraints.maxWidth);
+              }
+              return _buildMobileList(pagedList);
+            }),
+            if (totalPages > 1) _buildPaginationBar(safePage, totalPages, list.length),
+          ],
+        );
       },
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // PAGINATION BAR
+  // ══════════════════════════════════════════════════════════════════════
+  Widget _buildPaginationBar(int currentPage, int totalPages, int totalItems) {
+    final startItem = ((currentPage - 1) * _pageSize) + 1;
+    final endItem = (currentPage * _pageSize).clamp(0, totalItems);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$startItem–$endItem dari $totalItems',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Row(
+            children: [
+              _pageBtn(
+                icon: Icons.chevron_left_rounded,
+                enabled: currentPage > 1,
+                onTap: () => setState(() => _currentPage = currentPage - 1),
+              ),
+              const SizedBox(width: 4),
+              ..._buildPageNumbers(currentPage, totalPages),
+              const SizedBox(width: 4),
+              _pageBtn(
+                icon: Icons.chevron_right_rounded,
+                enabled: currentPage < totalPages,
+                onTap: () => setState(() => _currentPage = currentPage + 1),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPageNumbers(int current, int total) {
+    final pages = <int>[];
+    if (total <= 5) {
+      pages.addAll(List.generate(total, (i) => i + 1));
+    } else {
+      pages.add(1);
+      if (current > 3) pages.add(-1);
+      for (int i = (current - 1).clamp(2, total - 1);
+          i <= (current + 1).clamp(2, total - 1);
+          i++) {
+        pages.add(i);
+      }
+      if (current < total - 2) pages.add(-1);
+      pages.add(total);
+    }
+    return pages.map((p) {
+      if (p == -1) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text('...', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        );
+      }
+      final isActive = p == current;
+      return GestureDetector(
+        onTap: () => setState(() => _currentPage = p),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primary : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isActive
+                  ? AppColors.primary
+                  : Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '$p',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _pageBtn({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: enabled
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: enabled
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+        ),
+      ),
     );
   }
 
@@ -748,15 +1072,15 @@ class _GudangScreenState extends State<GudangScreen> {
                               ? GestureDetector(
                                   onTap: () => _showFotoPreview(t.fotoBukti!),
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
                                       color: AppColors.primary.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(6),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Icon(Icons.image, size: 16, color: AppColors.primary),
+                                    child: const Icon(Icons.image, size: 18, color: AppColors.primary),
                                   ),
                                 )
-                              : const Text('-', style: TextStyle(fontSize: 10)),
+                              : const Text('-', style: TextStyle(fontSize: 11)),
                         )),
                         // Dicatat Oleh
                         SizedBox(width: colWidths[9], child: Padding(
@@ -820,7 +1144,7 @@ class _GudangScreenState extends State<GudangScreen> {
                   child: Row(children: [
                     Text('#${idx + 1}',
                       style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w700,
+                        fontSize: 12, fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),
                     const SizedBox(width: 8),
@@ -828,7 +1152,7 @@ class _GudangScreenState extends State<GudangScreen> {
                     const Spacer(),
                     Text(t.jumlahDisplay,
                       style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w900,
+                        fontSize: 18, fontWeight: FontWeight.w900,
                         color: jenisColor,
                       )),
                   ]),
@@ -858,15 +1182,15 @@ class _GudangScreenState extends State<GudangScreen> {
                       GestureDetector(
                         onTap: () => _showFotoPreview(t.fotoBukti!),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.image, size: 13, color: AppColors.primary),
-                            SizedBox(width: 4),
-                            Text('Bukti', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                            Icon(Icons.image, size: 18, color: AppColors.primary),
+                            SizedBox(width: 6),
+                            Text('Bukti', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w700)),
                           ]),
                         ),
                       ),
@@ -893,14 +1217,14 @@ class _GudangScreenState extends State<GudangScreen> {
             width: 110,
             child: Text(label,
               style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w600,
+                fontSize: 12, fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               )),
           ),
-          const Text(': ', style: TextStyle(fontSize: 11)),
+          const Text(': ', style: TextStyle(fontSize: 12)),
           Expanded(
             child: Text(value,
-              style: const TextStyle(fontSize: 11),
+              style: const TextStyle(fontSize: 12),
               maxLines: 3, overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -912,7 +1236,7 @@ class _GudangScreenState extends State<GudangScreen> {
   // ── Shared widgets ──────────────────────────────────────────────────
   Widget _jenisBadge(TransaksiStokModel t, Color jenisColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: jenisColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
@@ -920,22 +1244,22 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
       child: Text(
         t.isMasuk ? 'Masuk' : 'Keluar',
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: jenisColor),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: jenisColor),
       ),
     );
   }
 
   Widget _statusBadge(TransaksiStokModel t) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: (t.isAktif ? Colors.green : Colors.grey).withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         t.isAktif ? 'Aktif' : 'Dibatalkan',
         style: TextStyle(
-          fontSize: 10, fontWeight: FontWeight.w600,
+          fontSize: 11, fontWeight: FontWeight.w600,
           color: t.isAktif ? Colors.green[700] : Colors.grey[600],
         ),
       ),
@@ -1024,6 +1348,7 @@ class _GudangScreenState extends State<GudangScreen> {
     showDialog(
       context: context,
       builder: (_) => CatatTransaksiDialog(
+        parentContext: context,
         onSave: () {
           // Dialog berhasil menyimpan transaksi ke API
           // Refresh UI untuk menampilkan data terbaru
@@ -1066,8 +1391,8 @@ class _GudangScreenState extends State<GudangScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(isAktif
-              ? '✅ Transaksi dibatalkan & saldo diperbarui\nAlert akan di-refresh otomatis'
-              : '✅ Transaksi diaktifkan kembali & saldo diperbarui\nAlert akan di-refresh otomatis'),
+              ? ' Transaksi dibatalkan'
+              : ' Transaksi diaktifkan kembali'),
           duration: const Duration(seconds: 3),
         ),
       );
