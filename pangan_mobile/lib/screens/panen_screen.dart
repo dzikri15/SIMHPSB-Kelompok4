@@ -47,6 +47,10 @@ class _PanenScreenState extends State<PanenScreen> {
   bool _isLoadingPetani = true;
   bool _isSaving = false;
 
+  // Paging riwayat panen
+  static const int _pageSize = 10;
+  int _currentPage = 1;
+
   double get _estimasiBeras => _tonaseGabah * (_rasioKonversi / 100);
 
   @override
@@ -129,6 +133,7 @@ class _PanenScreenState extends State<PanenScreen> {
         setState(() {
           _riwayat = list.toList()..sort((a, b) => b.tanggalPanen.compareTo(a.tanggalPanen));
           _isLoadingRiwayat = false;
+          _currentPage = 1;
         });
       }
     } catch (_) {
@@ -209,7 +214,7 @@ class _PanenScreenState extends State<PanenScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: const AppTopBar(),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -544,7 +549,7 @@ class _PanenScreenState extends State<PanenScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // ── Riwayat Panen Terbaru ──────────────────────────────
             _cardTable(
@@ -566,16 +571,149 @@ class _PanenScreenState extends State<PanenScreen> {
                         ))
                       : RefreshIndicator(
                           onRefresh: _loadRiwayat,
-                          child: Column(
-                            children: [
-                              _tableHeader(),
-                              const SizedBox(height: 4),
-                              ..._riwayat.map((r) => _riwayatRow(r)),
-                            ],
-                          ),
+                          child: _buildRiwayatWithPaging(),
                         ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ── Riwayat dengan Paging ─────────────────────────────────────────
+  Widget _buildRiwayatWithPaging() {
+    final totalPages = (_riwayat.length / _pageSize).ceil().clamp(1, 9999);
+    final safePage = _currentPage.clamp(1, totalPages);
+    final startIdx = (safePage - 1) * _pageSize;
+    final endIdx = (startIdx + _pageSize).clamp(0, _riwayat.length);
+    final pagedList = _riwayat.sublist(startIdx, endIdx);
+
+    return Column(
+      children: [
+        _tableHeader(),
+        const SizedBox(height: 4),
+        ...pagedList.map((r) => _riwayatRow(r)),
+        if (totalPages > 1) _buildPaginationBar(safePage, totalPages, _riwayat.length),
+      ],
+    );
+  }
+
+  Widget _buildPaginationBar(int currentPage, int totalPages, int totalItems) {
+    final startItem = ((currentPage - 1) * _pageSize) + 1;
+    final endItem = (currentPage * _pageSize).clamp(0, totalItems);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$startItem–$endItem dari $totalItems',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Row(
+            children: [
+              _pageBtn(
+                icon: Icons.chevron_left_rounded,
+                enabled: currentPage > 1,
+                onTap: () => setState(() => _currentPage = currentPage - 1),
+              ),
+              const SizedBox(width: 4),
+              ..._buildPageNumbers(currentPage, totalPages),
+              const SizedBox(width: 4),
+              _pageBtn(
+                icon: Icons.chevron_right_rounded,
+                enabled: currentPage < totalPages,
+                onTap: () => setState(() => _currentPage = currentPage + 1),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPageNumbers(int current, int total) {
+    final pages = <int>[];
+    if (total <= 5) {
+      pages.addAll(List.generate(total, (i) => i + 1));
+    } else {
+      pages.add(1);
+      if (current > 3) pages.add(-1);
+      for (int i = (current - 1).clamp(2, total - 1);
+          i <= (current + 1).clamp(2, total - 1);
+          i++) {
+        pages.add(i);
+      }
+      if (current < total - 2) pages.add(-1);
+      pages.add(total);
+    }
+    return pages.map((p) {
+      if (p == -1) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text('...', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        );
+      }
+      final isActive = p == current;
+      return GestureDetector(
+        onTap: () => setState(() => _currentPage = p),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primary : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isActive
+                  ? AppColors.primary
+                  : Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '$p',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _pageBtn({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: enabled
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: enabled
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
         ),
       ),
     );

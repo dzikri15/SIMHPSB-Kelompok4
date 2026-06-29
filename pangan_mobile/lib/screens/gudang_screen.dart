@@ -40,6 +40,10 @@ class _GudangScreenState extends State<GudangScreen> {
   DateTime? _filterTanggalMulai;
   DateTime? _filterTanggalAkhir;
 
+  // Paging transaksi
+  static const int _pageSize = 10;
+  int _currentPage = 1;
+
 
   @override
   void dispose() {
@@ -51,10 +55,14 @@ class _GudangScreenState extends State<GudangScreen> {
     setState(() {
       _summaryKey++;
       _transaksiKey++;
+      _currentPage = 1;
     });
   }
 
-  void _applyFilter() => setState(() => _transaksiKey++);
+  void _applyFilter() => setState(() {
+    _transaksiKey++;
+    _currentPage = 1;
+  });
 
   // ──────────────────────────────────────────────────────────────────────
   @override
@@ -788,14 +796,149 @@ class _GudangScreenState extends State<GudangScreen> {
         final list = snap.data ?? [];
         if (list.isEmpty) return _emptyCard('Belum ada data transaksi.');
 
-        return LayoutBuilder(builder: (ctx, constraints) {
-          // Gunakan tabel di layar >= 800px, card di bawahnya
-          if (constraints.maxWidth >= 800) {
-            return _buildDesktopTable(list, constraints.maxWidth);
-          }
-          return _buildMobileList(list);
-        });
+        // ── Paging ────────────────────────────────────────────────
+        final totalPages = (list.length / _pageSize).ceil().clamp(1, 9999);
+        final safePage = _currentPage.clamp(1, totalPages);
+        final startIdx = (safePage - 1) * _pageSize;
+        final endIdx = (startIdx + _pageSize).clamp(0, list.length);
+        final pagedList = list.sublist(startIdx, endIdx);
+
+        return Column(
+          children: [
+            LayoutBuilder(builder: (ctx, constraints) {
+              if (constraints.maxWidth >= 800) {
+                return _buildDesktopTable(pagedList, constraints.maxWidth);
+              }
+              return _buildMobileList(pagedList);
+            }),
+            if (totalPages > 1) _buildPaginationBar(safePage, totalPages, list.length),
+          ],
+        );
       },
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // PAGINATION BAR
+  // ══════════════════════════════════════════════════════════════════════
+  Widget _buildPaginationBar(int currentPage, int totalPages, int totalItems) {
+    final startItem = ((currentPage - 1) * _pageSize) + 1;
+    final endItem = (currentPage * _pageSize).clamp(0, totalItems);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$startItem–$endItem dari $totalItems',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Row(
+            children: [
+              _pageBtn(
+                icon: Icons.chevron_left_rounded,
+                enabled: currentPage > 1,
+                onTap: () => setState(() => _currentPage = currentPage - 1),
+              ),
+              const SizedBox(width: 4),
+              ..._buildPageNumbers(currentPage, totalPages),
+              const SizedBox(width: 4),
+              _pageBtn(
+                icon: Icons.chevron_right_rounded,
+                enabled: currentPage < totalPages,
+                onTap: () => setState(() => _currentPage = currentPage + 1),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPageNumbers(int current, int total) {
+    final pages = <int>[];
+    if (total <= 5) {
+      pages.addAll(List.generate(total, (i) => i + 1));
+    } else {
+      pages.add(1);
+      if (current > 3) pages.add(-1);
+      for (int i = (current - 1).clamp(2, total - 1);
+          i <= (current + 1).clamp(2, total - 1);
+          i++) {
+        pages.add(i);
+      }
+      if (current < total - 2) pages.add(-1);
+      pages.add(total);
+    }
+    return pages.map((p) {
+      if (p == -1) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text('...', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        );
+      }
+      final isActive = p == current;
+      return GestureDetector(
+        onTap: () => setState(() => _currentPage = p),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: isActive ? AppColors.primary : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isActive
+                  ? AppColors.primary
+                  : Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '$p',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isActive ? Colors.white : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _pageBtn({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: enabled
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: enabled
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+        ),
+      ),
     );
   }
 
