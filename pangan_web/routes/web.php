@@ -25,6 +25,10 @@ Route::get('/intro', function () {
     return view('auth.intro');
 })->name('intro');
 
+Route::get('/about', function () {
+    return view('auth.about');
+})->name('about');
+
 Route::get('/', function () {
     if (!Auth::check()) {
         return redirect()->route('intro');

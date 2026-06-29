@@ -29,6 +29,186 @@
             background: #060f09;
         }
 
+        /* ── NAV ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 40px;
+            background: rgba(6,15,9,.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(79,213,133,.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: padding 0.4s;
+        }
+        nav.scrolled {
+            padding: 14px 40px;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: 12px;
+            text-decoration: none;
+        }
+        .nav-logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(145deg, #3ecf74, #22a157);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .nav-name { font-size: 16px; font-weight: 800; color: #fff; }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a {
+            font-size: 13px; color: rgba(255,255,255,.55);
+            text-decoration: none; font-weight: 500;
+            transition: color .2s;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #4fd585; }
+        .nav-cta {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #38a169, #2b7a4f);
+            color: #fff !important;
+            border-radius: 10px;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+            transition: box-shadow .2s, transform .2s !important;
+            box-shadow: 0 4px 14px rgba(56,161,105,.3);
+        }
+        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(56,161,105,.45) !important; }
+        .nav-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #d6f6d3;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 14px;
+            border: 1px solid rgba(79,213,133,.25);
+            border-radius: 10px;
+            transition: background .2s, border-color .2s;
+        }
+        .nav-download:hover {
+            background: rgba(79,213,133,.08);
+            border-color: rgba(79,213,133,.45);
+        }
+
+        .nav-toggle {
+            display: none;
+            border: none;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s;
+        }
+        .nav-toggle:hover {
+            background: rgba(79,213,133,.08);
+        }
+        .nav-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #fff;
+            border-radius: 999px;
+            position: relative;
+        }
+        .nav-toggle span::before,
+        .nav-toggle span::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 20px;
+            height: 2px;
+            background: #fff;
+            border-radius: 999px;
+            transition: transform .2s ease;
+        }
+        .nav-toggle span::before { top: -6px; }
+        .nav-toggle span::after { top: 6px; }
+        .nav-cta {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #38a169, #2b7a4f);
+            color: #fff !important;
+            border-radius: 10px;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+            transition: box-shadow .2s, transform .2s !important;
+            box-shadow: 0 4px 14px rgba(56,161,105,.3);
+        }
+        .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(56,161,105,.45) !important; }
+        .nav-download {
+            color: #d6f6d3;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 8px 14px;
+            border: 1px solid rgba(79,213,133,.25);
+            border-radius: 10px;
+            transition: background .2s, border-color .2s;
+        }
+        .nav-download:hover {
+            background: rgba(79,213,133,.08);
+            border-color: rgba(79,213,133,.45);
+        }
+
+        @media (max-width: 860px) {
+            nav {
+                padding: 14px 24px;
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            .nav-logo {
+                width: 32px;
+                height: 32px;
+            }
+            .nav-name { font-size: 14px; }
+            .nav-toggle {
+                display: inline-flex;
+            }
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 14px;
+            }
+            nav.open .nav-links {
+                display: flex;
+            }
+            .nav-links a {
+                padding: 12px 16px;
+                background: rgba(15,33,24,.92);
+                border-radius: 12px;
+            }
+            .nav-cta {
+                padding: 10px 16px;
+                font-size: 12px !important;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 560px) {
+            nav {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 14px 18px;
+            }
+            .nav-links {
+                justify-content: stretch;
+                gap: 10px;
+                padding: 10px 0 0;
+            }
+            .nav-links a,
+            .nav-cta {
+                text-align: center;
+            }
+        }
+
         /* ── PAGE ── */
         #page {
             position: relative;
@@ -539,87 +719,9 @@
         }
         #skip:hover { color: rgba(255,255,255,.45); }
 
-        #page,
-        .section-block,
         .page-footer {
             opacity: 0;
             transform: translateY(20px);
-        }
-
-        .loader-screen {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 20% 20%, rgba(79,213,133,.15), transparent 25%),
-                        radial-gradient(circle at 80% 15%, rgba(16,56,23,.22), transparent 25%),
-                        #060f09;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10005;
-            opacity: 1;
-            pointer-events: all;
-        }
-        .loader-inner {
-            width: min(420px, calc(100% - 48px));
-            text-align: center;
-            padding: 34px 24px 28px;
-            background: rgba(2,10,7,.92);
-            border: 1px solid rgba(79,213,133,.18);
-            border-radius: 28px;
-            box-shadow: 0 40px 100px rgba(0,0,0,.4);
-        }
-        .loader-logo {
-            width: 82px;
-            height: 82px;
-            margin: 0 auto 18px;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 0 1px rgba(79,213,133,.2), 0 20px 50px rgba(34,161,85,.35);
-            animation: loader-logo-pulse 2.4s ease-in-out infinite;
-        }
-        .loader-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        .loader-title {
-            font-size: 32px;
-            color: #fff;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-        .loader-copy {
-            color: rgba(255,255,255,.52);
-            margin-bottom: 24px;
-            line-height: 1.6;
-            letter-spacing: .02em;
-        }
-        .loader-bar {
-            width: 100%;
-            height: 10px;
-            border-radius: 999px;
-            background: rgba(255,255,255,.08);
-            overflow: hidden;
-            margin-bottom: 14px;
-        }
-        .loader-fill {
-            width: 0%;
-            height: 100%;
-            border-radius: inherit;
-            background: linear-gradient(90deg, #4fd585, #22a157);
-            box-shadow: 0 0 14px rgba(79,213,133,.45);
-        }
-        .loader-percent {
-            color: rgba(255,255,255,.68);
-            font-size: 13px;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-        }
-        @keyframes loader-logo-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
         .cursor-dot,
         .cursor-ring {
@@ -677,17 +779,17 @@
         .interactive-scale:hover {
             transform: scale(1.02);
         }
-        
+
         /* ── SCROLLBAR STYLING ── */
         ::-webkit-scrollbar {
             width: 14px;
             height: 14px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: rgba(79, 213, 133, 0.4);
             border-radius: 8px;
@@ -695,13 +797,13 @@
             background-clip: padding-box;
             transition: background .2s ease, box-shadow .2s ease;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(79, 213, 133, 0.85);
             background-clip: padding-box;
             box-shadow: 0 0 12px rgba(79, 213, 133, 0.5);
         }
-        
+
         ::-webkit-scrollbar-thumb:active {
             background: rgba(79, 213, 133, 1);
         }
@@ -709,17 +811,31 @@
 </head>
 <body>
 
-<div class="loader-screen" id="loaderScreen">
-    <div class="loader-inner">
-        <div class="loader-logo"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHPSB Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
-        <div class="loader-title">SIMHPSB</div>
-        <div class="loader-copy">Sistem Monitoring Pangan<br>Memuat tampilan interaktif...</div>
-        <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
-        <div class="loader-percent" id="loaderPercent">0%</div>
-    </div>
-</div>
 <div class="cursor-dot" id="cursorDot"></div>
 <div class="cursor-ring" id="cursorRing" data-label=""></div>
+
+<!-- NAV -->
+<nav id="mainNav">
+    <a href="{{ route('intro') }}" class="nav-brand">
+        <div class="nav-logo">
+            <img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg"
+                 style="width:100%;height:100%;object-fit:contain;" alt="Logo">
+        </div>
+        <span class="nav-name">SIMHPSB</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Buka menu" aria-expanded="false">
+        <span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+        <a href="{{ route('intro') }}" class="active">Beranda</a>
+        <a href="{{ route('about') }}">Tentang</a>
+        <a href="{{ asset('simhpsb.apk') }}" class="nav-download" download>
+            <span>⬇</span>
+            <span>Unduh APK</span>
+        </a>
+        <a href="javascript:void(0)" onclick="goLogin()" class="nav-cta">Masuk →</a>
+    </div>
+</nav>
 
 <div id="page">
     <div class="amb amb-1"></div>
@@ -799,91 +915,6 @@
     <div id="skip" onclick="goLogin()">Lewati →</div>
 </div>
 
-<section class="section-block">
-    <div class="section-head">
-        <h3>Kelola panen & stok beras secara terintegrasi</h3>
-        <p>SIMHPSB membantu tim lapangan, gudang, dan manajemen untuk bekerja dalam satu sistem. Pantau produksi, stok, harga, dan distribusi dengan dashboard yang mudah dibaca.</p>
-    </div>
-    <div class="feature-grid">
-        <div class="feature-card">
-            <div class="feature-card-image">
-                <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=720&q=80">
-            </div>
-            <h4>Monitoring Stok Real-Time</h4>
-            <p>Perbarui data stok secara instan, lihat status gudang, dan hindari kelebihan atau kekurangan persediaan.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-card-image">
-                <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=720&q=80" alt="Panen padi lapangan">
-            </div>
-            <h4>Manajemen Data Panen</h4>
-            <p>Catat hasil panen harian dan musim, lalu bandingkan produktivitas antar lahan dan petani.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-card-image">
-                <img src="https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=720&q=80" alt="Notifikasi harga pasar dan stok">
-            </div>
-            <h4>Alert Stok & Harga</h4>
-            <p>Dapatkan notifikasi otomatis saat stok menipis atau harga berubah, agar tindakan bisa cepat diambil.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-card-image">
-                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=720&q=80" alt="Laporan panen dan distribusi PDF">
-            </div>
-            <h4>Laporan & Ekspor</h4>
-            <p>Unduh laporan panen, stok, dan distribusi dalam format PDF untuk evaluasi dan pelaporan.</p>
-        </div>
-    </div>
-</section>
-
-<section class="section-block">
-    <div class="section-head">
-        <h3>Modul utama dalam SIMHPSB</h3>
-        <p>Platform ini menyatukan semua proses penting dari data petani hingga pengiriman beras, sehingga manajemen menjadi lebih akurat dan efisien.</p>
-    </div>
-    <div class="module-list">
-        <div class="module-item"><strong>Petani</strong> Data petani, kontak, dan rekam jejak panen.</div>
-        <div class="module-item"><strong>Lahan</strong> Kelola luas, jenis tanaman, dan status pengolahan.</div>
-        <div class="module-item"><strong>Panen</strong> Input hasil panen, tanggal, dan kualitas gabah.</div>
-        <div class="module-item"><strong>Gudang</strong> Pantau kapasitas, lokasi, dan kondisi stok beras.</div>
-        <div class="module-item"><strong>Harga</strong> Update harga gabah dan beras sesuai pasar lokal.</div>
-        <div class="module-item"><strong>Distribusi</strong> Rencanakan pengiriman dan pastikan stok sampai tujuan.</div>
-    </div>
-</section>
-
-<section class="section-block">
-    <div class="section-head">
-        <h3>Fitur unggulan untuk tim lapangan dan manajemen</h3>
-        <p>Desain SIMHPSB fokus pada kemudahan penggunaan, akses data cepat, dan visualisasi yang membuat pengambilan keputusan lebih tepat.</p>
-    </div>
-    <div class="feature-grid">
-        <div class="feature-card">
-            <h4>Dashboard interaktif</h4>
-            <p>Ringkas semua informasi penting dalam satu tampilan yang mudah dipahami.</p>
-        </div>
-        <div class="feature-card">
-            <h4>Riwayat lengkap</h4>
-            <p>Lihat histori panen, stok, dan harga untuk mengevaluasi tren produksi.</p>
-        </div>
-        <div class="feature-card">
-            <h4>Multi-level akses</h4>
-            <p>Atur peran pengguna untuk petani, admin gudang, dan manajer.</p>
-        </div>
-    </div>
-</section>
-
-<footer class="page-footer">
-    <div>
-        <div class="footer-brand">SIMHPSB</div>
-        <div>Platform monitoring hasil panen & stok beras untuk petani dan bisnis pangan.</div>
-    </div>
-    <div class="footer-links">
-        <a href="javascript:void(0)">Tentang</a>
-        <a href="javascript:void(0)">Kontak</a>
-        <a href="javascript:void(0)">Panduan</a>
-    </div>
-</footer>
-
 <!-- Fade/blur overlay for exit transition -->
 <div id="fade-overlay"></div>
 
@@ -945,9 +976,6 @@ function drawOrbs(ts) {
 }
 drawOrbs();
 
-const loaderScreen = document.getElementById('loaderScreen');
-const loaderFill = document.getElementById('loaderFill');
-const loaderPercent = document.getElementById('loaderPercent');
 const cursorDot = document.getElementById('cursorDot');
 const cursorRing = document.getElementById('cursorRing');
 
@@ -992,29 +1020,11 @@ function initCursor() {
     });
 }
 
-function initLoader() {
-    const progress = { value: 0 };
-    gsap.to(progress, {
-        value: 100,
-        duration: 2.4,
-        ease: 'power1.out',
-        onUpdate: () => {
-            if (loaderFill) loaderFill.style.width = `${Math.round(progress.value)}%`;
-            if (loaderPercent) loaderPercent.textContent = `${Math.round(progress.value)}%`;
-        },
-        onComplete: showPage
-    });
-    gsap.fromTo('.loader-inner', { y: 0 }, { y: -10, duration: 0.8, yoyo: true, repeat: 3, ease: 'power1.inOut' });
-}
-
 const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, paused: true });
 
 function showPage() {
     gsap.timeline({ defaults: { ease: 'power3.out' } })
-        .to(loaderScreen, { opacity: 0, duration: 0.8, pointerEvents: 'none' })
-        .to('#page', { opacity: 1, y: 0, duration: 0.9 }, '-=0.5')
-        .to('.section-block', { opacity: 1, y: 0, duration: 0.9, stagger: 0.08 }, '-=0.55')
-        .to('.page-footer', { opacity: 1, y: 0, duration: 0.9 }, '-=0.65')
+        .to('#page', { opacity: 1, y: 0, duration: 0.9 })
         .call(() => {
             if (cursorDot || cursorRing) gsap.to([cursorDot, cursorRing].filter(Boolean), { opacity: 1, duration: 0.4, ease: 'power1.out' });
             if (tl) tl.play();
@@ -1023,12 +1033,12 @@ function showPage() {
 
 window.addEventListener('load', () => {
     initCursor();
-    initLoader();
+    showPage();
 });
 
 if (document.readyState === 'complete') {
     initCursor();
-    initLoader();
+    showPage();
 }
 
 try {
@@ -1158,7 +1168,8 @@ try {
 
 // ── Entrance timeline
 
-tl.to('#badge',    { opacity: 1, y: 0, duration: .7 }, .2)
+tl.to('nav',        { opacity: 1, y: 0, duration: 0.8 }, 0.1)
+  .to('#badge',    { opacity: 1, y: 0, duration: .7 }, .2)
   .to('#logoWrap', { opacity: 1, scale: 1, y: 0, rotationY: 0, duration: 1.2, ease: 'back.out(1.7)' }, .35)
   .to('#logoWrap', { y: -10, duration: 3, ease: 'power1.inOut', repeat: -1, yoyo: true }, 1.8)
   .to('.title-char', {
@@ -1188,10 +1199,10 @@ function goLogin() {
     overlay.style.pointerEvents = 'all';
 
     // Blur + darken content, fade overlay in
-    gsap.to('.content, .corner, #skip', {
+    gsap.to('.content, .corner, #skip, nav', {
         filter: 'blur(12px)',
         opacity: 0,
-        duration: .55,
+        duration: 0.55,
         ease: 'power2.inOut'
     });
     gsap.to('.amb, .grid-lines', {
@@ -1238,6 +1249,84 @@ logoElem.addEventListener('mouseleave', () => {
 document.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goLogin(); }
 });
+
+// Nav scroll effect & Auto redirect to about
+const aboutUrl = "{{ route('about') }}";
+let redirected = false;
+
+function triggerForward() {
+    if (redirected) return;
+    redirected = true;
+
+    const overlay = document.getElementById('fade-overlay');
+    overlay.style.pointerEvents = 'all';
+
+    gsap.to('.content, .corner, #skip, nav', {
+        filter: 'blur(12px)',
+        opacity: 0,
+        duration: 0.55,
+        ease: 'power2.inOut'
+    });
+
+    gsap.to(overlay, {
+        opacity: 1,
+        duration: 0.65,
+        ease: 'power2.inOut',
+        onComplete: () => {
+            window.location.href = aboutUrl;
+        }
+    });
+}
+
+// Detection for "scroll past bottom" intent
+window.addEventListener('wheel', (e) => {
+    if (!redirected && e.deltaY > 30) {
+        triggerForward();
+    }
+}, { passive: true });
+
+let touchStart = 0;
+window.addEventListener('touchstart', (e) => {
+    touchStart = e.touches[0].screenY;
+}, { passive: true });
+window.addEventListener('touchmove', (e) => {
+    let touchEnd = e.touches[0].screenY;
+    if (!redirected && touchEnd < touchStart - 40) {
+        triggerForward();
+    }
+}, { passive: true });
+
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('mainNav');
+    if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+    } else {
+        nav.classList.remove('scrolled');
+    }
+});
+
+const navToggle = document.getElementById('navToggle');
+const nav = document.querySelector('nav');
+const navLinks = document.getElementById('navLinks');
+
+if (navToggle) {
+    navToggle.addEventListener('click', () => {
+        if (!nav) return;
+        nav.classList.toggle('open');
+        const expanded = nav.classList.contains('open');
+        navToggle.setAttribute('aria-expanded', String(expanded));
+    });
+}
+
+if (navLinks) {
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (!nav) return;
+            nav.classList.remove('open');
+            if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+        });
+    });
+}
 </script>
 </body>
 </html>
