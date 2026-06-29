@@ -53,7 +53,7 @@ class _DistribusiTujuanScreenState extends State<DistribusiTujuanScreen> {
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: _isAdding ? null : () => _handleAdd(context),
+            onPressed: _isAdding ? null : _handleAdd,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -74,7 +74,7 @@ class _DistribusiTujuanScreenState extends State<DistribusiTujuanScreen> {
     );
   }
 
-  void _handleAdd(BuildContext context) async {
+  void _handleAdd() async {
     final nama = _namaController.text.trim();
     if (nama.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,7 +118,7 @@ class _DistribusiTujuanScreenState extends State<DistribusiTujuanScreen> {
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: _isDeleting ? null : () => _handleDelete(tujuan, context),
+            onPressed: _isDeleting ? null : () => _handleDelete(tujuan),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -139,7 +139,7 @@ class _DistribusiTujuanScreenState extends State<DistribusiTujuanScreen> {
     );
   }
 
-  void _handleDelete(TujuanDistribusiModel tujuan, BuildContext context) async {
+  void _handleDelete(TujuanDistribusiModel tujuan) async {
     setState(() => _isDeleting = true);
     try {
       await _tujuanService.delete(tujuan.id);

@@ -9,26 +9,62 @@ import 'api_service.dart';
 class TransaksiStokService {
   final ApiService _api = ApiService();
 
-  /// Ambil daftar transaksi mutasi (paginated).
-  /// Params opsional: jenis, komoditas, tanggal (YYYY-MM-DD), q (search)
-  Future<List<TransaksiStokModel>> getAll({
-    int page = 1,
+  /// Build query string tanpa page (dipakai oleh getAllPages)
+  String _buildParams({
     String? jenis,
     String? komoditas,
     String? tanggal,
+    String? tanggalMulai,
+    String? tanggalAkhir,
     String? q,
-  }) async {
-    final params = StringBuffer('stok/transaksi?page=$page');
-    if (jenis != null && jenis.isNotEmpty)     params.write('&jenis=$jenis');
-    if (komoditas != null && komoditas.isNotEmpty) params.write('&komoditas=$komoditas');
-    if (tanggal != null && tanggal.isNotEmpty) params.write('&tanggal=$tanggal');
-    if (q != null && q.isNotEmpty)             params.write('&q=${Uri.encodeQueryComponent(q)}');
+    String? status,
+  }) {
+    final params = StringBuffer();
+    if (jenis != null && jenis.isNotEmpty)                params.write('&jenis=$jenis');
+    if (komoditas != null && komoditas.isNotEmpty)        params.write('&komoditas=$komoditas');
+    if (tanggal != null && tanggal.isNotEmpty)            params.write('&tanggal=$tanggal');
+    if (tanggalMulai != null && tanggalMulai.isNotEmpty)  params.write('&tanggal_mulai=$tanggalMulai');
+    if (tanggalAkhir != null && tanggalAkhir.isNotEmpty)  params.write('&tanggal_akhir=$tanggalAkhir');
+    if (q != null && q.isNotEmpty)                        params.write('&q=${Uri.encodeQueryComponent(q)}');
+    if (status != null && status.isNotEmpty)              params.write('&status=$status');
+    return params.toString();
+  }
 
-    final data = await _api.get(params.toString()) as Map<String, dynamic>;
-    final list = data['data'] as List<dynamic>;
-    return list
-        .map((e) => TransaksiStokModel.fromJson(e as Map<String, dynamic>))
-        .toList();
+  /// Ambil SEMUA transaksi (loop semua halaman API) agar paging Flutter bisa
+  /// menampilkan data lengkap.
+  Future<List<TransaksiStokModel>> getAll({
+    int page = 1, // diabaikan — selalu ambil semua halaman
+    String? jenis,
+    String? komoditas,
+    String? tanggal,
+    String? tanggalMulai,
+    String? tanggalAkhir,
+    String? q,
+    String? status,
+  }) async {
+    final extra = _buildParams(
+      jenis: jenis, komoditas: komoditas, tanggal: tanggal,
+      tanggalMulai: tanggalMulai, tanggalAkhir: tanggalAkhir,
+      q: q, status: status,
+    );
+
+    final allItems = <TransaksiStokModel>[];
+    int currentPage = 1;
+    int lastPage    = 1;
+
+    do {
+      final data = await _api.get('stok/transaksi?page=$currentPage$extra')
+          as Map<String, dynamic>;
+      final list = data['data'] as List<dynamic>;
+      allItems.addAll(
+        list.map((e) => TransaksiStokModel.fromJson(e as Map<String, dynamic>)),
+      );
+      // Laravel paginate() taruh last_page langsung di root response
+      lastPage = (data['last_page'] as int?) ?? 1;
+      currentPage++;
+    } while (currentPage <= lastPage);
+
+    return allItems;
   }
 
   /// Catat transaksi baru dengan support file upload.

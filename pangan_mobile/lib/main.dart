@@ -1,8 +1,10 @@
 // lib/main.dart
+// PATCH: Ganti `home: const AuthGate()` menjadi `home: const LandingGuard()`
+// LandingGuard → jika sudah login langsung ke Shell, jika belum → LandingScreen
 
 import 'package:flutter/material.dart';
 import 'core/app_colors.dart';
-import 'screens/login_screen.dart';
+import 'screens/landing_screen.dart';        // ← IMPORT BARU
 import 'screens/alert_screen.dart';
 import 'screens/distribusi_tujuan_screen.dart';
 import 'main_shell.dart';
@@ -10,8 +12,6 @@ import 'petani_shell.dart';
 import 'models/user_model.dart';
 import 'services/auth_service.dart';
 
-/// Global notifier untuk dark/light mode.
-/// Akses dari mana saja: `themeNotifier.value = ThemeMode.dark`
 final ValueNotifier<ThemeMode> themeNotifier =
     ValueNotifier(ThemeMode.light);
 
@@ -31,8 +31,6 @@ class SimhpsbApp extends StatelessWidget {
           title: 'SIMHPSB',
           debugShowCheckedModeBanner: false,
           themeMode: mode,
-
-          // ── LIGHT THEME ──────────────────────────────────────
           theme: ThemeData(
             useMaterial3: true,
             colorScheme: const ColorScheme.light(
@@ -58,9 +56,6 @@ class SimhpsbApp extends StatelessWidget {
             scaffoldBackgroundColor: AppColors.background,
             fontFamily: 'sans-serif',
           ),
-
-          // ── DARK THEME ───────────────────────────────────────
-          // Warna dipetakan dari dark-mode.css web SIMHPSB
           darkTheme: ThemeData(
             useMaterial3: true,
             colorScheme: const ColorScheme.dark(
@@ -97,7 +92,8 @@ class SimhpsbApp extends StatelessWidget {
             fontFamily: 'sans-serif',
           ),
 
-          home: const AuthGate(),
+          // ─── GANTI home ke LandingGuard ───────────────────
+          home: const LandingGuard(),
           routes: {
             '/alert': (context) => const AlertScreen(),
             '/distribusi-tujuan': (context) => const DistribusiTujuanScreen(),
@@ -108,15 +104,17 @@ class SimhpsbApp extends StatelessWidget {
   }
 }
 
-/// Cek token lokal → tampilkan LoginScreen atau MainShell.
-class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
+/// Cek token lokal:
+/// - Belum login → LandingScreen (liquid_swipe onboarding)
+/// - Sudah login  → MainShell / PetaniShell langsung
+class LandingGuard extends StatefulWidget {
+  const LandingGuard({super.key});
 
   @override
-  State<AuthGate> createState() => _AuthGateState();
+  State<LandingGuard> createState() => _LandingGuardState();
 }
 
-class _AuthGateState extends State<AuthGate> {
+class _LandingGuardState extends State<LandingGuard> {
   Future<UserModel?> _resolveShell() async {
     final loggedIn = await AuthService().isLoggedIn();
     if (!loggedIn) return null;
@@ -134,7 +132,11 @@ class _AuthGateState extends State<AuthGate> {
           );
         }
         final user = snapshot.data;
-        if (user == null) return const LoginScreen();
+
+        // Belum login → tampilkan landing page
+        if (user == null) return const LandingScreen();
+
+        // Sudah login → langsung ke shell yang sesuai
         return user.isPetani ? const PetaniShell() : const MainShell();
       },
     );

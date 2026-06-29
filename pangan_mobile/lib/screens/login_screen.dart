@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Sistem Informasi Manajemen Hasil Panen dan Sumber Bakti',
+                'Sistem Informasi Monitoring Hasil Panen dan Stok Beras Berbasis Mobile',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
