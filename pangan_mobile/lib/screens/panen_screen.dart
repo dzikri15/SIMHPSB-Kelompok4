@@ -1,10 +1,4 @@
 // lib/screens/panen_screen.dart
-// Disesuaikan penuh dengan Web Laravel (pangan_web):
-//  - Dropdown Petani dari API (nama + luas lahan, sesuai web)
-//  - Komoditas: hanya Padi & Jagung
-//  - Riwayat: Petani | Tonase Gabah | Beras Hasil | Musim | Tanggal
-//  - Data terhubung ke API Laravel
-
 import 'package:flutter/material.dart';
 import '../core/app_colors.dart';
 import '../widgets/app_top_bar.dart';
@@ -13,7 +7,6 @@ import '../models/petani_model.dart';
 import '../services/panen_service.dart';
 import '../services/api_service.dart';
 
-// ── Musim Tanam helper ────────────────────────────────────────────────
 class _MusimOption {
   final String value;
   final String label;
@@ -25,10 +18,7 @@ const _musimOptions = [
   _MusimOption('hujan', 'Hujan'),
 ];
 
-// ── Hanya Padi & Jagung sesuai web ───────────────────────────────────
 const _komoditasList = ['Padi', 'Jagung'];
-
-// ── Screen ────────────────────────────────────────────────────────────
 
 class PanenScreen extends StatefulWidget {
   const PanenScreen({super.key});
@@ -41,7 +31,6 @@ class _PanenScreenState extends State<PanenScreen> {
   final PanenService _panenService = PanenService();
   final ApiService _api = ApiService();
 
-  // Form state
   PetaniModel? _selectedPetani;
   String? _selectedMusim;
   String _selectedKomoditas = 'Padi';
@@ -52,7 +41,6 @@ class _PanenScreenState extends State<PanenScreen> {
   final _rasioCtrl = TextEditingController(text: '61.5');
   final _catatanCtrl = TextEditingController();
 
-  // Data
   List<PanenModel> _riwayat = [];
   List<PetaniModel> _petaniList = [];
   bool _isLoadingRiwayat = true;
@@ -89,14 +77,11 @@ class _PanenScreenState extends State<PanenScreen> {
     super.dispose();
   }
 
-  // ── Date helpers ──────────────────────────────────────────────────
-
   String _todayFormatted() {
     final now = DateTime.now();
     return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
   }
 
-  /// Parse dd/MM/yyyy → yyyy-MM-dd untuk Laravel
   String? _parseDate(String input) {
     try {
       final parts = input.split('/');
@@ -107,16 +92,12 @@ class _PanenScreenState extends State<PanenScreen> {
     return null;
   }
 
-  // ── Data loading ──────────────────────────────────────────────────
-
-  /// Load semua petani (semua halaman) seperti web
   Future<void> _loadPetani() async {
     setState(() => _isLoadingPetani = true);
     try {
       List<PetaniModel> allPetani = [];
       int page = 1;
       bool hasMore = true;
-
       while (hasMore) {
         final data =
             await _api.get('petani?page=$page') as Map<String, dynamic>;
@@ -124,14 +105,11 @@ class _PanenScreenState extends State<PanenScreen> {
             .map((e) => PetaniModel.fromJson(e as Map<String, dynamic>))
             .toList();
         allPetani.addAll(list);
-
-        // Cek apakah ada halaman berikutnya
         final meta = data['meta'] as Map<String, dynamic>?;
         final lastPage = meta?['last_page'] as int? ?? 1;
         hasMore = page < lastPage;
         page++;
       }
-
       if (mounted) {
         setState(() {
           _petaniList = allPetani;
@@ -149,7 +127,7 @@ class _PanenScreenState extends State<PanenScreen> {
       final list = await _panenService.getAll();
       if (mounted) {
         setState(() {
-          _riwayat = list.reversed.toList();
+          _riwayat = list.toList()..sort((a, b) => b.tanggalPanen.compareTo(a.tanggalPanen));
           _isLoadingRiwayat = false;
         });
       }
@@ -158,13 +136,7 @@ class _PanenScreenState extends State<PanenScreen> {
     }
   }
 
-  // ── Label petani untuk dropdown (nama saja) ─────────────────────
-
-  String _petaniDropdownLabel(PetaniModel p) {
-    return p.nama;
-  }
-
-  // ── Save / Delete ─────────────────────────────────────────────────
+  String _petaniDropdownLabel(PetaniModel p) => p.nama;
 
   Future<void> _simpanPanen() async {
     if (_selectedPetani == null) {
@@ -184,12 +156,9 @@ class _PanenScreenState extends State<PanenScreen> {
       _snack('Format tanggal: DD/MM/YYYY', isError: true);
       return;
     }
-
-    // Gunakan lahan pertama dari petani (relasi Laravel)
     final lahanId = _selectedPetani!.lahan.isNotEmpty
         ? _selectedPetani!.lahan.first.id
         : null;
-
     setState(() => _isSaving = true);
     try {
       await _panenService.create({
@@ -204,8 +173,6 @@ class _PanenScreenState extends State<PanenScreen> {
             ? null
             : _catatanCtrl.text.trim(),
       });
-
-      // Reset form
       _tonaseCtrl.clear();
       _catatanCtrl.clear();
       _rasioCtrl.text = '61.5';
@@ -226,8 +193,6 @@ class _PanenScreenState extends State<PanenScreen> {
     }
   }
 
-
-
   void _snack(String msg, {bool isError = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -237,8 +202,6 @@ class _PanenScreenState extends State<PanenScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ));
   }
-
-  // ── Build ─────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +213,6 @@ class _PanenScreenState extends State<PanenScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header ────────────────────────────────────────────
             Text(
               'Pencatatan Panen',
               style: TextStyle(
@@ -262,8 +224,9 @@ class _PanenScreenState extends State<PanenScreen> {
             const SizedBox(height: 4),
             Text(
               'Input tonase panen dengan konversi gabah → beras otomatis',
-              style:
-                  TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
 
@@ -273,15 +236,13 @@ class _PanenScreenState extends State<PanenScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Pilih Petani (sesuai web) ─────────────────
                   _label('Petani *'),
                   const SizedBox(height: 8),
                   _isLoadingPetani
                       ? const Center(
                           child: Padding(
                           padding: EdgeInsets.all(8),
-                          child:
-                              CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ))
                       : _inputBox(
                           child: DropdownButtonHideUnderline(
@@ -308,11 +269,8 @@ class _PanenScreenState extends State<PanenScreen> {
                                   .toList(),
                               onChanged: (val) => setState(() {
                                 _selectedPetani = val;
-                                // Auto-isi komoditas dari data petani
-                                // (hanya jika komoditas ada di daftar Padi/Jagung)
                                 if (val?.komoditas != null &&
-                                    _komoditasList
-                                        .contains(val!.komoditas)) {
+                                    _komoditasList.contains(val!.komoditas)) {
                                   _selectedKomoditas = val.komoditas!;
                                 }
                               }),
@@ -321,7 +279,6 @@ class _PanenScreenState extends State<PanenScreen> {
                         ),
                   const SizedBox(height: 16),
 
-                  // ── Musim Tanam ───────────────────────────────
                   _label('Musim Tanam *'),
                   const SizedBox(height: 8),
                   _inputBox(
@@ -344,14 +301,12 @@ class _PanenScreenState extends State<PanenScreen> {
                                           color: Theme.of(context).colorScheme.onSurface)),
                                 ))
                             .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedMusim = val),
+                        onChanged: (val) => setState(() => _selectedMusim = val),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Tanggal Panen ─────────────────────────────
                   _label('Tanggal Panen *'),
                   const SizedBox(height: 8),
                   _inputBox(
@@ -362,8 +317,7 @@ class _PanenScreenState extends State<PanenScreen> {
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
                         hintText: 'DD/MM/YYYY',
-                        suffixIcon: Icon(
-                            Icons.calendar_today_outlined,
+                        suffixIcon: Icon(Icons.calendar_today_outlined,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                             size: 18),
                       ),
@@ -387,7 +341,6 @@ class _PanenScreenState extends State<PanenScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Tonase Gabah ──────────────────────────────
                   _label('Tonase Gabah (kg) *'),
                   const SizedBox(height: 4),
                   const Text('Berat gabah basah setelah panen',
@@ -410,12 +363,12 @@ class _PanenScreenState extends State<PanenScreen> {
                             contentPadding: EdgeInsets.zero,
                           ),
                           style: TextStyle(
-                              fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onSurface),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppColors.primaryContainer,
                           borderRadius: BorderRadius.circular(6),
@@ -430,7 +383,6 @@ class _PanenScreenState extends State<PanenScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Rasio Konversi ────────────────────────────
                   _label('Rasio Konversi (%)'),
                   const SizedBox(height: 4),
                   Text(
@@ -449,12 +401,12 @@ class _PanenScreenState extends State<PanenScreen> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       style: TextStyle(
-                          fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Komoditas (hanya Padi & Jagung) ──────────
                   _label('Komoditas'),
                   const SizedBox(height: 8),
                   _inputBox(
@@ -473,19 +425,17 @@ class _PanenScreenState extends State<PanenScreen> {
                                           color: Theme.of(context).colorScheme.onSurface)),
                                 ))
                             .toList(),
-                        onChanged: (val) => setState(
-                            () => _selectedKomoditas = val ?? 'Padi'),
+                        onChanged: (val) =>
+                            setState(() => _selectedKomoditas = val ?? 'Padi'),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Catatan ───────────────────────────────────
                   _label('Catatan'),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(12),
@@ -494,8 +444,7 @@ class _PanenScreenState extends State<PanenScreen> {
                       controller: _catatanCtrl,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        hintText:
-                            'Kondisi panen, cuaca, dll. (opsional)',
+                        hintText: 'Kondisi panen, cuaca, dll. (opsional)',
                         hintStyle: TextStyle(
                             fontSize: 13,
                             color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -504,20 +453,26 @@ class _PanenScreenState extends State<PanenScreen> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       style: TextStyle(
-                          fontSize: 14, color: Theme.of(context).colorScheme.onSurface),
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                   const SizedBox(height: 20),
 
-                  // ── Estimasi Beras ────────────────────────────
                   if (_tonaseGabah > 0) ...[
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primaryContainer
+                            .withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.2)),
                       ),
                       child: Row(children: [
                         Container(
@@ -527,7 +482,8 @@ class _PanenScreenState extends State<PanenScreen> {
                               color: Theme.of(context).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(12)),
                           child: Icon(Icons.calculate_outlined,
-                              color: Theme.of(context).colorScheme.primary, size: 22),
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 22),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -562,7 +518,6 @@ class _PanenScreenState extends State<PanenScreen> {
                     const SizedBox(height: 20),
                   ],
 
-                  // ── Tombol Simpan ─────────────────────────────
                   SizedBox(
                     width: double.infinity,
                     height: 52,
@@ -577,9 +532,7 @@ class _PanenScreenState extends State<PanenScreen> {
                                   color: Theme.of(context).colorScheme.onPrimary))
                           : const Icon(Icons.save_outlined),
                       label: const Text('Simpan Catatan Panen',
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700)),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.onPrimary,
@@ -593,8 +546,8 @@ class _PanenScreenState extends State<PanenScreen> {
             ),
             const SizedBox(height: 24),
 
-            // ── Riwayat Panen Terbaru (sesuai tabel web) ──────────
-            _card(
+            // ── Riwayat Panen Terbaru ──────────────────────────────
+            _cardTable(
               title: 'Riwayat Panen Terbaru',
               subtitle: '${_riwayat.length} entri terbaru',
               child: _isLoadingRiwayat
@@ -628,59 +581,29 @@ class _PanenScreenState extends State<PanenScreen> {
     );
   }
 
-  // ── Tabel Header (kolom = web) ────────────────────────────────────
+  // ── Tabel Header ─────────────────────────────────────────────────
+  // Pakai Expanded flex agar otomatis menyesuaikan lebar layar
 
   Widget _tableHeader() {
+    final style = TextStyle(
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.8,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Expanded(
-              flex: 3,
-              child: Text('PETANI',
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          Expanded(
-              flex: 3,
-              child: Text('TONASE GABAH',
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          Expanded(
-              flex: 3,
-              child: Text('BERAS HASIL',
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          Expanded(
-              flex: 3,
-              child: Text('MUSIM',
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          Expanded(
-              flex: 3,
-              child: Text('TANGGAL',
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          const SizedBox(width: 24),
+          Expanded(flex: 18, child: Text('PETANI', style: style)),
+          Expanded(flex: 15, child: Text('GABAH', style: style)),
+          Expanded(flex: 14, child: Text('BERAS', style: style)),
+          Expanded(flex: 15, child: Text('MUSIM', style: style)),
+          Expanded(flex: 20, child: Text('TANGGAL', style: style, maxLines: 1)),
         ],
       ),
     );
@@ -691,86 +614,109 @@ class _PanenScreenState extends State<PanenScreen> {
   Widget _riwayatRow(PanenModel r) {
     final musimLabel = r.musimLabel;
 
+    // Format "2026-06-15" → "15/06/26"
+    String formatTanggal(String raw) {
+      try {
+        final parts = raw.split('-');
+        if (parts.length == 3) {
+          return '${parts[2]}/${parts[1]}/${parts[0]}';
+        }
+      } catch (_) {}
+      return raw;
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 1),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(8),
         border: Border(
           bottom: BorderSide(
-              color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4), width: 1),
+              color: Theme.of(context)
+                  .colorScheme
+                  .outlineVariant
+                  .withValues(alpha: 0.4),
+              width: 1),
         ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Petani (nama dari API, bukan nama lahan)
+          // Petani
           Expanded(
-            flex: 3,
+            flex: 18,
             child: Text(
               r.namaPetani,
               style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Theme.of(context).colorScheme.onSurface),
               overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
           // Tonase Gabah
           Expanded(
-            flex: 3,
+            flex: 15,
             child: Text(
               '${r.jumlahGabah.toStringAsFixed(0)} kg',
               style: TextStyle(
-                  fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurface),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
-          // Beras Hasil (hijau bold sesuai web)
+          // Beras Hasil
           Expanded(
-            flex: 3,
+            flex: 14,
             child: Text(
               r.konversiBeras != null
                   ? '${r.konversiBeras!.toStringAsFixed(0)} kg'
                   : '—',
               style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Theme.of(context).colorScheme.primary),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
-          // Musim (badge pill sesuai web)
+          // Musim badge
           Expanded(
-            flex: 3,
+            flex: 15,
             child: musimLabel != null
-                ? Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        musimLabel,
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.primary),
-                        textAlign: TextAlign.center,
-                      ),
+                ? Container(
+                    margin: const EdgeInsets.only(right: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      musimLabel,
+                      style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.primary),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   )
                 : const SizedBox(),
           ),
           // Tanggal
           Expanded(
-            flex: 3,
+            flex: 20,
             child: Text(
-              r.tanggalPanen,
+              formatTanggal(r.tanggalPanen),
               style: TextStyle(
-                  fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],
@@ -781,9 +727,7 @@ class _PanenScreenState extends State<PanenScreen> {
   // ── Helpers ───────────────────────────────────────────────────────
 
   Widget _card(
-      {required String title,
-      String? subtitle,
-      required Widget child}) {
+      {required String title, String? subtitle, required Widget child}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -818,10 +762,52 @@ class _PanenScreenState extends State<PanenScreen> {
     );
   }
 
+  // Card khusus tabel: padding horizontal lebih kecil biar tabel lebih lebar
+  Widget _cardTable(
+      {required String title, String? subtitle, required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 20, 12, 20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.04),
+              blurRadius: 12)
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(title,
+                style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface)),
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(subtitle,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            ),
+          ],
+          const SizedBox(height: 20),
+          child,
+        ],
+      ),
+    );
+  }
+
   Widget _inputBox({required Widget child}) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
