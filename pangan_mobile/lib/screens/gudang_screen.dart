@@ -27,17 +27,22 @@ class GudangScreen extends StatefulWidget {
 
 class _GudangScreenState extends State<GudangScreen> {
   final TransaksiStokService _transaksiService = TransaksiStokService();
-  final StokService           _stokService     = StokService();
+  final StokService _stokService = StokService();
 
   // Refresh keys
-  int _summaryKey    = 0;
-  int _transaksiKey  = 0;
+  int _summaryKey = 0;
+  int _transaksiKey = 0;
 
   // Filter transaksi
   final _searchCtrl = TextEditingController();
   String? _filterJenis;
   String? _filterKomoditas;
+  DateTime? _filterTanggalMulai;
+  DateTime? _filterTanggalAkhir;
 
+  // Paging transaksi
+  static const int _pageSize = 10;
+  int _currentPage = 1;
 
   @override
   void dispose() {
@@ -49,10 +54,14 @@ class _GudangScreenState extends State<GudangScreen> {
     setState(() {
       _summaryKey++;
       _transaksiKey++;
+      _currentPage = 1;
     });
   }
 
-  void _applyFilter() => setState(() => _transaksiKey++);
+  void _applyFilter() => setState(() {
+        _transaksiKey++;
+        _currentPage = 1;
+      });
 
   // ──────────────────────────────────────────────────────────────────────
   @override
@@ -81,7 +90,8 @@ class _GudangScreenState extends State<GudangScreen> {
                   Text(
                     'Transaksi masuk/keluar dan saldo stok real-time',
                     style: TextStyle(
-                        fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 18),
                   _buildSummarySection(),
@@ -117,7 +127,6 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
     );
   }
-
 
   // ══════════════════════════════════════════════════════════════════════
   // 8 SUMMARY CARDS
@@ -308,7 +317,8 @@ class _GudangScreenState extends State<GudangScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 40, height: 40,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: iconBg,
               borderRadius: BorderRadius.circular(12),
@@ -333,9 +343,10 @@ class _GudangScreenState extends State<GudangScreen> {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                    progressColor ?? accentColor),
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHigh,
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(progressColor ?? accentColor),
                 minHeight: 4,
               ),
             ),
@@ -344,7 +355,8 @@ class _GudangScreenState extends State<GudangScreen> {
             const SizedBox(height: 4),
             Text(subtitle,
                 style: TextStyle(
-                    fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    fontSize: 10,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
           if (badge != null) ...[
             const SizedBox(height: 6), // FIX: reduced from 8 → 6
@@ -386,7 +398,8 @@ class _GudangScreenState extends State<GudangScreen> {
       child: Row(
         children: [
           Container(
-            width: 36, height: 36,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
                 color: iconBg, borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: iconColor, size: 18),
@@ -432,7 +445,8 @@ class _GudangScreenState extends State<GudangScreen> {
                     color: Theme.of(context).colorScheme.onSurface)),
             Text('Riwayat transaksi masuk & keluar',
                 style: TextStyle(
-                    fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -441,14 +455,15 @@ class _GudangScreenState extends State<GudangScreen> {
         icon: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
         label: const Text('Catat Transaksi',
             style: TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 13, color: Colors.white)),
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: Colors.white)),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           elevation: 0,
-          padding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14)),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
     ]);
@@ -468,12 +483,15 @@ class _GudangScreenState extends State<GudangScreen> {
           decoration: InputDecoration(
             hintText: 'Cari tujuan, komoditas...',
             hintStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 13),
             prefixIcon: Icon(Icons.search,
-                color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                size: 20),
             suffixIcon: _searchCtrl.text.isNotEmpty
                 ? IconButton(
-                    icon: Icon(Icons.clear, size: 18,
+                    icon: Icon(Icons.clear,
+                        size: 18,
                         color: Theme.of(context).colorScheme.onSurfaceVariant),
                     onPressed: () {
                       _searchCtrl.clear();
@@ -487,16 +505,14 @@ class _GudangScreenState extends State<GudangScreen> {
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide:
-                    const BorderSide(color: AppColors.outlineVariant)),
+                borderSide: const BorderSide(color: AppColors.outlineVariant)),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide:
-                    const BorderSide(color: AppColors.outlineVariant)),
+                borderSide: const BorderSide(color: AppColors.outlineVariant)),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(
-                    color: AppColors.primary, width: 1.5)),
+                borderSide:
+                    const BorderSide(color: AppColors.primary, width: 1.5)),
           ),
         ),
         const SizedBox(height: 10),
@@ -523,16 +539,22 @@ class _GudangScreenState extends State<GudangScreen> {
               _applyFilter();
             },
           )),
-          if (_filterJenis != null || _filterKomoditas != null) ...[
+          if (_filterJenis != null ||
+              _filterKomoditas != null ||
+              _filterTanggalMulai != null ||
+              _filterTanggalAkhir != null) ...[
             const SizedBox(width: 8),
             IconButton(
               onPressed: () {
                 _filterJenis = null;
                 _filterKomoditas = null;
+                _filterTanggalMulai = null;
+                _filterTanggalAkhir = null;
                 _applyFilter();
               },
               icon: Icon(Icons.filter_alt_off,
-                  size: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  size: 20,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               tooltip: 'Reset filter',
               style: IconButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.surface,
@@ -542,9 +564,182 @@ class _GudangScreenState extends State<GudangScreen> {
             ),
           ]
         ]),
+        const SizedBox(height: 10),
+        // Filter Tanggal
+        _buildDateRangeFilter(),
       ],
     );
   }
+
+  // ── Date Range Filter ─────────────────────────────────────────────────
+  Widget _buildDateRangeFilter() {
+    final bool hasDate =
+        _filterTanggalMulai != null || _filterTanggalAkhir != null;
+    return Row(
+      children: [
+        Expanded(
+          child: _buildDatePickerButton(
+            label: _filterTanggalMulai != null
+                ? _fmtDate(_filterTanggalMulai!)
+                : 'Dari Tanggal',
+            icon: Icons.calendar_today_outlined,
+            isActive: _filterTanggalMulai != null,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _filterTanggalMulai ?? DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: _filterTanggalAkhir ?? DateTime.now(),
+                builder: (ctx, child) => _datePickerTheme(ctx, child),
+              );
+              if (picked != null) {
+                setState(() => _filterTanggalMulai = picked);
+                _applyFilter();
+              }
+            },
+            onClear: _filterTanggalMulai != null
+                ? () {
+                    setState(() => _filterTanggalMulai = null);
+                    _applyFilter();
+                  }
+                : null,
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          child: Text('–',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+        ),
+        Expanded(
+          child: _buildDatePickerButton(
+            label: _filterTanggalAkhir != null
+                ? _fmtDate(_filterTanggalAkhir!)
+                : 'Sampai Tanggal',
+            icon: Icons.calendar_today_outlined,
+            isActive: _filterTanggalAkhir != null,
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _filterTanggalAkhir ??
+                    (_filterTanggalMulai != null
+                        ? _filterTanggalMulai!
+                        : DateTime.now()),
+                firstDate: _filterTanggalMulai ?? DateTime(2020),
+                lastDate: DateTime.now().add(const Duration(days: 1)),
+                builder: (ctx, child) => _datePickerTheme(ctx, child),
+              );
+              if (picked != null) {
+                setState(() => _filterTanggalAkhir = picked);
+                _applyFilter();
+              }
+            },
+            onClear: _filterTanggalAkhir != null
+                ? () {
+                    setState(() => _filterTanggalAkhir = null);
+                    _applyFilter();
+                  }
+                : null,
+          ),
+        ),
+        if (hasDate) ...[
+          const SizedBox(width: 6),
+          Tooltip(
+            message: 'Reset tanggal',
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _filterTanggalMulai = null;
+                  _filterTanggalAkhir = null;
+                });
+                _applyFilter();
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.accentRedLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.clear,
+                    size: 18, color: AppColors.accentRed),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildDatePickerButton({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required VoidCallback onTap,
+    VoidCallback? onClear,
+  }) {
+    final color = isActive
+        ? AppColors.primary
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
+        decoration: BoxDecoration(
+          color: isActive
+              ? AppColors.primary.withValues(alpha: 0.08)
+              : Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: isActive
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.outline,
+            width: isActive ? 1.5 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                  color: color,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (onClear != null)
+              GestureDetector(
+                onTap: onClear,
+                child: Icon(Icons.close, size: 14, color: color),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _datePickerTheme(BuildContext ctx, Widget? child) {
+    return Theme(
+      data: Theme.of(ctx).copyWith(
+        colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              surface: Theme.of(ctx).colorScheme.surface,
+            ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+        ),
+      ),
+      child: child ?? const SizedBox.shrink(),
+    );
+  }
+
+  String _fmtDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 
   Widget _filterDropdown({
     required String? value,
@@ -556,18 +751,21 @@ class _GudangScreenState extends State<GudangScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1),
+        border:
+            Border.all(color: Theme.of(context).colorScheme.outline, width: 1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButton<String>(
         value: value,
         hint: Text(hint,
             style: TextStyle(
-                fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant)),
         isExpanded: true,
         underline: const SizedBox(),
         borderRadius: BorderRadius.circular(12),
-        style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
+        style: TextStyle(
+            fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
         items: [
           DropdownMenuItem<String>(
               value: null,
@@ -575,15 +773,14 @@ class _GudangScreenState extends State<GudangScreen> {
                   style: TextStyle(
                       fontSize: 13,
                       color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          ...items.map((i) =>
-              DropdownMenuItem<String>(value: i, child: Text(i))),
+          ...items
+              .map((i) => DropdownMenuItem<String>(value: i, child: Text(i))),
         ],
         onChanged: onChanged,
         dropdownColor: Theme.of(context).colorScheme.surface,
       ),
     );
   }
-
 
   // ══════════════════════════════════════════════════════════════════════
   // TRANSAKSI SECTION — responsive: tabel di desktop, card list di mobile
@@ -592,9 +789,19 @@ class _GudangScreenState extends State<GudangScreen> {
     return FutureBuilder<List<TransaksiStokModel>>(
       key: ValueKey('transaksi_$_transaksiKey'),
       future: _transaksiService.getAll(
-        jenis:     _filterJenis?.toLowerCase(),
+        jenis: _filterJenis?.toLowerCase(),
         komoditas: _filterKomoditas,
-        q:         _searchCtrl.text,
+        q: _searchCtrl.text,
+        tanggalMulai: _filterTanggalMulai != null
+            ? '${_filterTanggalMulai!.year.toString().padLeft(4, '0')}-'
+                '${_filterTanggalMulai!.month.toString().padLeft(2, '0')}-'
+                '${_filterTanggalMulai!.day.toString().padLeft(2, '0')}'
+            : null,
+        tanggalAkhir: _filterTanggalAkhir != null
+            ? '${_filterTanggalAkhir!.year.toString().padLeft(4, '0')}-'
+                '${_filterTanggalAkhir!.month.toString().padLeft(2, '0')}-'
+                '${_filterTanggalAkhir!.day.toString().padLeft(2, '0')}'
+            : null,
       ),
       builder: (_, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
@@ -607,26 +814,236 @@ class _GudangScreenState extends State<GudangScreen> {
         final list = snap.data ?? [];
         if (list.isEmpty) return _emptyCard('Belum ada data transaksi.');
 
-        return LayoutBuilder(builder: (ctx, constraints) {
-          // Gunakan tabel di layar >= 800px, card di bawahnya
-          if (constraints.maxWidth >= 800) {
-            return _buildDesktopTable(list, constraints.maxWidth);
-          }
-          return _buildMobileList(list);
-        });
+        // ── Paging ────────────────────────────────────────────────
+        final totalPages = (list.length / _pageSize).ceil().clamp(1, 9999);
+        final safePage = _currentPage.clamp(1, totalPages);
+        final startIdx = (safePage - 1) * _pageSize;
+        final endIdx = (startIdx + _pageSize).clamp(0, list.length);
+        final pagedList = list.sublist(startIdx, endIdx);
+
+        return Column(
+          children: [
+            LayoutBuilder(builder: (ctx, constraints) {
+              if (constraints.maxWidth >= 800) {
+                return _buildDesktopTable(pagedList, constraints.maxWidth);
+              }
+              return _buildMobileList(pagedList);
+            }),
+            if (totalPages > 1)
+              _buildPaginationBar(safePage, totalPages, list.length),
+          ],
+        );
       },
     );
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // PAGINATION BAR
+  // ══════════════════════════════════════════════════════════════════════
+  Widget _buildPaginationBar(int currentPage, int totalPages, int totalItems) {
+    final startItem = ((currentPage - 1) * _pageSize) + 1;
+    final endItem = (currentPage * _pageSize).clamp(0, totalItems);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$startItem–$endItem dari $totalItems',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Row(
+            children: [
+              _pageTextBtn(
+                label: 'First',
+                enabled: currentPage > 1,
+                onTap: () => setState(() => _currentPage = 1),
+              ),
+              const SizedBox(width: 4),
+              _pageBtn(
+                icon: Icons.chevron_left_rounded,
+                enabled: currentPage > 1,
+                onTap: () => setState(() => _currentPage = currentPage - 1),
+              ),
+              const SizedBox(width: 4),
+              ..._buildPageNumbers(currentPage, totalPages),
+              const SizedBox(width: 4),
+              _pageBtn(
+                icon: Icons.chevron_right_rounded,
+                enabled: currentPage < totalPages,
+                onTap: () => setState(() => _currentPage = currentPage + 1),
+              ),
+              const SizedBox(width: 4),
+              _pageTextBtn(
+                label: 'Last',
+                enabled: currentPage < totalPages,
+                onTap: () => setState(() => _currentPage = totalPages),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPageNumbers(int current, int total) {
+    final pages = <int>[];
+    if (total <= 5) {
+      pages.addAll(List.generate(total, (i) => i + 1));
+    } else {
+      pages.add(1);
+      if (current > 3) pages.add(-1);
+      for (int i = (current - 1).clamp(2, total - 1);
+          i <= (current + 1).clamp(2, total - 1);
+          i++) {
+        pages.add(i);
+      }
+      if (current < total - 2) pages.add(-1);
+      pages.add(total);
+    }
+    return pages.map((p) {
+      if (p == -1) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text('...',
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        );
+      }
+      final isActive = p == current;
+      return GestureDetector(
+        onTap: () => setState(() => _currentPage = p),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: isActive
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isActive
+                  ? AppColors.primary
+                  : Theme.of(context).colorScheme.outlineVariant,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '$p',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isActive
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _pageBtn({
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: enabled
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context)
+                    .colorScheme
+                    .outlineVariant
+                    .withValues(alpha: 0.4),
+          ),
+        ),
+        child: Icon(
+          icon,
+          size: 20,
+          color: enabled
+              ? Theme.of(context).colorScheme.onSurface
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+        ),
+      ),
+    );
+  }
+
+  Widget _pageTextBtn({
+    required String label,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        height: 32,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: enabled
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context)
+                    .colorScheme
+                    .outlineVariant
+                    .withValues(alpha: 0.4),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: enabled
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSurface
+                      .withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // ── DESKTOP: Tabel full width ────────────────────────────────────────
-  Widget _buildDesktopTable(List<TransaksiStokModel> list, double availableWidth) {
+  Widget _buildDesktopTable(
+      List<TransaksiStokModel> list, double availableWidth) {
     const borderWidth = 2.0;
     final usable = availableWidth - borderWidth;
 
     // Lebar fixed per kolom, kolom Tujuan/Sumber menyerap sisa
-    const fixedWidths = [48.0, 130.0, 72.0, 80.0, 90.0, 72.0, 72.0, 52.0, 120.0, 52.0];
-    final fixedTotal  = fixedWidths.fold(0.0, (a, b) => a + b);
-    final tujuanW     = (usable - fixedTotal).clamp(120.0, 300.0);
+    const fixedWidths = [
+      48.0,
+      130.0,
+      72.0,
+      80.0,
+      90.0,
+      72.0,
+      72.0,
+      52.0,
+      120.0,
+      52.0
+    ];
+    final fixedTotal = fixedWidths.fold(0.0, (a, b) => a + b);
+    final tujuanW = (usable - fixedTotal).clamp(120.0, 300.0);
 
     final colWidths = [
       fixedWidths[0], // No
@@ -634,14 +1051,26 @@ class _GudangScreenState extends State<GudangScreen> {
       fixedWidths[2], // Jenis
       fixedWidths[3], // Komoditas
       fixedWidths[4], // Jumlah (kg)
-      tujuanW,        // Tujuan/Sumber — fleksibel
+      tujuanW, // Tujuan/Sumber — fleksibel
       fixedWidths[5], // Catatan
       fixedWidths[6], // Status
       fixedWidths[7], // Bukti
       fixedWidths[8], // Dicatat Oleh
       fixedWidths[9], // Aksi
     ];
-    final headers = ['No','Tanggal','Jenis','Komoditas','Jumlah (kg)','Tujuan/Sumber','Catatan','Status','Bukti','Dicatat Oleh','Aksi'];
+    final headers = [
+      'No',
+      'Tanggal',
+      'Jenis',
+      'Komoditas',
+      'Jumlah (kg)',
+      'Tujuan/Sumber',
+      'Catatan',
+      'Status',
+      'Bukti',
+      'Dicatat Oleh',
+      'Aksi'
+    ];
     final numericCols = {4}; // Jumlah (kg)
 
     final tableW = colWidths.fold(0.0, (a, b) => a + b);
@@ -654,7 +1083,10 @@ class _GudangScreenState extends State<GudangScreen> {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.4),
+            color: Theme.of(context)
+                .colorScheme
+                .outlineVariant
+                .withValues(alpha: 0.4),
           ),
         ),
         child: SizedBox(
@@ -665,27 +1097,37 @@ class _GudangScreenState extends State<GudangScreen> {
               Container(
                 color: Theme.of(context).colorScheme.surfaceContainerLow,
                 child: Row(
-                  children: List.generate(headers.length, (i) => SizedBox(
-                    width: colWidths[i],
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                      child: Text(
-                        headers[i],
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
-                        textAlign: numericCols.contains(i) ? TextAlign.right : TextAlign.left,
-                      ),
-                    ),
-                  )),
+                  children: List.generate(
+                      headers.length,
+                      (i) => SizedBox(
+                            width: colWidths[i],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 12),
+                              child: Text(
+                                headers[i],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 11),
+                                textAlign: numericCols.contains(i)
+                                    ? TextAlign.right
+                                    : TextAlign.left,
+                              ),
+                            ),
+                          )),
                 ),
               ),
               const Divider(height: 1, thickness: 1),
               // Rows
               ...List.generate(list.length, (idx) {
                 final t = list[idx];
-                final jenisColor = t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
+                final jenisColor =
+                    t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
                 return Container(
                   color: !t.isAktif
-                      ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                      ? Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5)
                       : idx % 2 == 0
                           ? Theme.of(context).colorScheme.surface
                           : Theme.of(context).colorScheme.surfaceContainerLow,
@@ -694,87 +1136,140 @@ class _GudangScreenState extends State<GudangScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // No
-                        SizedBox(width: colWidths[0], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text('${idx+1}', style: const TextStyle(fontSize: 11)),
-                        )),
+                        SizedBox(
+                            width: colWidths[0],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text('${idx + 1}',
+                                  style: const TextStyle(fontSize: 11)),
+                            )),
                         // Tanggal
-                        SizedBox(width: colWidths[1], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.tanggalLabel ?? '-', style: const TextStyle(fontSize: 11)),
-                        )),
+                        SizedBox(
+                            width: colWidths[1],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text(t.tanggalLabel ?? '-',
+                                  style: const TextStyle(fontSize: 11)),
+                            )),
                         // Jenis badge
-                        SizedBox(width: colWidths[2], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: _jenisBadge(t, jenisColor),
-                        )),
+                        SizedBox(
+                            width: colWidths[2],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: _jenisBadge(t, jenisColor),
+                            )),
                         // Komoditas
-                        SizedBox(width: colWidths[3], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.komoditasDisplay, style: const TextStyle(fontSize: 11)),
-                        )),
+                        SizedBox(
+                            width: colWidths[3],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text(t.komoditasDisplay,
+                                  style: const TextStyle(fontSize: 11)),
+                            )),
                         // Jumlah
-                        SizedBox(width: colWidths[4], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.jumlahDisplay,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.right),
-                        )),
+                        SizedBox(
+                            width: colWidths[4],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text(t.jumlahDisplay,
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600),
+                                  textAlign: TextAlign.right),
+                            )),
                         // Tujuan/Sumber
-                        SizedBox(width: colWidths[5], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(
-                            t.tujuanDistribusiNama ?? t.keteranganDisplay,
-                            style: const TextStyle(fontSize: 11),
-                            maxLines: 2, overflow: TextOverflow.ellipsis,
-                          ),
-                        )),
+                        SizedBox(
+                            width: colWidths[5],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text(
+                                t.tujuanDistribusiNama ?? t.keteranganDisplay,
+                                style: const TextStyle(fontSize: 11),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )),
                         // Catatan
-                        SizedBox(width: colWidths[6], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.catatan ?? '-',
-                            style: const TextStyle(fontSize: 10),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        )),
+                        SizedBox(
+                            width: colWidths[6],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text(t.catatan ?? '-',
+                                  style: const TextStyle(fontSize: 10),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis),
+                            )),
                         // Status
-                        SizedBox(width: colWidths[7], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: _statusBadge(t),
-                        )),
+                        SizedBox(
+                            width: colWidths[7],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: _statusBadge(t),
+                            )),
                         // Bukti
-                        SizedBox(width: colWidths[8], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: t.fotoBukti != null && t.fotoBukti!.isNotEmpty
-                              ? GestureDetector(
-                                  onTap: () => _showFotoPreview(t.fotoBukti!),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Icon(Icons.image, size: 16, color: AppColors.primary),
-                                  ),
-                                )
-                              : const Text('-', style: TextStyle(fontSize: 10)),
-                        )),
+                        SizedBox(
+                            width: colWidths[8],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child:
+                                  t.fotoBukti != null && t.fotoBukti!.isNotEmpty
+                                      ? GestureDetector(
+                                          onTap: () =>
+                                              _showFotoPreview(t.fotoBukti!),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: const Icon(Icons.image,
+                                                size: 18,
+                                                color: AppColors.primary),
+                                          ),
+                                        )
+                                      : const Text('-',
+                                          style: TextStyle(fontSize: 11)),
+                            )),
                         // Dicatat Oleh
-                        SizedBox(width: colWidths[9], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.dicatatOleh ?? 'Admin',
-                            style: const TextStyle(fontSize: 11),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        )),
+                        SizedBox(
+                            width: colWidths[9],
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 14),
+                              child: Text(t.dicatatOleh ?? 'Admin',
+                                  style: const TextStyle(fontSize: 11),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis),
+                            )),
                         // Aksi
-                        SizedBox(width: colWidths[10], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: _aksiButton(t),
-                        )),
+                        SizedBox(
+                            width: colWidths[10],
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: _aksiButton(t),
+                            )),
                       ],
                     ),
                     if (idx < list.length - 1)
-                      Divider(height: 1, thickness: 0.5,
-                        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                      Divider(
+                          height: 1,
+                          thickness: 0.5,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .outlineVariant
+                              .withValues(alpha: 0.3)),
                   ]),
                 );
               }),
@@ -790,91 +1285,120 @@ class _GudangScreenState extends State<GudangScreen> {
     return Column(
       children: List.generate(list.length, (idx) {
         final t = list[idx];
-        final jenisColor = t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
+        final jenisColor =
+            t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
         return Opacity(
           opacity: t.isAktif ? 1.0 : 0.6,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-                  blurRadius: 4, offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // ── Header baris: nomor + jenis badge + jumlah ──────
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  decoration: BoxDecoration(
-                    color: jenisColor.withValues(alpha: 0.06),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              onTap: () => _showTransaksiDetail(t),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outlineVariant
+                        .withValues(alpha: 0.5),
                   ),
-                  child: Row(children: [
-                    Text('#${idx + 1}',
-                      style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      )),
-                    const SizedBox(width: 8),
-                    _jenisBadge(t, jenisColor),
-                    const Spacer(),
-                    Text(t.jumlahDisplay,
-                      style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w900,
-                        color: jenisColor,
-                      )),
-                  ]),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .shadow
+                          .withValues(alpha: 0.04),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                // ── Body: semua field dalam grid 2 kolom ────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-                  child: Column(
-                    children: [
-                      _mobileRow('Tanggal',      t.tanggalLabel ?? '-'),
-                      _mobileRow('Komoditas',    t.komoditasDisplay),
-                      _mobileRow('Tujuan/Sumber',
-                        t.tujuanDistribusiNama ?? t.keteranganDisplay),
-                      if ((t.catatan ?? '').isNotEmpty)
-                        _mobileRow('Catatan', t.catatan!),
-                      _mobileRow('Dicatat Oleh', t.dicatatOleh ?? 'Admin'),
-                    ],
-                  ),
-                ),
-                // ── Footer: status + bukti + aksi ───────────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
-                  child: Row(children: [
-                    _statusBadge(t),
-                    const SizedBox(width: 8),
-                    if (t.fotoBukti != null && t.fotoBukti!.isNotEmpty)
-                      GestureDetector(
-                        onTap: () => _showFotoPreview(t.fotoBukti!),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.image, size: 13, color: AppColors.primary),
-                            SizedBox(width: 4),
-                            Text('Bukti', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
-                          ]),
-                        ),
+                child: Column(
+                  children: [
+                    // ── Header baris: nomor + jenis badge + jumlah ──────
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                      decoration: BoxDecoration(
+                        color: jenisColor.withValues(alpha: 0.06),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12)),
                       ),
-                    const Spacer(),
-                    _aksiButton(t),
-                  ]),
+                      child: Row(children: [
+                        Text('#${idx + 1}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            )),
+                        const SizedBox(width: 8),
+                        _jenisBadge(t, jenisColor),
+                        const Spacer(),
+                        Text(t.jumlahDisplay,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: jenisColor,
+                            )),
+                      ]),
+                    ),
+                    // ── Body: semua field dalam grid 2 kolom ────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                      child: Column(
+                        children: [
+                          _mobileRow('Tanggal', t.tanggalLabel ?? '-'),
+                          _mobileRow('Komoditas', t.komoditasDisplay),
+                          _mobileRow('Tujuan/Sumber',
+                              t.tujuanDistribusiNama ?? t.keteranganDisplay),
+                          if ((t.catatan ?? '').isNotEmpty)
+                            _mobileRow('Catatan', t.catatan!),
+                          _mobileRow('Dicatat Oleh', t.dicatatOleh ?? 'Admin'),
+                        ],
+                      ),
+                    ),
+                    // ── Footer: status + bukti + aksi ───────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
+                      child: Row(children: [
+                        _statusBadge(t),
+                        const SizedBox(width: 8),
+                        if (t.fotoBukti != null && t.fotoBukti!.isNotEmpty)
+                          GestureDetector(
+                            onTap: () => _showFotoPreview(t.fotoBukti!),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.image,
+                                        size: 18, color: AppColors.primary),
+                                    SizedBox(width: 6),
+                                    Text('Bukti',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.w700)),
+                                  ]),
+                            ),
+                          ),
+                        const Spacer(),
+                        _aksiButton(t),
+                      ]),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -892,17 +1416,118 @@ class _GudangScreenState extends State<GudangScreen> {
           SizedBox(
             width: 110,
             child: Text(label,
-              style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              )),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                )),
           ),
-          const Text(': ', style: TextStyle(fontSize: 11)),
+          const Text(': ', style: TextStyle(fontSize: 12)),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 12),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showTransaksiDetail(TransaksiStokModel t) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(ctx)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withAlpha(80),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              Text('Detail Transaksi',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(ctx).colorScheme.onSurface)),
+              const SizedBox(height: 12),
+              _detailField('ID', '${t.id}'),
+              _detailField('Tanggal', t.tanggalLabel ?? '-'),
+              _detailField('Jenis', t.isMasuk ? 'Masuk' : 'Keluar'),
+              _detailField('Komoditas', t.komoditasDisplay),
+              _detailField('Jumlah', t.jumlahDisplay),
+              _detailField('Tujuan/Sumber',
+                  t.tujuanDistribusiNama ?? t.keteranganDisplay),
+              _detailField('Dicatat Oleh', t.dicatatOleh ?? 'Admin'),
+              _detailField('Status', t.isAktif ? 'Aktif' : 'Dibatalkan'),
+              if ((t.catatan ?? '').isNotEmpty)
+                _detailField('Catatan', t.catatan!),
+              if (t.fotoBukti != null && t.fotoBukti!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _showFotoPreview(t.fotoBukti!);
+                    },
+                    icon: const Icon(Icons.image_outlined),
+                    label: const Text('Lihat Bukti Foto'),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _detailField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(label,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(value,
-              style: const TextStyle(fontSize: 11),
-              maxLines: 3, overflow: TextOverflow.ellipsis,
-            ),
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurface)),
           ),
         ],
       ),
@@ -912,7 +1537,7 @@ class _GudangScreenState extends State<GudangScreen> {
   // ── Shared widgets ──────────────────────────────────────────────────
   Widget _jenisBadge(TransaksiStokModel t, Color jenisColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: jenisColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
@@ -920,22 +1545,24 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
       child: Text(
         t.isMasuk ? 'Masuk' : 'Keluar',
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: jenisColor),
+        style: TextStyle(
+            fontSize: 11, fontWeight: FontWeight.w700, color: jenisColor),
       ),
     );
   }
 
   Widget _statusBadge(TransaksiStokModel t) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: (t.isAktif ? Colors.green : Colors.grey).withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         t.isAktif ? 'Aktif' : 'Dibatalkan',
         style: TextStyle(
-          fontSize: 10, fontWeight: FontWeight.w600,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
           color: t.isAktif ? Colors.green[700] : Colors.grey[600],
         ),
       ),
@@ -949,7 +1576,8 @@ class _GudangScreenState extends State<GudangScreen> {
         child: IconButton(
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-          icon: const Icon(Icons.cancel_outlined, size: 20, color: AppColors.accentRed),
+          icon: const Icon(Icons.cancel_outlined,
+              size: 20, color: AppColors.accentRed),
           onPressed: () => _toggleStatus(t),
         ),
       );
@@ -985,8 +1613,7 @@ class _GudangScreenState extends State<GudangScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: Text(msg,
-              style: const TextStyle(
-                  color: AppColors.error, fontSize: 12)),
+              style: const TextStyle(color: AppColors.error, fontSize: 12)),
         ),
         TextButton(
             onPressed: _refresh,
@@ -1010,7 +1637,8 @@ class _GudangScreenState extends State<GudangScreen> {
               size: 48, color: AppColors.outline.withValues(alpha: 0.4)),
           const SizedBox(height: 12),
           Text(msg,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center),
         ],
       ),
@@ -1024,6 +1652,7 @@ class _GudangScreenState extends State<GudangScreen> {
     showDialog(
       context: context,
       builder: (_) => CatatTransaksiDialog(
+        parentContext: context,
         onSave: () {
           // Dialog berhasil menyimpan transaksi ke API
           // Refresh UI untuk menampilkan data terbaru
@@ -1066,8 +1695,8 @@ class _GudangScreenState extends State<GudangScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(isAktif
-              ? '✅ Transaksi dibatalkan & saldo diperbarui\nAlert akan di-refresh otomatis'
-              : '✅ Transaksi diaktifkan kembali & saldo diperbarui\nAlert akan di-refresh otomatis'),
+              ? ' Transaksi dibatalkan'
+              : ' Transaksi diaktifkan kembali'),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -1113,8 +1742,8 @@ class _GudangScreenState extends State<GudangScreen> {
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.broken_image, 
-                              color: Colors.white70, size: 48),
+                            const Icon(Icons.broken_image,
+                                color: Colors.white70, size: 48),
                             const SizedBox(height: 16),
                             Padding(
                               padding: const EdgeInsets.all(16),
@@ -1135,9 +1764,11 @@ class _GudangScreenState extends State<GudangScreen> {
                         return Center(
                           child: CircularProgressIndicator(
                             value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                ? progress.cumulativeBytesLoaded /
+                                    progress.expectedTotalBytes!
                                 : null,
-                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.white),
                           ),
                         );
                       },
