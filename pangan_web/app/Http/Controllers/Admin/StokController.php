@@ -24,7 +24,7 @@ class StokController extends Controller
         $transactions = Stok::with('user')
             ->whereNotNull('jenis_transaksi')
             ->orderByDesc($dateColumn)
-            ->paginate(15);
+            ->paginate(10);
 
         $currentMonth = now()->month;
         $currentYear = now()->year;
