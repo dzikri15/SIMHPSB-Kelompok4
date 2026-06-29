@@ -177,14 +177,16 @@
         </div>
         {{-- Paginasi --}}
         @if($panenList->hasPages())
-            <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border,#e2e8f0);">
-                <div style="font-size:12px;color:var(--text-muted);">
+            <div style="padding:16px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;border-top:1px solid var(--border,#e2e8f0);">
+                <div style="width:100%;text-align:center;font-size:12px;color:var(--text-muted);">
                     Menampilkan {{ $panenList->firstItem() }}–{{ $panenList->lastItem() }} dari {{ $panenList->total() }} data
                 </div>
-                <div style="display:flex;gap:4px;">
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
                     @if($panenList->onFirstPage())
+                        <span style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">First</span>
                         <span style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-left"></i></span>
                     @else
+                        <a href="{{ $panenList->url(1) }}" style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">First</a>
                         <a href="{{ $panenList->previousPageUrl() }}" style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-left"></i></a>
                     @endif
                     @foreach($panenList->getUrlRange(max(1,$panenList->currentPage()-2), min($panenList->lastPage(),$panenList->currentPage()+2)) as $page => $url)
@@ -192,8 +194,10 @@
                     @endforeach
                     @if($panenList->hasMorePages())
                         <a href="{{ $panenList->nextPageUrl() }}" style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-right"></i></a>
+                        <a href="{{ $panenList->url($panenList->lastPage()) }}" style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">Last</a>
                     @else
                         <span style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-right"></i></span>
+                        <span style="padding:6px 10px;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">Last</span>
                     @endif
                 </div>
             </div>
