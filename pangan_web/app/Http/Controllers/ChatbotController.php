@@ -36,7 +36,7 @@ class ChatbotController extends Controller
 
             if ($response->failed()) {
                 return response()->json([
-                    'reply' => 'Maaf Kak, Prabowo sedang tidak bisa diakses. Coba lagi sebentar ya.',
+                    'reply' => 'Maaf Kak, HPSBBot sedang tidak bisa diakses. Coba lagi sebentar ya.',
                 ], 200);
             }
 
@@ -46,10 +46,10 @@ class ChatbotController extends Controller
                 'reply' => $result['reply'] ?? 'Maaf Kak, ada kendala saat memproses pesan.',
             ]);
         } catch (\Exception $e) {
-            \Log::error('Chatbot Prabowo error: ' . $e->getMessage());
+            \Log::error('Chatbot HPSBBot error: ' . $e->getMessage());
 
             return response()->json([
-                'reply' => 'Maaf Kak, gagal menghubungi Prabowo. Coba beberapa saat lagi.',
+                'reply' => 'Maaf Kak, gagal menghubungi HPSBBot. Coba beberapa saat lagi.',
             ], 200);
         }
     }

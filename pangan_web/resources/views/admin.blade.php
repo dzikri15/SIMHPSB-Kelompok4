@@ -1029,7 +1029,7 @@
 
                 <a href="javascript:void(0)" onclick="document.getElementById('prabowo-chat-button').click()" class="nav-item">
                     <span class="icon"><i class="fas fa-robot"></i></span>
-                    Chatbot Prabowo
+                    Chatbot HPSBBot
                 </a>
             @endif
         @endif

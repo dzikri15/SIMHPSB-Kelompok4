@@ -12,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Custom CSRF middleware untuk exclude API endpoints
+        $middleware->replace(
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+        );
+
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
 
         $middleware->alias([

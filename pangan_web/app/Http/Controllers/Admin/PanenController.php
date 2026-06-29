@@ -15,8 +15,7 @@ class PanenController extends Controller
         $petanis = Petani::orderBy('nama')->get();
         $panenList = Panen::with('lahan.petani')
             ->orderByDesc('tanggal_panen')
-            ->limit(10)
-            ->get();
+            ->paginate(15);
  
         return view('admin.panen.index', compact('petanis', 'panenList'));
     }
