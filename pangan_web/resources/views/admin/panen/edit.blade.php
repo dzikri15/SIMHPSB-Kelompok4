@@ -93,12 +93,9 @@
                                value="61.5" step="0.1" min="50" max="70"
                                style="max-width:120px;"
                                oninput="updatePreview()">
-                        <button type="button" onclick="applyRatio()"
-                                style="padding:8px 14px;background:var(--green-500,#22c55e);color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">
-                            Hitung & Isi Otomatis
-                        </button>
+                        <span class="form-hint">Rasio standar: 61.5%</span>
                     </div>
-                    <div class="form-hint">Klik tombol untuk isi field Hasil Beras secara otomatis</div>
+                    <div class="form-hint">Hasil beras akan dihitung otomatis saat Anda mengubah jumlah gabah atau rasio.</div>
                 </div>
 
                 {{-- Preview --}}
@@ -154,17 +151,17 @@
 function updatePreview() {
     const gabah = parseFloat(document.getElementById('jumlahGabah').value) || 0;
     const rasio = parseFloat(document.getElementById('rasioHelper').value) || 61.5;
-    const beras = Math.round(gabah * (rasio / 100));
-    document.getElementById('prevGabah').textContent = gabah.toLocaleString('id') + ' kg';
-    document.getElementById('prevBeras').textContent = beras.toLocaleString('id') + ' kg';
-}
 
-function applyRatio() {
-    const gabah = parseFloat(document.getElementById('jumlahGabah').value) || 0;
-    const rasio = parseFloat(document.getElementById('rasioHelper').value) || 61.5;
-    const beras = (gabah * rasio / 100).toFixed(2);
+    // Hitung beras
+    const beras = (gabah * (rasio / 100)).toFixed(2);
+    const berasDisplay = Math.round(gabah * (rasio / 100));
+
+    // Update input field Hasil Beras secara realtime
     document.getElementById('konversiBeras').value = beras;
-    updatePreview();
+
+    // Update Preview Box
+    document.getElementById('prevGabah').textContent = gabah.toLocaleString('id') + ' kg';
+    document.getElementById('prevBeras').textContent = berasDisplay.toLocaleString('id') + ' kg';
 }
 
 document.addEventListener('DOMContentLoaded', updatePreview);
