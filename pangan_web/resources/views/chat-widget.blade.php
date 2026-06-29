@@ -59,7 +59,7 @@
                 font-size: 18px;
             ">🤖</div>
             <div>
-                <div style="color: white; font-weight: 700; font-size: 14px;">Prabowo</div>
+                <div style="color: white; font-weight: 700; font-size: 14px;">HPSBBot</div>
                 <div style="color: rgba(255,255,255,0.8); font-size: 11px;">Asisten AI SIMHPSB</div>
             </div>
         </div>
@@ -85,7 +85,7 @@
             max-width: 85%;
             align-self: flex-start;
             line-height: 1.5;
-        ">Halo Kak! Saya Prabowo, asisten AI untuk SIMHPSB. Ada yang bisa saya bantu terkait stok, harga, atau laporan panen?</div>
+        ">Halo Kak! Saya HPSBBot, asisten AI untuk SIMHPSB. Ada yang bisa saya bantu terkait stok, dan harga?</div>
     </div>
 
     <!-- Input -->

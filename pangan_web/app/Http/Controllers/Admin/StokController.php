@@ -23,9 +23,8 @@ class StokController extends Controller
 
         $transactions = Stok::with('user')
             ->whereNotNull('jenis_transaksi')
-            // show all transactions in list (including dibatalkan) but ensure stock calculations below use only 'aktif'
             ->orderByDesc($dateColumn)
-            ->get();
+            ->paginate(15);
 
         $currentMonth = now()->month;
         $currentYear = now()->year;
@@ -245,6 +244,46 @@ $path = $file->storeAs('bukti-distribusi', $filename, 'public');            // s
             }
             $t->save();
         }
+    }
+
+    public function edit(int $id)
+    {
+        $stok = Stok::with('user')->findOrFail($id);
+        $tujuans = TujuanDistribusi::orderBy('nama')->get();
+
+        return view('admin.stok.edit', compact('stok', 'tujuans'));
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $stok = Stok::findOrFail($id);
+
+        $data = $request->validate([
+            'jenis_transaksi' => 'required|in:masuk,keluar',
+            'komoditas'       => 'required|in:Beras,Gabah',
+            'jumlah'          => 'required|numeric|min:0.01',
+            'keterangan'      => 'nullable|string|max:500',
+            'catatan'         => 'nullable|string|max:1000',
+            'tanggal_update'  => 'required|date',
+            'foto_bukti'      => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+        ]);
+
+        // Handle upload foto baru jika ada
+        if ($request->hasFile('foto_bukti')) {
+            $file = $request->file('foto_bukti');
+            $filename = time() . '_' . bin2hex(random_bytes(6)) . '.' . $file->getClientOriginalExtension();
+            $data['foto_bukti'] = $file->storeAs('bukti-distribusi', $filename, 'public');
+        } else {
+            unset($data['foto_bukti']);
+        }
+
+        $stok->update($data);
+
+        // Recalculate saldo setelah update
+        $this->recalculateSaldo($stok->komoditas);
+
+        return redirect()->route('admin.stok.index')
+            ->with('success', 'Transaksi stok berhasil diperbarui.');
     }
 
     public function show(int $id)
