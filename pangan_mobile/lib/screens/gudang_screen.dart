@@ -929,15 +929,15 @@ class _GudangScreenState extends State<GudangScreen> {
                               ? GestureDetector(
                                   onTap: () => _showFotoPreview(t.fotoBukti!),
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
                                       color: AppColors.primary.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(6),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Icon(Icons.image, size: 16, color: AppColors.primary),
+                                    child: const Icon(Icons.image, size: 18, color: AppColors.primary),
                                   ),
                                 )
-                              : const Text('-', style: TextStyle(fontSize: 10)),
+                              : const Text('-', style: TextStyle(fontSize: 11)),
                         )),
                         // Dicatat Oleh
                         SizedBox(width: colWidths[9], child: Padding(
@@ -1001,7 +1001,7 @@ class _GudangScreenState extends State<GudangScreen> {
                   child: Row(children: [
                     Text('#${idx + 1}',
                       style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w700,
+                        fontSize: 12, fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),
                     const SizedBox(width: 8),
@@ -1009,7 +1009,7 @@ class _GudangScreenState extends State<GudangScreen> {
                     const Spacer(),
                     Text(t.jumlahDisplay,
                       style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w900,
+                        fontSize: 18, fontWeight: FontWeight.w900,
                         color: jenisColor,
                       )),
                   ]),
@@ -1039,15 +1039,15 @@ class _GudangScreenState extends State<GudangScreen> {
                       GestureDetector(
                         onTap: () => _showFotoPreview(t.fotoBukti!),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.image, size: 13, color: AppColors.primary),
-                            SizedBox(width: 4),
-                            Text('Bukti', style: TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600)),
+                            Icon(Icons.image, size: 18, color: AppColors.primary),
+                            SizedBox(width: 6),
+                            Text('Bukti', style: TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w700)),
                           ]),
                         ),
                       ),
@@ -1074,14 +1074,14 @@ class _GudangScreenState extends State<GudangScreen> {
             width: 110,
             child: Text(label,
               style: TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w600,
+                fontSize: 12, fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               )),
           ),
-          const Text(': ', style: TextStyle(fontSize: 11)),
+          const Text(': ', style: TextStyle(fontSize: 12)),
           Expanded(
             child: Text(value,
-              style: const TextStyle(fontSize: 11),
+              style: const TextStyle(fontSize: 12),
               maxLines: 3, overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1093,7 +1093,7 @@ class _GudangScreenState extends State<GudangScreen> {
   // ── Shared widgets ──────────────────────────────────────────────────
   Widget _jenisBadge(TransaksiStokModel t, Color jenisColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: jenisColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
@@ -1101,22 +1101,22 @@ class _GudangScreenState extends State<GudangScreen> {
       ),
       child: Text(
         t.isMasuk ? 'Masuk' : 'Keluar',
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: jenisColor),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: jenisColor),
       ),
     );
   }
 
   Widget _statusBadge(TransaksiStokModel t) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: (t.isAktif ? Colors.green : Colors.grey).withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         t.isAktif ? 'Aktif' : 'Dibatalkan',
         style: TextStyle(
-          fontSize: 10, fontWeight: FontWeight.w600,
+          fontSize: 11, fontWeight: FontWeight.w600,
           color: t.isAktif ? Colors.green[700] : Colors.grey[600],
         ),
       ),
