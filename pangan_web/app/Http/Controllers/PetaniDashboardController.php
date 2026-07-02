@@ -29,10 +29,12 @@ class PetaniDashboardController extends Controller
         })
         ->with('lahan')
         ->orderByDesc('tanggal_panen')
+        ->orderByDesc('id')
         ->get();
 
         $activePrice = KonfigurasiHarga::where('is_active', true)->first();
+        $totalGabah = $panens->sum('jumlah_gabah');
 
-        return view('petani.dashboard', compact('petani', 'totalLahan', 'totalPanen', 'panens', 'activePrice'));
+        return view('petani.dashboard', compact('petani', 'totalLahan', 'totalPanen', 'panens', 'activePrice', 'totalGabah'));
     }
 }

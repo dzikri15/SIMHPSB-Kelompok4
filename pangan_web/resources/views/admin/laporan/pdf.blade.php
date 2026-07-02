@@ -58,8 +58,6 @@
                         <th>Petani</th>
                         <th>Lahan</th>
                         <th>Jumlah Gabah (kg)</th>
-                        <th>Konversi (%)</th>
-                        <th>Beras (kg)</th>
                         <th>Tanggal Panen</th>
                     @endif
                 </tr>
@@ -76,15 +74,9 @@
                             <td>{{ optional($item->tanggal_update)->format('Y-m-d H:i:s') }}</td>
                             <td>{{ $item->catatan ?? '-' }}</td>
                         @else
-                            @php
-                                $konv = $item->konversi_beras ?: '';
-                                $beras = $konv ? round($item->jumlah_gabah * ($konv / 100)) : '';
-                            @endphp
                             <td>{{ $item->petani->nama ?? '-' }}</td>
                             <td>{{ $item->lahan->nama ?? '-' }}</td>
                             <td>{{ number_format($item->jumlah_gabah) }}</td>
-                            <td>{{ $konv }}</td>
-                            <td>{{ $beras }}</td>
                             <td>{{ optional($item->tanggal_panen)->format('Y-m-d') }}</td>
                         @endif
                     </tr>

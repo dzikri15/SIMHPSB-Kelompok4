@@ -6,12 +6,12 @@
 @section('title', 'Laporan')
 @section('page-title', 'Laporan')
 @php
-    $jenis = $jenis ?? request('jenis', 'margin');
+    $jenis = $jenis ?? request('jenis', 'stok');
     $komoditas = $komoditas ?? request('komoditas');
     $subtitle = match($jenis) {
         'panen' => 'Rekapitulasi panen per periode',
         'stok' => $komoditas ? "Rekapitulasi stok gudang {$komoditas} per periode" : 'Rekapitulasi stok gudang per periode',
-        default => 'Rekapitulasi margin dan distribusi per periode',
+        default => 'Rekapitulasi stok gudang per periode',
     };
 @endphp
 @section('page-subtitle', $subtitle)
@@ -26,9 +26,8 @@
                 <div class="form-group" style="margin:0;flex:1;min-width:140px;">
                     <label>Jenis Laporan</label>
                     <select name="jenis" id="jenisLaporan" onchange="updateReportForm()">
+                        <option value="stok" {{ request('jenis','stok')=='stok'?'selected':'' }}>Laporan Stok</option>
                         <option value="panen" {{ request('jenis')=='panen'?'selected':'' }}>Laporan Panen</option>
-                        <option value="stok" {{ request('jenis')=='stok'?'selected':'' }}>Laporan Stok</option>
-                        <option value="margin" {{ request('jenis','margin')=='margin'?'selected':'' }}>Laporan Margin</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin:0;flex:1;min-width:130px;" id="komoditasFilterWrapper">
@@ -105,42 +104,7 @@
                 <div style="font-size:12px;color:var(--text-muted);">gabah periode ini</div>
             </div>
         </div>
-        <div class="card" style="border-top:3px solid var(--blue-500);">
-            <div class="card-body" style="text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Distribusi</div>
-                <div style="font-size:28px;font-weight:800;">{{ number_format($totalDistribusi ?? 0) }} kg</div>
-                <div style="font-size:12px;color:var(--text-muted);">beras periode ini</div>
-            </div>
-        </div>
-        <div class="card" style="border-top:3px solid var(--amber-500);">
-            <div class="card-body" style="text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Estimasi Margin</div>
-                <div style="font-size:28px;font-weight:800;">Rp {{ number_format(max(($totalDistribusi ?? 0) * $hppPerKg, 0), 0, ',', '.') }}</div>
-                <div style="font-size:12px;color:var(--text-muted);">≈ Rp {{ number_format($hppPerKg, 0, ',', '.') }}/kg × distribusi</div>
-            </div>
-        </div>
-    @else
-        <div class="card" style="border-top:3px solid var(--green-500);">
-            <div class="card-body" style="text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Distribusi</div>
-                <div style="font-size:28px;font-weight:800;">{{ number_format($totalDistribusi ?? 0) }} kg</div>
-                <div style="font-size:12px;color:var(--text-muted);">beras periode ini</div>
-            </div>
-        </div>
-        <div class="card" style="border-top:3px solid var(--blue-500);">
-            <div class="card-body" style="text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Total Panen</div>
-                <div style="font-size:28px;font-weight:800;">{{ number_format($totalPanen ?? 0) }} kg</div>
-                <div style="font-size:12px;color:var(--text-muted);">gabah periode ini</div>
-            </div>
-        </div>
-        <div class="card" style="border-top:3px solid var(--amber-500);">
-            <div class="card-body" style="text-align:center;">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;">Estimasi Margin</div>
-                <div style="font-size:28px;font-weight:800;">Rp {{ number_format($totalMarginEstimate ?? 0, 0, ',', '.') }}</div>
-                <div style="font-size:12px;color:var(--text-muted);">berdasarkan HPP aktif</div>
-            </div>
-        </div>
+
     @endif
 </div>
 
@@ -193,11 +157,8 @@
                     <tr>
                         <th>Petani</th>
                         <th>Lahan (m²)</th>
-                        <th>Tonase Gabah</th>
-                        <th>Beras Dihasilkan</th>
+                        <th>Hasil Gabah</th>
                         <th>Tanggal Panen</th>
-                        <th>HPP/kg (Est.)</th>
-                        <th>Total HPP (Est.)</th>
                         @if($jenis === 'margin')
                             <th>Status</th>
                         @endif
@@ -223,11 +184,8 @@
                         <tr>
                             <td><strong>{{ $row->petani->nama ?? '-' }}</strong></td>
                             <td>{{ number_format(optional($row->petani)->luas_lahan ?? 0) }}</td>
-                            <td><strong>{{ number_format($row->tonase_gabah ?? 0) }} kg</strong></td>
-                            <td>{{ number_format($row->beras_dihasilkan ?? 0) }} kg</td>
+                            <td><strong>{{ number_format($row->jumlah_gabah ?? 0) }} kg</strong></td>
                             <td style="font-size:12.5px;">{{ optional($row->tanggal_panen)->format('Y-m-d') }}</td>
-                            <td>Rp {{ number_format($row->hpp_estimasi) }}</td>
-                            <td>Rp {{ number_format($row->hpp_estimasi * $row->beras_dihasilkan) }}</td>
                             @if($jenis === 'margin')
                                 <td><span class="badge badge-{{ ($row->status ?? 'selesai') == 'selesai' ? 'green' : 'amber' }}">{{ $row->status ?? 'selesai' }}</span></td>
                             @endif
@@ -235,7 +193,7 @@
                     @endif
                 @empty
                     <tr>
-                        <td colspan="{{ $jenis === 'stok' ? 5 : ($jenis === 'margin' ? 7 : 6) }}" class="text-center text-muted" style="padding:24px;">Belum ada data untuk jenis laporan ini.</td>
+                        <td colspan="{{ $jenis === 'stok' ? 6 : ($jenis === 'margin' ? 5 : 4) }}" class="text-center text-muted" style="padding:24px;">Belum ada data untuk jenis laporan ini.</td>
                     </tr>
                 @endforelse
             </tbody>

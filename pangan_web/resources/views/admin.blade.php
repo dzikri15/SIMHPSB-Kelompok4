@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php
-        $panelLabel = 'SIMHPSB';
+        $panelLabel = 'SIMHP';
         if (auth()->check()) {
             $role = auth()->user()->role;
             $panelLabel = $role === 'admin' ? 'Admin Panel' : ($role === 'petugas' ? 'Petugas Panel' : 'Petani Panel');
         }
     @endphp
-    <title>SIMHPSB – @yield('title', $panelLabel)</title>
+    <title>SIMHP – @yield('title', $panelLabel)</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -941,9 +941,9 @@
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
         <div class="logo-badge">
-            <div class="logo-icon"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHPSB" style="width:100%;height:100%;object-fit:contain;"></div>
+            <div class="logo-icon"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHP" style="width:100%;height:100%;object-fit:contain;"></div>
             <div class="logo-text">
-                <strong>SIMHPSB</strong>
+                <strong>SIMHP</strong>
                 <span>{{ $panelLabel }}</span>
             </div>
         </div>
@@ -994,12 +994,10 @@
                 Stok Gudang
             </a>
 
-            @role('admin')
-                <a href="{{ route('admin.tujuan-distribusi.index') }}" class="nav-item {{ request()->routeIs('admin.tujuan-distribusi.*') ? 'active' : '' }}">
-                    <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
-                    Tujuan Distribusi
-                </a>
-            @endrole
+            <a href="{{ route('admin.tujuan-distribusi.index') }}" class="nav-item {{ request()->routeIs('admin.tujuan-distribusi.*') ? 'active' : '' }}">
+                <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                Tujuan Distribusi
+            </a>
 
             @role('admin')
                 <span class="nav-section-label">Gudang & Harga</span>
@@ -1065,7 +1063,7 @@
 
         <div class="topbar-breadcrumb">
             <h1>@yield('page-title', 'Dashboard')</h1>
-            <p>@yield('page-subtitle', 'Sistem Informasi Monitoring Hasil Panen dan Stok Beras')</p>
+            <p>@yield('page-subtitle', 'Sistem Informasi Monitoring Hasil Panen')</p>
         </div>
 
         <div class="topbar-actions">

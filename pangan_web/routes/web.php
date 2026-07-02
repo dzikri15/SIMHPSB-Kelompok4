@@ -1,7 +1,7 @@
 <?php
 
 // ============================================================
-//  routes/web.php  –  SIMHPSB Admin Routes
+//  routes/web.php  –  SIMHP Admin Routes
 // ============================================================
 
 use Illuminate\Support\Facades\Route;
@@ -101,6 +101,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         Route::get  ('alert',                    [AlertController::class, 'index'])    ->name('alert.index');
         Route::put  ('alert/konfigurasi',        [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
         Route::patch('alert/{alert}/tangani',    [AlertController::class, 'tangani'])  ->name('alert.tangani');
+
+        // Tujuan Distribusi (manajemen)
+        Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index'])->name('tujuan-distribusi.index');
+        Route::post('tujuan-distribusi', [TujuanDistribusiController::class, 'store'])->name('tujuan-distribusi.store');
+        Route::delete('tujuan-distribusi/{id}', [TujuanDistribusiController::class, 'destroy'])->name('tujuan-distribusi.destroy');
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -124,10 +129,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         // Pengaturan
         Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
         Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
-
-        // Tujuan Distribusi (manajemen)
-        Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index'])->name('tujuan-distribusi.index');
-        Route::post('tujuan-distribusi', [TujuanDistribusiController::class, 'store'])->name('tujuan-distribusi.store');
-        Route::delete('tujuan-distribusi/{id}', [TujuanDistribusiController::class, 'destroy'])->name('tujuan-distribusi.destroy');
     });
 });

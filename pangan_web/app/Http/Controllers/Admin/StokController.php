@@ -7,6 +7,7 @@ use App\Models\Alert;
 use App\Models\AlertConfiguration;
 use App\Models\Stok;
 use App\Models\TujuanDistribusi;
+use App\Models\Petani;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +70,7 @@ class StokController extends Controller
             'masukGabahBulanIni' => $masukGabahBulanIni,
             'keluarGabahBulanIni' => $keluarGabahBulanIni,
             'tujuans' => TujuanDistribusi::orderBy('nama')->get(),
+            'petanis' => Petani::orderBy('nama')->get(),
         ]);
     }
 
@@ -100,8 +102,15 @@ class StokController extends Controller
             'tujuan_distribusi' => 'nullable|string',
             'keterangan' => 'nullable|string',
             'catatan' => 'nullable|string',
-            'foto_bukti' => 'required_if:jenis,keluar|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'foto_bukti' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
         ]);
+
+        // Gabah Masuk hanya boleh lewat Pencatatan Panen — tolak jika ada yang coba masuk manual
+        if ($data['komoditas'] === 'Gabah' && $data['jenis'] === 'masuk') {
+            return redirect()->back()
+                ->withErrors(['jenis' => 'Gabah Masuk tidak bisa dicatat manual. Gunakan menu Pencatatan Panen.'])
+                ->withInput();
+        }
 
         // Normalize datetime-local (2026-05-21T05:40) → 'Y-m-d H:i:s'
         if (! empty($data['tanggal'])) {
@@ -115,20 +124,16 @@ class StokController extends Controller
             $tanggal = now()->format('Y-m-d H:i:s');
         }
 
-        // Calculate running stock after this transaction so jumlah_stok is always present.
-        $previousStockQuery = Stok::where('gudang_id', 1)
-            ->where('komoditas', $data['komoditas'])
-            ->where('status', 'aktif');
-
-        if (Schema::hasColumn('stok_beras', 'tanggal_update')) {
-            $previousStockQuery->orderByDesc('tanggal_update');
-        } elseif (Schema::hasColumn('stok_beras', 'tanggal')) {
-            $previousStockQuery->orderByDesc('tanggal');
-        } else {
-            $previousStockQuery->orderByDesc('created_at');
+        if ($data['komoditas'] === 'Beras' && $data['jenis'] === 'masuk') {
+            $stokGabah = $this->getCurrentStock('Gabah');
+            if ($stokGabah <= 0) {
+                return redirect()->back()->withErrors(['komoditas' => 'Beras masuk hanya bisa dicatat jika stok gabah lebih dari 0 (harus ada gabah yang digiling).'])->withInput();
+            }
         }
 
-        $previousStock = $previousStockQuery->value('jumlah_stok') ?? 0;
+        // Calculate running stock using the canonical getCurrentStock helper
+        // so masuk and keluar always compute from the same consistent saldo.
+        $previousStock = $this->getCurrentStock($data['komoditas']);
         $jumlahStok = $data['jenis'] === 'keluar'
             ? ($previousStock - $data['jumlah'])
             : ($previousStock + $data['jumlah']);
@@ -278,6 +283,16 @@ $path = $file->storeAs('bukti-distribusi', $filename, 'public');            // s
         }
 
         $stok->update($data);
+
+        // Normalize tanggal_update format (datetime-local sends 'Y-m-dTH:i')
+        if (!empty($data['tanggal_update'])) {
+            $normalized = str_replace('T', ' ', $data['tanggal_update']);
+            if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $normalized)) {
+                $normalized .= ':00';
+            }
+            $stok->tanggal_update = $normalized;
+            $stok->save();
+        }
 
         // Recalculate saldo setelah update
         $this->recalculateSaldo($stok->komoditas);

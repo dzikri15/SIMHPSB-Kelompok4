@@ -1,5 +1,5 @@
 <!-- ====================================================
-     SIMHPSB Chat Widget — Prabowo AI
+     SIMHP Chat Widget — Prabowo AI
      Cara pakai: include file ini di layout admin.blade.php
      sebelum tag </body>, atau copy-paste langsung isinya.
 ==================================================== -->
@@ -60,7 +60,7 @@
             ">🤖</div>
             <div>
                 <div style="color: white; font-weight: 700; font-size: 14px;">HPSBBot</div>
-                <div style="color: rgba(255,255,255,0.8); font-size: 11px;">Asisten AI SIMHPSB</div>
+                <div style="color: rgba(255,255,255,0.8); font-size: 11px;">Asisten AI SIMHP</div>
             </div>
         </div>
         <span id="prabowo-close-btn" style="color: white; cursor: pointer; font-size: 20px; line-height: 1;">&times;</span>
@@ -85,7 +85,7 @@
             max-width: 85%;
             align-self: flex-start;
             line-height: 1.5;
-        ">Halo Kak! Saya HPSBBot, asisten AI untuk SIMHPSB. Ada yang bisa saya bantu terkait stok, dan harga?</div>
+        ">Halo Kak! Saya HPSBBot, asisten AI untuk SIMHP. Ada yang bisa saya bantu terkait stok, dan harga?</div>
     </div>
 
     <!-- Input -->

@@ -124,10 +124,15 @@
                 <div class="summary-card-value">{{ $petani->komoditas ?? '-' }}</div>
             </div>
             <div class="summary-card">
-                <div class="summary-card-title">Harga Jual Beras</div>
-                <div class="summary-card-value">@if($activePrice) Rp {{ number_format($activePrice->harga_jual_beras, 0, ',', '.') }} @else - @endif</div>
+                <div class="summary-card-title">Harga Beli Gabah (per kg)</div>
+                <div class="summary-card-value" style="color:var(--green-600);">@if($activePrice) Rp {{ number_format($activePrice->harga_beli_gabah, 0, ',', '.') }} @else - @endif</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-title">Total Gabah Anda</div>
+                <div class="summary-card-value">{{ number_format($totalGabah ?? 0, 0, ',', '.') }} <small style="font-size:14px;font-weight:500;color:var(--text-muted);">kg</small></div>
             </div>
         </div>
+
     </div>
 
     <div class="petani-panels">
@@ -145,19 +150,23 @@
                     <table class="petani-table">
                         <thead>
                             <tr>
-                                <th style="text-align:left;">Tanggal</th>
-                                <th style="text-align:right;">Gabah</th>
-                                <th style="text-align:right;">Harga/kg</th>
-                                <th style="text-align:right;">Estimasi Beras</th>
+                                <th style="text-align:left;">Musim</th>
+                                <th style="text-align:right;">Gabah (kg)</th>
+                                <th style="text-align:right;">Penghasilan</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($panens->take(8) as $panen)
                                 <tr>
-                                    <td>{{ optional($panen->tanggal_panen)->format('d M Y') }}</td>
-                                    <td style="text-align:right;">{{ number_format($panen->jumlah_gabah, 0, ',', '.') }} kg</td>
-                                    <td style="text-align:right;">Rp {{ number_format($panen->harga_gabah_per_kg, 0, ',', '.') }}</td>
-                                    <td style="text-align:right;">{{ number_format($panen->beras_dihasilkan, 2, ',', '.') }} kg</td>
+                                    <td>{{ $panen->musim ?? '-' }}</td>
+                                    <td style="text-align:right;"><strong>{{ number_format($panen->jumlah_gabah, 0, ',', '.') }} kg</strong></td>
+                                    <td style="text-align:right;color:var(--green-700);font-weight:600;">
+                                        @if($panen->harga_gabah_per_kg > 0)
+                                            Rp {{ number_format($panen->jumlah_gabah * $panen->harga_gabah_per_kg, 0, ',', '.') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -179,23 +188,15 @@
 
             @if($activePrice)
                 <div style="display:grid;gap:10px;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span>Harga Beli Gabah</span>
-                        <strong>Rp {{ number_format($activePrice->harga_beli_gabah, 0, ',', '.') }}</strong>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="color:var(--text-muted);font-size:13px;">Harga Beli Gabah</span>
+                        <strong style="color:var(--green-700);">Rp {{ number_format($activePrice->harga_beli_gabah, 0, ',', '.') }} /kg</strong>
                     </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span>Ongkos Giling</span>
-                        <strong>Rp {{ number_format($activePrice->ongkos_giling, 0, ',', '.') }}</strong>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="color:var(--text-muted);font-size:13px;">Harga Jual Beras</span>
+                        <strong>Rp {{ number_format($activePrice->harga_jual_beras, 0, ',', '.') }} /kg</strong>
                     </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span>Harga Jual Beras</span>
-                        <strong>Rp {{ number_format($activePrice->harga_jual_beras, 0, ',', '.') }}</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;">
-                        <span>Rasio</span>
-                        <strong>{{ number_format($activePrice->rasio_konversi, 2, ',', '.') }}</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;color:var(--text-muted);font-size:13px;">
+                    <div style="display:flex;justify-content:space-between;color:var(--text-muted);font-size:13px;padding-top:8px;border-top:1px solid var(--border);">
                         <span>Mulai berlaku</span>
                         <span>{{ optional($activePrice->berlaku_mulai)->format('d M Y') ?? '-' }}</span>
                     </div>

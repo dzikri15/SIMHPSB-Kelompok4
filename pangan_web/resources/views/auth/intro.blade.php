@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMHPSB</title>
+    <title>SIMHP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -821,7 +821,7 @@
             <img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg"
                  style="width:100%;height:100%;object-fit:contain;" alt="Logo">
         </div>
-        <span class="nav-name">SIMHPSB</span>
+        <span class="nav-name">SIMHP</span>
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Buka menu" aria-expanded="false">
         <span></span>
@@ -853,7 +853,7 @@
 
     <!-- Corner info -->
     <div class="corner corner-tl" id="cornerTl">
-        <div class="corner-label">SIMHPSB</div>
+        <div class="corner-label">SIMHP</div>
         <div class="corner-val">v1.2 · 2025</div>
     </div>
     <div class="corner corner-br" id="cornerBr">
@@ -872,7 +872,7 @@
         <div class="logo-wrap logo-container" id="logoWrap">
             <div class="logo-ring"></div>
             <div class="logo-ring-2"></div>
-            <div class="logo-icon logo-img"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHPSB" style="width:100%;height:100%;object-fit:contain;"></div>
+            <div class="logo-icon logo-img"><img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg" alt="SIMHP" style="width:100%;height:100%;object-fit:contain;"></div>
         </div>
 
         <div class="title" id="title"><!-- chars injected --></div>
@@ -881,7 +881,7 @@
 
         <p class="subtitle" id="subtitle">
             Sistem Informasi Monitoring Hasil Panen<br>
-            dan Stok Beras Berbasis Web
+             Berbasis Web
         </p>
 
         <div class="stats" id="stats">
@@ -901,7 +901,7 @@
 
         <div class="cta-wrap" id="ctaWrap">
             <button class="btn-primary" id="btnMasuk" onclick="handleEnter()">
-                Masuk ke SIMHPSB
+                Masuk ke SIMHP
                 <span class="btn-arrow">
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                         <path d="M2 5H8M8 5L5.5 2.5M8 5L5.5 7.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -920,7 +920,7 @@
 
 <script>
 // ── Inject title chars
-'SIMHPSB'.split('').forEach(c => {
+'SIMHP'.split('').forEach(c => {
     const s = document.createElement('span');
     s.className = 'title-char';
     s.textContent = c;
