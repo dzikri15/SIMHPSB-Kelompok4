@@ -11,7 +11,21 @@ import 'dark_mode_toggle.dart';
 class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBack;
   final bool showAlert;
-  const AppTopBar({super.key, this.showBack = false, this.showAlert = true});
+  final bool showProfile;
+  final bool showLogout;
+  final bool showMenu;
+  final VoidCallback? onProfileTap;
+  final VoidCallback? onLogoutTap;
+  const AppTopBar({
+    super.key,
+    this.showBack = false,
+    this.showAlert = true,
+    this.showProfile = false,
+    this.showLogout = false,
+    this.showMenu = false,
+    this.onProfileTap,
+    this.onLogoutTap,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(72);
@@ -140,8 +154,80 @@ class _AppTopBarState extends State<AppTopBar> {
                 },
               ),
 
-              // ── Dark Mode Toggle ─────────────────────────────────────
-              const DarkModeToggle(),
+              // ── Profile Icon (petani) ─────────────────────────────────────
+              if (widget.showProfile)
+                IconButton(
+                  onPressed: widget.onProfileTap,
+                  icon: Icon(
+                    Icons.person_rounded,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 24,
+                  ),
+                ),
+
+              // ── Menu Dropdown (Dark Mode + Logout) - Hanya di Beranda ────
+              if (widget.showMenu)
+                PopupMenuButton<String>(
+                  onSelected: (String value) {
+                    if (value == 'dark_mode') {
+                      themeNotifier.value = themeNotifier.value == ThemeMode.light
+                          ? ThemeMode.dark
+                          : ThemeMode.light;
+                    } else if (value == 'logout') {
+                      widget.onLogoutTap?.call();
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'dark_mode',
+                      child: Row(
+                        children: [
+                          Icon(
+                            themeNotifier.value == ThemeMode.dark
+                                ? Icons.light_mode_rounded
+                                : Icons.dark_mode_rounded,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            themeNotifier.value == ThemeMode.dark
+                                ? 'Light Mode'
+                                : 'Dark Mode',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (widget.showLogout)
+                      PopupMenuItem<String>(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.logout_rounded,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Keluar',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                  icon: Icon(
+                    Icons.more_vert_rounded,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 24,
+                  ),
+                )
             ],
           ),
         ),

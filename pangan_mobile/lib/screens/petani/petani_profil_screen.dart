@@ -6,7 +6,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/app_colors.dart';
 import '../../models/petani_model.dart';
 import '../../services/petani_profile_service.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/app_top_bar.dart';
+import '../login_screen.dart';
  
 class PetaniProfilScreen extends StatefulWidget {
   const PetaniProfilScreen({super.key});
@@ -37,12 +39,45 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
   }
+
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Keluar'),
+        content: const Text('Yakin ingin keluar dari akun?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Keluar',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    await AuthService().logout();
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    });
+  }
  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(showAlert: false),
+      appBar: const AppTopBar(showAlert: false, showBack: true),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -51,7 +86,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                   onRefresh: _load,
                   color: AppColors.primary,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     children: [
                       _buildAvatar(),
                       const SizedBox(height: 24),
@@ -65,6 +100,8 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                         const SizedBox(height: 16),
                         _buildSectionCatatan(),
                       ],
+                      const SizedBox(height: 24),
+                      _buildLogoutButton(),
                     ],
                   ),
                 ),
@@ -306,6 +343,27 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── Logout Button ──────────────────────────────────────────────────────
+  Widget _buildLogoutButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        onPressed: _logout,
+        icon: const Icon(Icons.logout_rounded),
+        label: const Text(
+          'Keluar',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.error,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
       ),
     );
   }

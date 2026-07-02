@@ -21,7 +21,8 @@ const _musimOptions = [
 const _komoditasList = ['Padi', 'Jagung'];
 
 class PanenScreen extends StatefulWidget {
-  const PanenScreen({super.key});
+  final VoidCallback? onLogoutTap;
+  const PanenScreen({super.key, this.onLogoutTap});
 
   @override
   State<PanenScreen> createState() => _PanenScreenState();
@@ -212,7 +213,11 @@ class _PanenScreenState extends State<PanenScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(),
+      appBar: AppTopBar(
+        showMenu: widget.onLogoutTap != null,
+        showLogout: widget.onLogoutTap != null,
+        onLogoutTap: widget.onLogoutTap,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(

@@ -19,7 +19,8 @@ import '../models/transaksi_stok_model.dart';
 // Gunakan dari AppColors untuk consistency dengan theme
 
 class GudangScreen extends StatefulWidget {
-  const GudangScreen({super.key});
+  final VoidCallback? onLogoutTap;
+  const GudangScreen({super.key, this.onLogoutTap});
 
   @override
   State<GudangScreen> createState() => _GudangScreenState();
@@ -68,7 +69,11 @@ class _GudangScreenState extends State<GudangScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(),
+      appBar: AppTopBar(
+        showMenu: widget.onLogoutTap != null,
+        showLogout: widget.onLogoutTap != null,
+        onLogoutTap: widget.onLogoutTap,
+      ),
       body: RefreshIndicator(
         onRefresh: () async => _refresh(),
         color: AppColors.primary,
