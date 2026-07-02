@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Harga;
 use App\Models\KonfigurasiHarga;
 use Illuminate\Http\Request;
 
@@ -38,7 +39,11 @@ class HargaController extends Controller
             KonfigurasiHarga::query()->update(['is_active' => false]);
         }
 
-        KonfigurasiHarga::create($validated);
+        $config = KonfigurasiHarga::create($validated);
+
+        if ($isActive) {
+            $this->syncToHargaTable($config);
+        }
 
         return redirect()
             ->route('admin.harga.index')
@@ -70,6 +75,10 @@ class HargaController extends Controller
 
         $harga->update($validated);
 
+        if ($isActive) {
+            $this->syncToHargaTable($harga->fresh());
+        }
+
         return redirect()
             ->route('admin.harga.index')
             ->with('success', 'Konfigurasi Harga berhasil diperbarui');
@@ -92,7 +101,36 @@ class HargaController extends Controller
         KonfigurasiHarga::query()->update(['is_active' => false]);
         $harga->update(['is_active' => true]);
 
+        $this->syncToHargaTable($harga->fresh());
+
         return redirect()->back()->with('success', 'Konfigurasi Harga berhasil diaktifkan');
+    }
+
+    /**
+     * Sinkronisasi harga aktif dari konfigurasi_harga ke tabel harga
+     * agar endpoint /api/harga dan chatbot selalu menampilkan data terkini.
+     */
+    private function syncToHargaTable(KonfigurasiHarga $config): void
+    {
+        $tanggal = optional($config->berlaku_mulai)->format('Y-m-d') ?? now()->format('Y-m-d');
+
+        Harga::updateOrCreate(
+            ['komoditas' => 'Gabah'],
+            [
+                'harga_per_kg'    => $config->harga_beli_gabah,
+                'tanggal_berlaku' => $tanggal,
+                'sumber'          => 'Manajemen Harga SIMHP',
+            ]
+        );
+
+        Harga::updateOrCreate(
+            ['komoditas' => 'Beras'],
+            [
+                'harga_per_kg'    => $config->harga_jual_beras,
+                'tanggal_berlaku' => $tanggal,
+                'sumber'          => 'Manajemen Harga SIMHP',
+            ]
+        );
     }
 
     /**
