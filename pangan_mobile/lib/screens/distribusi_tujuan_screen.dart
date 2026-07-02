@@ -9,7 +9,8 @@ import '../services/tujuan_distribusi_service.dart';
 import '../models/tujuan_distribusi_model.dart';
 
 class DistribusiTujuanScreen extends StatefulWidget {
-  const DistribusiTujuanScreen({super.key});
+  final VoidCallback? onLogoutTap;
+  const DistribusiTujuanScreen({super.key, this.onLogoutTap});
 
   @override
   State<DistribusiTujuanScreen> createState() => _DistribusiTujuanScreenState();
@@ -167,7 +168,11 @@ class _DistribusiTujuanScreenState extends State<DistribusiTujuanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(),
+      appBar: AppTopBar(
+        showMenu: widget.onLogoutTap != null,
+        showLogout: widget.onLogoutTap != null,
+        onLogoutTap: widget.onLogoutTap,
+      ),
       body: Column(
         children: [
           // Header dengan tombol Tambah

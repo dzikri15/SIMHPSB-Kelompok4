@@ -25,10 +25,11 @@ class _MainShellState extends State<MainShell> {
       onNavigateToScreen: (index) {
         setState(() => _selectedIndex = index);
       },
+      onLogoutTap: _logout,
     ),
-    const PanenScreen(),
-    const GudangScreen(),
-    const DistribusiTujuanScreen(),
+    PanenScreen(onLogoutTap: _logout),
+    GudangScreen(onLogoutTap: _logout),
+    DistribusiTujuanScreen(onLogoutTap: _logout),
   ];
 
   Future<void> _logout() async {
@@ -87,13 +88,6 @@ class _MainShellState extends State<MainShell> {
             icon: Icons.location_on_outlined,
             iconFill: Icons.location_on_rounded,
             label: 'Distribusi',
-          ),
-          AppBottomNavItem(
-            icon: Icons.logout_rounded,
-            iconFill: Icons.logout_rounded,
-            label: 'Keluar',
-            isDestructive: true,
-            onTap: _logout,
           ),
         ],
       ),

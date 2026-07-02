@@ -12,7 +12,8 @@ import '../widgets/app_top_bar.dart';
 
 class BerandaScreen extends StatefulWidget {
   final Function(int)? onNavigateToScreen;
-  const BerandaScreen({super.key, this.onNavigateToScreen});
+  final VoidCallback? onLogoutTap;
+  const BerandaScreen({super.key, this.onNavigateToScreen, this.onLogoutTap});
 
   @override
   State<BerandaScreen> createState() => _BerandaScreenState();
@@ -93,7 +94,12 @@ class _BerandaScreenState extends State<BerandaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(),
+      appBar: AppTopBar(
+        showAlert: true,
+        showLogout: widget.onLogoutTap != null,
+        showMenu: widget.onLogoutTap != null,
+        onLogoutTap: widget.onLogoutTap,
+      ),
       body: RefreshIndicator(
         onRefresh: _load,
         color: AppColors.primary,

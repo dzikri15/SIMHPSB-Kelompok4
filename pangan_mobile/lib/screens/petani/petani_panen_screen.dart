@@ -8,7 +8,8 @@ import '../../services/petani_profile_service.dart';
 import '../../widgets/app_top_bar.dart';
 
 class PetaniPanenScreen extends StatefulWidget {
-  const PetaniPanenScreen({super.key});
+  final VoidCallback? onProfileTap;
+  const PetaniPanenScreen({super.key, this.onProfileTap});
 
   @override
   State<PetaniPanenScreen> createState() => _PetaniPanenScreenState();
@@ -38,7 +39,6 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
   }
 
   String _fmtKg(double v) {
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)} T';
     return '${v.toStringAsFixed(0)} kg';
   }
 
@@ -46,7 +46,11 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(showAlert: false),
+      appBar: AppTopBar(
+        showAlert: false,
+        showProfile: true,
+        onProfileTap: widget.onProfileTap,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
