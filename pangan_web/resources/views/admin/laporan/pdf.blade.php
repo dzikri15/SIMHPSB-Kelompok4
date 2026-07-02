@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan {{ ucfirst($jenis ?? 'margin') }}</title>
+    <title>Laporan {{ ucfirst($jenis ?? 'stok') }}</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size:12px; color:#333; margin:0; padding:0; }
         .page { padding:20px; }
@@ -23,7 +23,7 @@
     <div class="page">
         <div class="header">
             <div class="header-left">
-                <h2>Laporan {{ ucfirst($jenis ?? 'margin') }}</h2>
+                <h2>Laporan {{ ucfirst($jenis ?? 'stok') }}</h2>
                 <div class="meta">Periode: {{ $dari }} — {{ $sampai }}</div>
                 @if(!empty($petaniLabel))
                     <div class="meta">Filter Petani: <strong>{{ $petaniLabel }}</strong></div>
@@ -47,7 +47,7 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    @if(($jenis ?? 'margin') === 'stok')
+                    @if(($jenis ?? 'stok') === 'stok')
                         <th>Gudang</th>
                         <th>Komoditas</th>
                         <th>Jumlah Stok (kg)</th>
@@ -56,7 +56,7 @@
                         <th>Catatan</th>
                     @else
                         <th>Petani</th>
-                        <th>Lahan</th>
+                        <th>Lahan (m²)</th>
                         <th>Jumlah Gabah (kg)</th>
                         <th>Tanggal Panen</th>
                     @endif
@@ -66,7 +66,7 @@
                 @foreach($items as $i => $item)
                     <tr>
                         <td>{{ $i + 1 }}</td>
-                        @if(($jenis ?? 'margin') === 'stok')
+                        @if(($jenis ?? 'stok') === 'stok')
                             <td>{{ $item->gudang->nama_gudang ?? '-' }}</td>
                             <td>{{ $item->komoditas ?? '-' }}</td>
                             <td>{{ number_format($item->jumlah_stok) }}</td>
@@ -75,7 +75,7 @@
                             <td>{{ $item->catatan ?? '-' }}</td>
                         @else
                             <td>{{ $item->petani->nama ?? '-' }}</td>
-                            <td>{{ $item->lahan->nama ?? '-' }}</td>
+                            <td>{{ number_format(optional($item->petani)->luas_lahan ?? 0) }}</td>
                             <td>{{ number_format($item->jumlah_gabah) }}</td>
                             <td>{{ optional($item->tanggal_panen)->format('Y-m-d') }}</td>
                         @endif
