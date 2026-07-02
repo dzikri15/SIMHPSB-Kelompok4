@@ -15,7 +15,7 @@
             <div style="display:flex;flex-direction:column;gap:14px;">
                 <div>
                     <label style="display:block;margin-bottom:6px;font-weight:600;font-size:12.5px;color:var(--text-muted);">Nama Sistem</label>
-                    <input type="text" value="SIMHPSB" disabled>
+                    <input type="text" value="SIMHP" disabled>
                 </div>
                 <div>
                     <label style="display:block;margin-bottom:6px;font-weight:600;font-size:12.5px;color:var(--text-muted);">Versi</label>

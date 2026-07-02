@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tentang SIMHPSB</title>
+    <title>Tentang SIMHP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -471,7 +471,7 @@
             <img src="https://raw.githubusercontent.com/NoahMikhailovna/foto/c45c72f9adca95001eefebd49d7581e89d0de508/padi_logo_fitted.svg"
                  style="width:100%;height:100%;object-fit:contain;" alt="Logo">
         </div>
-        <span class="nav-name">SIMHPSB</span>
+        <span class="nav-name">SIMHP</span>
     </a>
     <button class="nav-toggle" id="navToggle" aria-label="Buka menu">
         <span></span>
@@ -495,15 +495,15 @@
             <span class="badge-dot"></span>
             Kelompok 4 · UKRI 2026
         </div>
-        <h1>Tentang <span>SIMHPSB</span></h1>
-        <p>Sistem Informasi Monitoring Hasil Panen dan Stok Beras — dibangun oleh mahasiswa Sistem Informasi UKRI sebagai proyek UAS Semester 4.</p>
+        <h1>Tentang <span>SIMHP</span></h1>
+        <p>Sistem Informasi Monitoring Hasil Panen — dibangun oleh mahasiswa Sistem Informasi UKRI sebagai proyek UAS Semester 4.</p>
     </div>
 
     <!-- OVERVIEW -->
     <div class="section" id="s1">
         <div class="section-label">Overview</div>
-        <h2>Apa itu SIMHPSB?</h2>
-        <p>SIMHPSB adalah platform digital terintegrasi untuk membantu manajemen data hasil panen gabah dan stok beras secara real-time. Dibangun khusus untuk membantu petani, petugas gudang, dan admin dalam satu ekosistem yang efisien.</p>
+        <h2>Apa itu SIMHP?</h2>
+        <p>SIMHP adalah platform digital terintegrasi untuk membantu manajemen data hasil panen gabah dan stok beras secara real-time. Dibangun khusus untuk membantu petani, petugas gudang, dan admin dalam satu ekosistem yang efisien.</p>
 
         <div class="info-grid">
             <div class="info-card">
@@ -535,7 +535,7 @@
     <div class="section" id="s2">
         <div class="section-label">Perjalanan</div>
         <h2>Dibangun kapan?</h2>
-        <p>SIMHPSB dikembangkan dalam satu semester penuh dengan tahapan agile — dari riset lapangan hingga deployment ke server produksi.</p>
+        <p>SIMHP dikembangkan dalam satu semester penuh dengan tahapan agile — dari riset lapangan hingga deployment ke server produksi.</p>
 
         <div class="timeline">
             <div class="timeline-item">
@@ -669,7 +669,7 @@
     <!-- STATS -->
     <div class="section" id="s5">
         <div class="section-label">Fakta</div>
-        <h2>SIMHPSB dalam angka</h2>
+        <h2>SIMHP dalam angka</h2>
         <div class="info-grid">
             <div class="info-card" style="text-align:center;">
                 <div class="highlight">9+</div>
@@ -702,7 +702,7 @@
         <div style="margin-top:16px;">
             <a href="{{ route('login') }}"
                style="display:inline-flex;align-items:center;gap:10px;padding:14px 32px;background:linear-gradient(135deg,#38a169,#2b7a4f);color:#fff;border-radius:14px;font-weight:700;text-decoration:none;font-size:14px;box-shadow:0 4px 20px rgba(56,161,105,.35);">
-                Masuk ke SIMHPSB →
+                Masuk ke SIMHP →
             </a>
         </div>
     </div>

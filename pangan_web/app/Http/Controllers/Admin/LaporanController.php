@@ -18,7 +18,7 @@ class LaporanController extends Controller
 {
     public function index()
     {
-        $jenis = request('jenis', 'margin');
+        $jenis = request('jenis', 'stok');
         $dari = request('dari', date('Y-m-01'));
         $sampai = request('sampai', date('Y-m-d'));
         $petaniId = request('petani_id');
@@ -26,10 +26,7 @@ class LaporanController extends Controller
 
         $petanis = Petani::orderBy('nama')->get();
         $config = KonfigurasiHarga::where('is_active', true)->latest('berlaku_mulai')->first() ?? KonfigurasiHarga::latest('berlaku_mulai')->first();
-            $hppPerKg = 0;
-        if ($config && $config->rasio_konversi > 0) {
-            $hppPerKg = round(($config->harga_beli_gabah / $config->rasio_konversi) + $config->ongkos_giling);
-        }
+
 
         $totalDistribusi = Distribusi::whereBetween('tanggal_distribusi', [$dari, $sampai])->sum('jumlah_distribusi');
         $chartLabels = [];
@@ -40,7 +37,7 @@ class LaporanController extends Controller
         $totalStok = 0;
         $lowStockCount = 0;
         $totalGudang = 0;
-        $totalMarginEstimate = 0;
+
 
         if ($jenis === 'stok') {
             $dateColumn = Schema::hasColumn('stok_beras', 'tanggal_update')
@@ -103,19 +100,12 @@ $laporanData = $allStokData
                 ],
             ];
 
-            $laporanData = $laporanData->transform(function($row) use ($config, $hppPerKg) {
-                $konversi = $row->konversi_beras ?: ($config->rasio_konversi ?? 0);
-                $beras = $konversi > 0 ? round($row->jumlah_gabah * ($konversi / 100)) : 0;
+            $laporanData = $laporanData->transform(function($row) {
                 $row->tonase_gabah = $row->jumlah_gabah;
-                $row->beras_dihasilkan = $beras;
-                $row->hpp_estimasi = $hppPerKg;
+                $row->beras_dihasilkan = $row->konversi_beras;
                 $row->status = $row->status ?? 'selesai';
                 return $row;
             });
-
-            if ($jenis === 'margin') {
-                $totalMarginEstimate = $totalDistribusi * $hppPerKg;
-            }
         }
 
         return view('admin.laporan.index', compact(
@@ -126,11 +116,9 @@ $laporanData = $allStokData
             'totalStok',
             'lowStockCount',
             'totalGudang',
-            'totalMarginEstimate',
             'chartLabels',
             'chartDatasets',
             'jenis',
-            'hppPerKg',
             'komoditas',
             'komoditasList'
         ));
@@ -234,8 +222,6 @@ $laporanData = $allStokData
                 $html .= '<th>Petani</th>';
                 $html .= '<th>Lahan</th>';
                 $html .= '<th>Jumlah Gabah (kg)</th>';
-                $html .= '<th>Konversi (%)</th>';
-                $html .= '<th>Beras (kg)</th>';
                 $html .= '<th>Tanggal Panen</th>';
             }
 
@@ -251,13 +237,9 @@ $laporanData = $allStokData
                     $html .= '<td>' . e(optional($item->tanggal_update)->format('Y-m-d H:i:s') ?? '-') . '</td>';
                     $html .= '<td>' . e($item->catatan ?? '-') . '</td>';
                 } else {
-                    $konv = $item->konversi_beras ?: '';
-                    $beras = $konv ? round($item->jumlah_gabah * ($konv / 100)) : '';
                     $html .= '<td>' . e($item->petani->nama ?? '-') . '</td>';
                     $html .= '<td>' . e($item->lahan->nama ?? '-') . '</td>';
                     $html .= '<td>' . number_format($item->jumlah_gabah) . '</td>';
-                    $html .= '<td>' . e($konv) . '</td>';
-                    $html .= '<td>' . e($beras) . '</td>';
                     $html .= '<td>' . e(optional($item->tanggal_panen)->format('Y-m-d') ?? '-') . '</td>';
                 }
                 $html .= '</tr>';

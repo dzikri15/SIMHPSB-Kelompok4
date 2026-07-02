@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Panen;
 use App\Models\Petani;
 use App\Models\Lahan;
+use App\Models\KonfigurasiHarga;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PanenController extends Controller
 {
@@ -15,9 +19,11 @@ class PanenController extends Controller
         $petanis = Petani::orderBy('nama')->get();
         $panenList = Panen::with('lahan.petani')
             ->orderByDesc('tanggal_panen')
+            ->orderByDesc('id')
             ->paginate(10);
+        $activePrice = KonfigurasiHarga::where('is_active', true)->first() ?? KonfigurasiHarga::latest('berlaku_mulai')->first();
 
-        return view('admin.panen.index', compact('petanis', 'panenList'));
+        return view('admin.panen.index', compact('petanis', 'panenList', 'activePrice'));
     }
 
     public function create()
@@ -32,10 +38,10 @@ class PanenController extends Controller
             'petani_id' => 'required|exists:petani,id',
             'musim' => 'required|string|max:100',
             'tanggal_panen' => 'required|date',
-            'tonase_gabah' => 'required|numeric|min:0.1',
-            'rasio_konversi' => 'required|numeric|min:0|max:100',
+            'jumlah_gabah' => 'required|numeric|min:0.1',
             'komoditas' => 'nullable|string|max:50',
             'catatan' => 'nullable|string',
+            'foto_bukti' => 'required|image|mimes:jpg,jpeg,png|max:5120',
         ]);
 
         $petani = Petani::find($validated['petani_id']);
@@ -59,23 +65,68 @@ class PanenController extends Controller
                 ->withInput();
         }
 
-        // konversi_beras menyimpan HASIL BERAS dalam kg (bukan persentase)
-        $hasilBerasKg = round($validated['tonase_gabah'] * $validated['rasio_konversi'] / 100, 2);
+        $activePrice = \App\Models\KonfigurasiHarga::where('is_active', true)->first() ?? \App\Models\KonfigurasiHarga::latest('berlaku_mulai')->first();
+        $hargaSaatIni = $activePrice ? $activePrice->harga_beli_gabah : 0;
 
-        Panen::create([
+        $fotoBuktiPath = $request->file('foto_bukti')->store('panen/bukti', 'public');
+
+        $panen = Panen::create([
             'lahan_id' => $lahan->id,
             'tanggal_panen' => $validated['tanggal_panen'],
-            'jumlah_gabah' => $validated['tonase_gabah'],
-            'konversi_beras' => $hasilBerasKg,
+            'jumlah_gabah' => $validated['jumlah_gabah'],
+            'harga_gabah_per_kg' => $hargaSaatIni,
+            'konversi_beras' => 0,
             'musim' => $validated['musim'],
+            'foto_bukti' => $fotoBuktiPath,
             'catatan' => trim(implode(' ', array_filter([
                 $validated['komoditas'] ? 'Komoditas: ' . $validated['komoditas'] . '.' : null,
                 $validated['catatan'] ?? null,
             ]))),
         ]);
 
+        // ── Otomatis tambah Gabah Masuk di Stok Gudang ──────────────────
+        $dateColumn = Schema::hasColumn('stok_beras', 'tanggal_update')
+            ? 'tanggal_update'
+            : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
+
+        $stokSebelumnya = (float) (DB::table('stok_beras')
+            ->where('komoditas', 'Gabah')
+            ->where('status', 'aktif')
+            ->orderByDesc($dateColumn)
+            ->orderByDesc('id')
+            ->value('jumlah_stok') ?: 0);
+
+        $stokBaru = $stokSebelumnya + $validated['jumlah_gabah'];
+        $tanggalNow = now()->format('Y-m-d H:i:s');
+
+        $stokPayload = [
+            'gudang_id'       => 1,
+            'jenis_transaksi' => 'masuk',
+            'komoditas'       => 'Gabah',
+            'jumlah'          => $validated['jumlah_gabah'],
+            'jumlah_stok'     => $stokBaru,
+            'keterangan'      => 'Panen: ' . ($panen->lahan->petani->nama ?? 'Petani') . ' – Musim ' . $validated['musim'],
+            'catatan'         => $validated['catatan'] ?? null,
+            'status'          => 'aktif',
+            'foto_bukti'      => $fotoBuktiPath,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ];
+
+        if (Schema::hasColumn('stok_beras', 'user_id')) {
+            $stokPayload['user_id'] = Auth::id();
+        }
+        if (Schema::hasColumn('stok_beras', 'tanggal_update')) {
+            $stokPayload['tanggal_update'] = $tanggalNow;
+        } elseif (Schema::hasColumn('stok_beras', 'tanggal')) {
+            $stokPayload['tanggal'] = $tanggalNow;
+        }
+
+        DB::table('stok_beras')->insert($stokPayload);
+        // ────────────────────────────────────────────────────────────────
+
         return redirect()->route('admin.panen.index')
-            ->with('success', 'Data panen berhasil ditambahkan');
+            ->with('success', 'Data panen berhasil ditambahkan dan Gabah Masuk otomatis tercatat di Stok Gudang.');
     }
 
     public function show($id)
@@ -100,7 +151,6 @@ class PanenController extends Controller
             'jumlah_gabah' => 'required|numeric|min:0.1',
             'tanggal_panen' => 'required|date',
             'musim' => 'nullable|string|max:100',
-            'konversi_beras' => 'nullable|numeric|min:0',
             'catatan' => 'nullable|string',
         ], [
             'lahan_id.exists' => 'Lahan tidak valid.',

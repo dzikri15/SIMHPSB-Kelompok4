@@ -70,55 +70,10 @@
                     <label>Jumlah Gabah (kg) <span style="color:var(--red-500)">*</span></label>
                     <input type="number" name="jumlah_gabah" id="jumlahGabah"
                            value="{{ old('jumlah_gabah', $panen->jumlah_gabah) }}"
-                           step="0.01" min="0.1" required
-                           oninput="updatePreview()">
+                           step="0.01" min="0.1" required>
                     @error('jumlah_gabah')<span style="color:red;font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
-                {{-- Konversi Beras --}}
-                <div class="form-group">
-                    <label>Hasil Beras (kg)</label>
-                    <input type="number" name="konversi_beras" id="konversiBeras"
-                           value="{{ old('konversi_beras', $panen->konversi_beras) }}"
-                           step="0.01" min="0">
-                    <div class="form-hint">Isi manual atau hitung otomatis dari rasio konversi di bawah</div>
-                    @error('konversi_beras')<span style="color:red;font-size:12px;">{{ $message }}</span>@enderror
-                </div>
-
-                {{-- Rasio konversi helper (tidak disimpan ke DB, hanya untuk kalkulasi) --}}
-                <div class="form-group">
-                    <label>Rasio Konversi Otomatis (%)</label>
-                    <div style="display:flex;gap:10px;align-items:center;">
-                        <input type="number" id="rasioHelper"
-                               value="61.5" step="0.1" min="50" max="70"
-                               style="max-width:120px;"
-                               oninput="updatePreview()">
-                        <span class="form-hint">Rasio standar: 61.5%</span>
-                    </div>
-                    <div class="form-hint">Hasil beras akan dihitung otomatis saat Anda mengubah jumlah gabah atau rasio.</div>
-                </div>
-
-                {{-- Preview --}}
-                <div id="previewBox"
-                     style="background:var(--surface-3);border:1.5px solid var(--border, #e2e8f0);border-radius:10px;padding:16px;margin-bottom:18px;">
-                    <div style="font-size:12px;font-weight:700;color:var(--green-600);margin-bottom:10px;">
-                        <i class="fas fa-calculator"></i> Estimasi dengan Rasio Saat Ini
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                        <div>
-                            <div style="font-size:11px;color:var(--text-muted);">Gabah</div>
-                            <div style="font-size:18px;font-weight:800;color:var(--text-primary);" id="prevGabah">
-                                {{ number_format($panen->jumlah_gabah) }} kg
-                            </div>
-                        </div>
-                        <div>
-                            <div style="font-size:11px;color:var(--text-muted);">Est. Beras</div>
-                            <div style="font-size:18px;font-weight:800;color:var(--green-500);" id="prevBeras">
-                                {{ number_format($panen->jumlah_gabah * 0.615) }} kg
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {{-- Catatan --}}
                 <div class="form-group">
@@ -146,24 +101,4 @@
 
 @endsection
 
-@push('scripts')
-<script>
-function updatePreview() {
-    const gabah = parseFloat(document.getElementById('jumlahGabah').value) || 0;
-    const rasio = parseFloat(document.getElementById('rasioHelper').value) || 61.5;
 
-    // Hitung beras
-    const beras = (gabah * (rasio / 100)).toFixed(2);
-    const berasDisplay = Math.round(gabah * (rasio / 100));
-
-    // Update input field Hasil Beras secara realtime
-    document.getElementById('konversiBeras').value = beras;
-
-    // Update Preview Box
-    document.getElementById('prevGabah').textContent = gabah.toLocaleString('id') + ' kg';
-    document.getElementById('prevBeras').textContent = berasDisplay.toLocaleString('id') + ' kg';
-}
-
-document.addEventListener('DOMContentLoaded', updatePreview);
-</script>
-@endpush

@@ -258,10 +258,13 @@
                             <option value="masuk">Masuk</option>
                             <option value="keluar">Keluar</option>
                         </select>
+                        <div class="form-hint" id="gabahMasukNote" style="display:none;color:var(--text-muted);">
+                            <i class="fas fa-info-circle"></i> Gabah Masuk otomatis tercatat dari menu <strong>Pencatatan Panen</strong>.
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Komoditas <span style="color:var(--red-500)">*</span></label>
-                        <select name="komoditas" required>
+                        <select name="komoditas" id="komoditasTransaksi" required onchange="onKomoditasChange()">
                             <option value="">Pilih komoditas</option>
                             <option value="Gabah">Gabah</option>
                             <option value="Beras">Beras</option>
@@ -296,7 +299,13 @@
 
                 <div class="form-group" id="sumberGroup">
                     <label>Sumber / Keterangan <span style="color:var(--red-500)">*</span></label>
-                    <input type="text" name="keterangan" placeholder="Contoh: Petani Budi, Hasil Giling, dll." required>
+                    <input type="text" name="keterangan" id="keteranganText" placeholder="Contoh: Petani Budi, Hasil Giling, dll." required>
+                    <select name="keterangan" id="keteranganPetani" style="display:none;" disabled>
+                        <option value="">Pilih Petani</option>
+                        @foreach(($petanis ?? []) as $p)
+                            <option value="Petani: {{ $p->nama }}">{{ $p->nama }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -430,24 +439,74 @@ function filterStok() {
     });
 }
 
+function onKomoditasChange() {
+    const komoditas = document.getElementById('komoditasTransaksi').value;
+    const jenis = document.getElementById('jenisTransaksi');
+    const note = document.getElementById('gabahMasukNote');
+    
+    // Sembunyikan opsi "Masuk" jika komoditas "Gabah"
+    for (let i = 0; i < jenis.options.length; i++) {
+        if (jenis.options[i].value === 'masuk') {
+            jenis.options[i].style.display = (komoditas === 'Gabah') ? 'none' : 'block';
+        }
+    }
+    
+    // Jika jenis saat ini "Masuk" dan berubah ke "Gabah", ganti jadi "Keluar" otomatis
+    if (komoditas === 'Gabah' && jenis.value === 'masuk') {
+        jenis.value = 'keluar';
+    }
+    
+    // Tampilkan pesan
+    if (note) {
+        note.style.display = (komoditas === 'Gabah') ? 'block' : 'none';
+    }
+    
+    toggleTujuan();
+}
+
 function toggleTujuan() {
     const jenis = document.getElementById('jenisTransaksi').value;
+    const komoditas = document.getElementById('komoditasTransaksi') ? document.getElementById('komoditasTransaksi').value : '';
     const tujuan = document.getElementById('tujuanGroup');
     const warning = document.getElementById('stokWarning');
-    tujuan.style.display = jenis === 'keluar' ? 'block' : 'none';
+    const tujuanSelect = document.getElementById('tujuanSelect');
+
+    if (jenis === 'keluar' && komoditas === 'Beras') {
+        tujuan.style.display = 'block';
+        if (tujuanSelect) tujuanSelect.setAttribute('required', 'required');
+    } else {
+        tujuan.style.display = 'none';
+        if (tujuanSelect) tujuanSelect.removeAttribute('required');
+    }
+
     warning.style.display = jenis === 'keluar' ? 'flex' : 'none';
-    // foto bukti only for keluar
+
+    // foto bukti wajib untuk masuk dan keluar
     const fotoGroup = document.getElementById('fotoBuktiGroup');
     const fotoInput = document.getElementById('fotoBuktiInput');
     if (fotoGroup) {
-        fotoGroup.style.display = jenis === 'keluar' ? 'block' : 'none';
-        if (fotoInput) {
-            if (jenis === 'keluar') {
+        if (jenis === 'keluar' || jenis === 'masuk') {
+            fotoGroup.style.display = 'block';
+            if (fotoInput) {
                 fotoInput.setAttribute('required', 'required');
-            } else {
+            }
+        } else {
+            fotoGroup.style.display = 'none';
+            if (fotoInput) {
                 fotoInput.removeAttribute('required');
             }
         }
+    }
+
+    // Gabah masuk -> Sumber = Dropdown Petani
+    const ketText = document.getElementById('keteranganText');
+    const ketPetani = document.getElementById('keteranganPetani');
+    if (jenis === 'masuk' && komoditas === 'Gabah') {
+        if (ketText) { ketText.style.display = 'none'; ketText.removeAttribute('required'); ketText.disabled = true; }
+        if (ketPetani) { ketPetani.style.display = 'block'; ketPetani.setAttribute('required', 'required'); ketPetani.disabled = false; }
+    } else {
+        if (ketText) { ketText.style.display = 'block'; ketText.setAttribute('required', 'required'); ketText.disabled = false; }
+        if (ketPetani) { ketPetani.style.display = 'none'; ketPetani.removeAttribute('required'); ketPetani.disabled = true; }
     }
 }
 
