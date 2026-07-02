@@ -140,7 +140,7 @@
             <div class="petani-panel-header">
                 <div>
                     <div style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Riwayat Panen Terbaru</div>
-                    <h3 style="margin:8px 0 0;">{{ $panens->count() }} entri</h3>
+                    <h3 style="margin:8px 0 0;">{{ $panens->total() }} entri</h3>
                 </div>
                 <span style="padding:10px 16px;border-radius:999px;background:var(--green-100);color:var(--green-800);font-weight:700;">Akun Petani</span>
             </div>
@@ -157,7 +157,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($panens->take(8) as $panen)
+                            @foreach($panens as $panen)
                                 <tr>
                                     <td>{{ $panen->tanggal_panen ? \Carbon\Carbon::parse($panen->tanggal_panen)->translatedFormat('d M Y') : '-' }}</td>
                                     <td>{{ $panen->musim ?? '-' }}</td>
@@ -174,17 +174,47 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- Paginasi --}}
+                @if($panens->hasPages())
+                    <div style="padding:16px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;border-top:1px solid var(--border,#e2e8f0);">
+                        <div style="width:100%;text-align:center;font-size:12px;color:var(--text-muted);">
+                            Menampilkan {{ $panens->firstItem() }}–{{ $panens->lastItem() }} dari {{ $panens->total() }} data
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
+                            @if($panens->onFirstPage())
+                                <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">First</span>
+                                <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-left"></i></span>
+                            @else
+                                <a href="{{ $panens->url(1) }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">First</a>
+                                <a href="{{ $panens->previousPageUrl() }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-left"></i></a>
+                            @endif
+                            @foreach($panens->getUrlRange(max(1,$panens->currentPage()-2), min($panens->lastPage(),$panens->currentPage()+2)) as $page => $url)
+                                <a href="{{ $url }}" style="padding:6px 10px;border-radius:6px;font-size:12px;text-decoration:none;background:{{ $page == $panens->currentPage() ? 'var(--green-600)' : 'var(--surface-3)' }};color:{{ $page == $panens->currentPage() ? 'white' : 'var(--text-primary)' }};">{{ $page }}</a>
+                            @endforeach
+                            @if($panens->hasMorePages())
+                                <a href="{{ $panens->nextPageUrl() }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-right"></i></a>
+                                <a href="{{ $panens->url($panens->lastPage()) }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">Last</a>
+                            @else
+                                <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-right"></i></span>
+                                <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">Last</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
             @else
                 <p style="margin:0;color:var(--text-muted);">Belum ada catatan panen. Silakan tambahkan data panen melalui menu yang tersedia.</p>
             @endif
         </div>
 
-        <div class="petani-card">
-            <div class="petani-panel-header">
-                <div>
-                    <div style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Informasi Harga Aktif</div>
-                    <h3 style="margin:8px 0 0;">{{ $activePrice ? 'Tersedia' : 'Belum aktif' }}</h3>
-                </div>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+            <div class="petani-card">
+                <div class="petani-panel-header">
+                    <div>
+                        <div style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Informasi Harga Aktif</div>
+                        <h3 style="margin:8px 0 0;">{{ $activePrice ? 'Tersedia' : 'Belum aktif' }}</h3>
+                    </div>
                 <i class="fas fa-dollar-sign" style="font-size:22px;color:var(--green-700);"></i>
             </div>
 
@@ -206,6 +236,38 @@
             @else
                 <p style="margin:0;color:var(--text-muted);">Saat ini belum ada harga aktif. Silakan hubungi Petugas atau Admin untuk update harga.</p>
             @endif
+            </div>
+
+            <div class="petani-card">
+                <div class="petani-panel-header">
+                    <div>
+                        <div style="font-size:13px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;">Rekap Harian</div>
+                        <h3 style="margin:8px 0 0;">Total Gabah per Tanggal</h3>
+                    </div>
+                    <i class="fas fa-calendar-check" style="font-size:22px;color:var(--green-700);"></i>
+                </div>
+
+                @if($rekapTanggal->count())
+                    <div style="display:grid;gap:10px;max-height:280px;overflow-y:auto;padding-right:8px;">
+                        @foreach($rekapTanggal as $rekap)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);">
+                                <div>
+                                    <strong style="color:var(--text-primary);">{{ \Carbon\Carbon::parse($rekap->tanggal_panen)->translatedFormat('d M Y') }}</strong>
+                                    <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">{{ $rekap->jumlah_entri }} entri panen</div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <strong style="color:var(--green-700);display:block;">{{ number_format($rekap->total_gabah, 0, ',', '.') }} kg</strong>
+                                    @if($rekap->total_penghasilan > 0)
+                                        <span style="font-size:14px;color:var(--green-800);font-weight:700;">Rp {{ number_format($rekap->total_penghasilan, 0, ',', '.') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p style="margin:0;color:var(--text-muted);">Belum ada data rekap panen harian.</p>
+                @endif
+            </div>
         </div>
     </div>
 </div>
