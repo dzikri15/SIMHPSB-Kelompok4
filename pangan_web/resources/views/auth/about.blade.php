@@ -578,35 +578,77 @@
             <div class="team-card leader">
                 <div class="team-avatar">D</div>
                 <div class="team-name">Muhammad Dzikri Sagara</div>
-                <div class="team-role">PM · Backend · DevOps</div>
+                <div class="team-role">PM · Backend · DevOps · Database</div>
                 <div class="team-npm">NPM: 20241320004</div>
                 <div class="team-tags">
                     <span class="tag">Laravel</span>
-                    <span class="tag">Docker</span>
-                    <span class="tag">n8n</span>
-                    <span class="tag">AI</span>
+                    <span class="tag">REST API</span>
+                    <span class="tag">JWT</span>
+                    <span class="tag">Docker Setup</span>
+                    <span class="tag">Redis</span>
+                    <span class="tag">Migration</span>
                 </div>
             </div>
             <div class="team-card">
                 <div class="team-avatar">F</div>
-                <div class="team-name">Fakhri</div>
-                <div class="team-role">Frontend Web · Mobile</div>
-                <div class="team-npm">NPM: —</div>
+                <div class="team-name">Fakhry Ahmad Fauzan</div>
+                <div class="team-role">Frontend Web · Flutter Mobile · API Integration</div>
+                <div class="team-npm">NPM: 20241320038</div>
                 <div class="team-tags">
                     <span class="tag">Blade</span>
                     <span class="tag">Flutter</span>
                     <span class="tag">UI/UX</span>
+                    <span class="tag">API Integration</span>
+                    <span class="tag">JWT</span>
+                    <span class="tag">Setup</span>
                 </div>
             </div>
             <div class="team-card">
                 <div class="team-avatar">A</div>
-                <div class="team-name">Alamsyah</div>
-                <div class="team-role">n8n · AI Workflow</div>
-                <div class="team-npm">NPM: —</div>
+                <div class="team-name">Muhammad Alamsyah</div>
+                <div class="team-role">n8n · DevOps · QA Web · Diagram</div>
+                <div class="team-npm">NPM: 20241320030</div>
                 <div class="team-tags">
                     <span class="tag">n8n</span>
-                    <span class="tag">Gemini</span>
-                    <span class="tag">Automation</span>
+                    <span class="tag">Gemini AI</span>
+                    <span class="tag">DevOps</span>
+                    <span class="tag">POSTMAN</span>
+                    <span class="tag">Diagram</span>
+                    <span class="tag">Final Report</span>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">D</div>
+                <div class="team-name">Difa Nisa Lutfiah</div>
+                <div class="team-role">QA Web · Diagram · Dokumentasi</div>
+                <div class="team-npm">NPM: 20241320013</div>
+                <div class="team-tags">
+                    <span class="tag">POSTMAN</span>
+                    <span class="tag">Diagram</span>
+                    <span class="tag">Manual Book</span>
+                    <span class="tag">Final Report</span>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">D</div>
+                <div class="team-name">Devina Ayuliani</div>
+                <div class="team-role">QA Mobile · ERD · Laporan</div>
+                <div class="team-npm">NPM: 20241320019</div>
+                <div class="team-tags">
+                    <span class="tag">Testing</span>
+                    <span class="tag">ERD</span>
+                    <span class="tag">Final Report</span>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar">A</div>
+                <div class="team-name">Agusta Firman Firdaus</div>
+                <div class="team-role">QA Mobile · Testing</div>
+                <div class="team-npm">NPM: 20241320016</div>
+                <div class="team-tags">
+                  
+                    <span class="tag">Testing</span>
+                    <span class="tag">Manual Book</span>
                 </div>
             </div>
         </div>
@@ -675,11 +717,6 @@
                 <div class="highlight">9+</div>
                 <h4>Tabel Database</h4>
                 <p>ERD dengan 9 entitas utama termasuk petani, lahan, panen, stok, harga, dan distribusi.</p>
-            </div>
-            <div class="info-card" style="text-align:center;">
-                <div class="highlight">61.5%</div>
-                <h4>Rasio Konversi</h4>
-                <p>Standar konversi gabah ke beras yang digunakan dalam kalkulasi hasil panen.</p>
             </div>
             <div class="info-card" style="text-align:center;">
                 <div class="highlight">9.000 kg</div>

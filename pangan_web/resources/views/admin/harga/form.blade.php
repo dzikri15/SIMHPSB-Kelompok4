@@ -114,7 +114,7 @@
 
                 <div class="form-group">
                     <label>Berat (kg)</label>
-                    <input type="number" id="simulasi_jumlah" value="100" min="1" placeholder="Masukkan jumlah kg...">
+                    <input type="number" id="simulasi_jumlah" value="1" min="1" placeholder="Masukkan jumlah kg...">
                 </div>
 
                 <div id="kalkulasiTotal" style="display:flex;flex-direction:column;gap:10px;">

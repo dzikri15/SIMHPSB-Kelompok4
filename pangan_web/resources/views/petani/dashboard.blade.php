@@ -150,6 +150,7 @@
                     <table class="petani-table">
                         <thead>
                             <tr>
+                                <th style="text-align:left;">Tanggal</th>
                                 <th style="text-align:left;">Musim</th>
                                 <th style="text-align:right;">Gabah (kg)</th>
                                 <th style="text-align:right;">Penghasilan</th>
@@ -158,6 +159,7 @@
                         <tbody>
                             @foreach($panens->take(8) as $panen)
                                 <tr>
+                                    <td>{{ $panen->tanggal_panen ? \Carbon\Carbon::parse($panen->tanggal_panen)->translatedFormat('d M Y') : '-' }}</td>
                                     <td>{{ $panen->musim ?? '-' }}</td>
                                     <td style="text-align:right;"><strong>{{ number_format($panen->jumlah_gabah, 0, ',', '.') }} kg</strong></td>
                                     <td style="text-align:right;color:var(--green-700);font-weight:600;">
