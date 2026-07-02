@@ -4,10 +4,36 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Harga;
+use App\Models\KonfigurasiHarga;
 use Illuminate\Http\Request;
 
 class HargaController extends Controller
 {
+    /**
+     * GET /api/harga/aktif
+     * Mengembalikan konfigurasi harga aktif dari tabel konfigurasi_harga
+     * (digunakan oleh chatbot/n8n tool get_price_data)
+     */
+    public function aktif()
+    {
+        $config = KonfigurasiHarga::where('is_active', true)
+            ->latest('berlaku_mulai')
+            ->first();
+
+        if (!$config) {
+            return response()->json(['message' => 'Belum ada harga aktif'], 404);
+        }
+
+        return response()->json([
+            'harga_beli_gabah'  => $config->harga_beli_gabah,
+            'harga_jual_beras'  => $config->harga_jual_beras,
+            'ongkos_giling'     => $config->ongkos_giling ?? null,
+            'rasio_konversi'    => $config->rasio_konversi ?? null,
+            'berlaku_mulai'     => optional($config->berlaku_mulai)->format('Y-m-d'),
+            'is_active'         => $config->is_active,
+        ]);
+    }
+
     public function index()
     {
         return Harga::orderByDesc('tanggal_berlaku')->paginate(15);

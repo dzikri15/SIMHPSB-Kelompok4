@@ -49,6 +49,7 @@ Route::middleware('auth:api')->group(function () {
 
     // ── Harga (custom route BEFORE apiResource)
     Route::post('harga/calculate', [HargaController::class, 'calculate']);
+    Route::get('harga/aktif',      [HargaController::class, 'aktif']);
     Route::apiResource('harga', HargaController::class);
 
     // ── Alert (custom route BEFORE apiResource)
