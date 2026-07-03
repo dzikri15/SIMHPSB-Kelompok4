@@ -156,7 +156,7 @@ $laporanData = $allStokData
 
     public function export()
     {
-        $jenis = request('jenis', 'margin');
+        $jenis = request('jenis', 'stok');
         $format = request('format','csv');
         $dari = request('dari', date('Y-m-01'));
         $sampai = request('sampai', date('Y-m-d'));
