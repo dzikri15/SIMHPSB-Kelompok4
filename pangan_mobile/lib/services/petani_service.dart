@@ -30,4 +30,8 @@ class PetaniService {
   }
 
   Future<void> delete(int id) => _api.delete('petani/$id');
+
+  Future<void> toggleStatus(int id) async {
+    await _api.patch('petani/$id/toggle-status');
+  }
 }
