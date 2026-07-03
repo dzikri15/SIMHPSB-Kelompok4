@@ -23,12 +23,10 @@
 <div class="card">
     <div class="toolbar" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:18px;">
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <input type="text" id="searchInput" placeholder="Cari petani, NIK, telepon..." style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;min-width:220px;">
+            <input type="text" id="searchInput" placeholder="Cari petani, kontak..." style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;min-width:220px;">
             <select id="filterKomoditas" onchange="filterTable()" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;min-width:180px;">
                 <option value="">Semua Komoditas</option>
                 <option value="Padi">Padi</option>
-                <option value="Jagung">Jagung</option>
-                <option value="Padi & Jagung">Padi & Jagung</option>
             </select>
         </div>
 
@@ -54,7 +52,7 @@
                 <tr>
                     <th>#</th>
                     <th>Nama Petani</th>
-                    <th>NIK / Kontak</th>
+                    <th>Kontak</th>
                     <th>Luas Lahan</th>
                     <th>Komoditas</th>
                     <th>Alamat</th>
@@ -78,8 +76,7 @@
                             </div>
                         </td>
                         <td>
-                            <div>{{ $item->nik ?? '-' }}</div>
-                            <div style="font-size:12px;color:var(--text-muted);">{{ $item->telepon ?? '-' }}</div>
+                            <div>{{ $item->telepon ?? '-' }}</div>
                         </td>
                         <td><strong>{{ number_format($item->luas_lahan ?? 0) }}</strong> m²</td>
                         <td>
@@ -88,9 +85,9 @@
                             </span>
                         </td>
                         <td style="font-size:12.5px;color:var(--text-secondary);">{{ Str::limit($item->alamat ?? '-', 35) }}</td>
-                        <td>
-                            <span class="badge badge-{{ $item->status == 'aktif' ? 'green' : 'gray' }}">
-                                {{ $item->status === 'nonaktif' ? 'Non-aktif' : ucfirst($item->status ?? 'aktif') }}
+                        <td id="status-cell-{{ $item->id }}" style="cursor:pointer;" onclick="togglePetaniStatus({{ $item->id }})" title="Klik untuk mengubah status">
+                            <span class="badge badge-{{ $item->status == 'aktif' ? 'green' : 'red' }}">
+                                {{ $item->status === 'nonaktif' || $item->status === 'non-aktif' ? 'Non-aktif' : ucfirst($item->status ?? 'aktif') }}
                             </span>
                         </td>
                         <td>
@@ -101,54 +98,19 @@
                                 <a href="{{ route('admin.petani.show', $item->id) }}" class="btn btn-secondary btn-icon btn-sm" title="Detail">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <form method="POST" action="{{ route('admin.petani.destroy', $item->id) }}"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('Hapus data petani {{ $item->nama }}?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-icon btn-sm" title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-danger btn-icon btn-sm" title="Hapus" onclick="confirmDelete({{ $item->id }}, '{{ addslashes($item->nama) }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
                 @empty
-                    {{-- DUMMY --}}
-                    @php
-                        $dummies = [
-                            ['Silvy Halimatusyadiah', '3210xxxxxxxxx', '9200', 'Padi & Jagung', 'Blok Gunung Sari RT 01/02, Gunung Manik', 'aktif'],
-                            ['Budi Santoso', '3211xxxxxxxxx', '5000', 'Padi', 'Desa Talaga, Majalengka', 'aktif'],
-                            ['Ahmad Fauzi', '3212xxxxxxxxx', '7800', 'Padi', 'Desa Cikijing, Majalengka', 'aktif'],
-                            ['Dewi Rahayu', '3213xxxxxxxxx', '3200', 'Jagung', 'Desa Sindang, Majalengka', 'non-aktif'],
-                        ];
-                    @endphp
-                    @foreach($dummies as $i => $d)
-                        <tr>
-                            <td style="color:var(--text-muted);font-size:12px;">{{ $i+1 }}</td>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green-400),var(--green-600));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;">
-                                        {{ strtoupper(substr($d[0], 0, 1)) }}
-                                    </div>
-                                    <div>
-                                        <div style="font-weight:600;">{{ $d[0] }}</div>
-                                        <div style="font-size:11.5px;color:var(--text-muted);">ID: #{{ str_pad($i+1, 4, '0', STR_PAD_LEFT) }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><div>{{ $d[1] }}</div><div style="font-size:12px;color:var(--text-muted);">+62 8xx xxxx xxxx</div></td>
-                            <td><strong>{{ number_format($d[2]) }}</strong> m²</td>
-                            <td><span class="badge badge-{{ $d[3]=='Padi'?'green':($d[3]=='Jagung'?'amber':'blue') }}">{{ $d[3] }}</span></td>
-                            <td style="font-size:12.5px;color:var(--text-secondary);">{{ substr($d[4],0,40) }}</td>
-                            <td><span class="badge badge-{{ $d[5]=='aktif'?'green':'gray' }}">{{ ucfirst($d[5]) }}</span></td>
-                            <td>
-                                <div style="display:flex;gap:6px;">
-                                    <button class="btn btn-secondary btn-icon btn-sm" onclick="openModal('modalTambah')"><i class="fas fa-pen"></i></button>
-                                    <button class="btn btn-danger btn-icon btn-sm"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                    <tr>
+                        <td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">
+                            <i class="fas fa-users" style="font-size:32px;margin-bottom:12px;opacity:0.5;"></i><br>
+                            Belum ada data petani.
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
@@ -175,15 +137,9 @@
         <form method="POST" action="{{ route('admin.petani.store') }}" id="formTambahPetani">
             @csrf
             <div class="modal-body">
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Nama Lengkap <span style="color:var(--red-500)">*</span></label>
-                        <input type="text" name="nama" placeholder="Nama petani" required>
-                    </div>
-                    <div class="form-group">
-                        <label>NIK</label>
-                        <input type="text" name="nik" placeholder="16 digit NIK" maxlength="16">
-                    </div>
+                <div class="form-group">
+                    <label>Nama Lengkap <span style="color:var(--red-500)">*</span></label>
+                    <input type="text" name="nama" placeholder="Nama petani" required>
                 </div>
                 <div class="grid-2">
                     <div class="form-group">
@@ -191,8 +147,18 @@
                         <input type="text" name="telepon" placeholder="+62 8xx xxxx xxxx">
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" placeholder="contoh@domain.com">
+                        <label>Email <span style="color:var(--red-500)">*</span></label>
+                        <input type="email" name="email" placeholder="contoh@domain.com" required>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Kata Sandi <span style="color:var(--red-500)">*</span></label>
+                        <input type="password" name="password" placeholder="Minimal 6 karakter" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Konfirmasi Sandi <span style="color:var(--red-500)">*</span></label>
+                        <input type="password" name="password_confirmation" placeholder="Ulangi kata sandi" required>
                     </div>
                 </div>
                 <div class="grid-2">
@@ -201,27 +167,16 @@
                         <input type="number" name="luas_lahan" placeholder="contoh: 9200" required min="0">
                     </div>
                     <div class="form-group">
-                        <label>Tanggal Lahir</label>
-                        <input type="date" name="tanggal_lahir">
+                        <label>Komoditas Utama <span style="color:var(--red-500)">*</span></label>
+                        <input type="text" name="komoditas" value="Padi" readonly style="background-color: var(--surface-2); cursor: not-allowed; border: 1px solid var(--border); padding: 10px 12px; border-radius: 8px; width: 100%;">
                     </div>
                 </div>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label>Komoditas Utama <span style="color:var(--red-500)">*</span></label>
-                        <select name="komoditas" required>
-                            <option value="">Pilih komoditas</option>
-                            <option value="Padi">Padi</option>
-                            <option value="Jagung">Jagung</option>
-                            <option value="Padi & Jagung">Padi & Jagung</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="aktif">Aktif</option>
-                            <option value="non-aktif">Non-Aktif</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" style="padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; width: 100%;">
+                        <option value="aktif">Aktif</option>
+                        <option value="nonaktif">Non-Aktif</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Alamat <span style="color:var(--red-500)">*</span></label>
@@ -235,6 +190,25 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" onclick="closeModal('modalTambah')">Batal</button>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal-overlay" id="modalHapus">
+    <div class="modal" style="max-width: 400px; text-align: center;">
+        <div style="font-size: 48px; color: var(--red-500); margin-bottom: 15px; margin-top: 15px;">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 style="margin-bottom: 10px;">Konfirmasi Hapus</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Apakah Anda yakin ingin menghapus data petani <strong id="hapusNamaPetani"></strong>? Tindakan ini tidak dapat dibatalkan.</p>
+        
+        <form method="POST" id="formHapusPetani">
+            @csrf @method('DELETE')
+            <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modalHapus')">Batal</button>
+                <button type="submit" class="btn btn-danger">Ya, Hapus</button>
             </div>
         </form>
     </div>
@@ -294,6 +268,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function togglePetaniStatus(id) {
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    fetch(`{{ url('admin/petani') }}/${id}/toggle-status`, {
+        method: 'PATCH',
+        headers: {
+            'X-CSRF-TOKEN': token || '',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data || !data.success) {
+            alert(data?.message || 'Gagal memperbarui status');
+            return;
+        }
+        const cell = document.getElementById(`status-cell-${id}`);
+        if (cell) {
+            if (data.status === 'aktif') {
+                cell.innerHTML = '<span class="badge badge-green">Aktif</span>';
+            } else {
+                cell.innerHTML = '<span class="badge badge-red">Non-aktif</span>';
+            }
+        }
+    })
+    .catch(err => {
+        alert('Gagal menghubungi server');
+        console.error(err);
+    });
+}
+
+function confirmDelete(id, nama) {
+    document.getElementById('hapusNamaPetani').innerText = nama;
+    const form = document.getElementById('formHapusPetani');
+    form.action = `{{ url('admin/petani') }}/${id}`;
+    openModal('modalHapus');
+}
 </script>
 @endpush
         
