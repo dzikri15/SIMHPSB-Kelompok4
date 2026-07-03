@@ -67,11 +67,58 @@ class AuthService {
       await saveToken(token);
       await saveUser(user);
       return user;
+    } else if (response.statusCode == 403 && body['error'] == 'akun_nonaktif') {
+      throw const AuthException(
+        'Akun Anda belum diaktifkan oleh admin.\nSilakan hubungi admin untuk aktivasi.',
+      );
     } else if (response.statusCode == 401) {
       throw const AuthException('Email atau kata sandi salah.');
     } else {
       throw AuthException('Terjadi kesalahan server (${response.statusCode}).');
     }
+  }
+
+  /// Register petani dari mobile — 2 langkah digabung jadi 1 request.
+  /// Tidak mengembalikan token; akun menunggu aktivasi admin.
+  Future<void> registerPetani({
+    required String name,
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    required String alamat,
+    String? telepon,
+    int? luasLahan,
+  }) async {
+    final response = await http.post(
+      Uri.parse('${AppConstants.baseUrl}/auth/register-petani'),
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: jsonEncode({
+        'name':                  name,
+        'email':                 email,
+        'password':              password,
+        'password_confirmation': passwordConfirmation,
+        'alamat':                alamat,
+        'telepon':               telepon,
+        'luas_lahan':            luasLahan,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      return; // Sukses
+    }
+
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+    if (response.statusCode == 422) {
+      final errors = body['errors'] as Map<String, dynamic>?;
+      if (errors != null && errors.isNotEmpty) {
+        final firstMsg = (errors.values.first as List).first as String;
+        throw AuthException(firstMsg);
+      }
+      throw AuthException(body['message'] as String? ?? 'Validasi gagal.');
+    }
+
+    throw AuthException('Terjadi kesalahan server (${response.statusCode}).');
   }
 
   /// Logout → invalidates token on server, then clears local storage.

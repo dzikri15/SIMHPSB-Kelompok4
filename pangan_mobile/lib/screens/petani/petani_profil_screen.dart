@@ -200,15 +200,6 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
       icon: Icons.badge_outlined,
       items: [
         _item('Nama Lengkap', p.nama, Icons.person_outline),
-        if (p.nik != null && p.nik!.isNotEmpty)
-          _item('NIK', p.nik!, Icons.credit_card_outlined),
-        _item(
-          'Tanggal Lahir',
-          (p.tanggalLahir != null && p.tanggalLahir!.isNotEmpty)
-              ? p.tanggalLahir!
-              : '-',
-          Icons.cake_outlined,
-        ),
         if (p.alamat != null && p.alamat!.isNotEmpty)
           _item('Alamat', p.alamat!, Icons.location_on_outlined),
       ],

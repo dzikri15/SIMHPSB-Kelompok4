@@ -1262,56 +1262,6 @@ class _GudangScreenState extends State<GudangScreen> {
                 ],
               ),
               child: Column(
-                children: [
-                // ── Header baris: nomor + jenis badge + jumlah ──────
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                  decoration: BoxDecoration(
-                    color: jenisColor.withValues(alpha: 0.06),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                  ),
-                  child: Row(children: [
-                    Text('#${idx + 1}',
-                      style: TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      )),
-                    const SizedBox(width: 8),
-                    _jenisBadge(t, jenisColor),
-                    const Spacer(),
-                    Text(t.jumlahDisplay,
-                      style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w900,
-                        color: jenisColor,
-                      )),
-                  ]),
-                ),
-                // ── Body: semua field dalam grid 2 kolom ────────────
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-                  child: Column(
-                    children: [
-                      _mobileRow('Tanggal',      t.tanggalLabel ?? '-'),
-                      _mobileRow('Komoditas',    t.komoditasDisplay),
-                      _mobileRow('Tujuan/Sumber',
-                        t.tujuanDistribusiNama ?? t.keteranganDisplay),
-                      if ((t.catatan ?? '').isNotEmpty)
-                        _mobileRow('Catatan', t.catatan!),
-                      _mobileRow('Dicatat Oleh', t.dicatatOleh ?? 'Admin'),
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .shadow
-                          .withValues(alpha: 0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
                   children: [
                     // ── Header baris: nomor + jenis badge + jumlah ──────
                     Container(
@@ -1395,9 +1345,7 @@ class _GudangScreenState extends State<GudangScreen> {
                 ),
               ),
             ),
-          ),
-        ),
-      );
+          );
       }),
     );
   }
@@ -1589,7 +1537,7 @@ class _GudangScreenState extends State<GudangScreen> {
     );
   }
 
-  void _showTransaksiDetail(TransaksiStokModel t) {
+  void _showTransaksiDetailDialog(TransaksiStokModel t) {
     showDialog(
       context: context,
       builder: (_) => Dialog(

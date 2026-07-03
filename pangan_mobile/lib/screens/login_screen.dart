@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../main.dart';
 import '../main_shell.dart';
 import '../petani_shell.dart';
+import 'register_step1_screen.dart';
  
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -262,17 +263,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              RichText(
-                text: TextSpan(
-                  style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  children: const [
-                    TextSpan(text: 'Belum memiliki akun? '),
-                    TextSpan(
-                      text: 'Hubungi Admin',
-                      style: TextStyle(
-                          color: AppColors.primary, fontWeight: FontWeight.w700),
-                    ),
-                  ],
+              GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const RegisterStep1Screen()),
+                ),
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    children: const [
+                      TextSpan(text: 'Belum memiliki akun? '),
+                      TextSpan(
+                        text: 'Daftar sebagai Petani',
+                        style: TextStyle(
+                            color: AppColors.primary, fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 60),

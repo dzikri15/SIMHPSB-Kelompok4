@@ -180,12 +180,7 @@
                 @empty
                     @php
                         $rows = [
-                            ['Hari ini 08:00', 'masuk',  'Gabah', 500, 'Petani: Silvy H.', 'Penerimaan panen', 800,   'Admin'],
-                            ['Hari ini 07:30', 'keluar', 'Beras', 155, 'MBG Dapur 1',      'Distribusi dapur', 450,   'Petugas A'],
-                            ['Hari ini 07:30', 'keluar', 'Beras', 155, 'MBG Dapur 2',      'Stok permintaan', 605,   'Petugas A'],
-                            ['Kemarin 14:00',  'keluar', 'Beras', 100, 'Toko Rudi',         'Pengiriman lokal', 760,   'Petugas B'],
-                            ['Kemarin 10:00',  'masuk',  'Beras', 300, 'Hasil Giling',      'Gabah hasil kering', 860,   'Admin'],
-                            ['Kemarin 09:00',  'keluar', 'Gabah', 490, 'Proses Giling',    'Bahan giling', 1800,   'Admin'],
+                            
                         ];
                     @endphp
                     @foreach($rows as $i => $r)

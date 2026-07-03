@@ -99,7 +99,7 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     await AuthService().logout();
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).pushAndRemoveUntil(
+      Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
         (_) => false,
       );
