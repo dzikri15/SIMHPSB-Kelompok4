@@ -25,19 +25,28 @@ class PetaniController extends Controller
     {
         $data = $request->validate([
             'nama' => 'required|string|max:255',
-            'nik' => 'nullable|string|max:32',
             'alamat' => 'required|string',
             'telepon' => 'nullable|string|max:50',
             'no_hp' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255|unique:petani,email',
-            'tanggal_lahir' => 'nullable|date',
+            'email' => 'required|email|max:255|unique:petani,email|unique:users,email',
             'status' => 'required|string|in:aktif,nonaktif',
             'luas_lahan' => 'nullable|integer|min:0',
-            'komoditas' => 'required|string|in:Padi,Jagung,Padi & Jagung',
+            'komoditas' => 'required|string',
             'catatan' => 'nullable|string',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $petani = Petani::create($data);
+        $petani = Petani::create([
+            'nama' => $data['nama'],
+            'alamat' => $data['alamat'],
+            'telepon' => $data['telepon'],
+            'no_hp' => $data['no_hp'],
+            'email' => $data['email'],
+            'status' => $data['status'],
+            'luas_lahan' => $data['luas_lahan'],
+            'komoditas' => $data['komoditas'],
+            'catatan' => $data['catatan'],
+        ]);
 
         // Jika user mengisi luas_lahan pada form Petani, buatkan juga entri Lahan
         // supaya fitur yang mengandalkan relasi lahan (mis. pencatatan panen) bekerja.
@@ -51,7 +60,16 @@ class PetaniController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.petani.index')->with('success', 'Petani berhasil ditambahkan');
+        // Otomatis buatkan User untuk petani ini di Manajemen Pengguna
+        \App\Models\User::create([
+            'name' => $data['nama'],
+            'email' => $data['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'role' => 'petani',
+            'petani_id' => $petani->id,
+        ]);
+
+        return redirect()->route('admin.petani.index')->with('success', 'Petani dan Akun Pengguna berhasil ditambahkan');
     }
 
     public function show(Petani $petani)
@@ -69,15 +87,13 @@ class PetaniController extends Controller
     {
         $data = $request->validate([
             'nama' => 'required|string|max:255',
-            'nik' => 'nullable|string|max:32',
             'alamat' => 'required|string',
             'telepon' => 'nullable|string|max:50',
             'no_hp' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:255|unique:petani,email,' . $petani->id,
-            'tanggal_lahir' => 'nullable|date',
             'status' => 'required|string|in:aktif,non-aktif,nonaktif',
             'luas_lahan' => 'nullable|integer|min:0',
-            'komoditas' => 'required|string|in:Padi,Jagung,Padi & Jagung',
+            'komoditas' => 'required|string',
             'catatan' => 'nullable|string',
         ]);
 
@@ -94,6 +110,19 @@ class PetaniController extends Controller
     {
         $petani->delete();
         return redirect()->route('admin.petani.index')->with('success', 'Petani berhasil dihapus');
+    }
+
+    public function toggleStatus($id)
+    {
+        $petani = Petani::findOrFail($id);
+        $petani->status = $petani->status === 'aktif' ? 'nonaktif' : 'aktif';
+        $petani->save();
+
+        return response()->json([
+            'success' => true,
+            'status' => $petani->status,
+            'message' => 'Status berhasil diubah',
+        ]);
     }
 
     public function export()
@@ -116,10 +145,8 @@ class PetaniController extends Controller
             $html = '<table border="1"><thead><tr>' .
                 '<th>No</th>' .
                 '<th>Nama Petani</th>' .
-                '<th>NIK</th>' .
                 '<th>No. Telepon/HP</th>' .
                 '<th>Email</th>' .
-                '<th>Tanggal Lahir</th>' .
                 '<th>Luas Lahan (m²)</th>' .
                 '<th>Komoditas</th>' .
                 '<th>Status</th>' .
@@ -130,10 +157,8 @@ class PetaniController extends Controller
                 $html .= '<tr>' .
                     '<td>' . ($index + 1) . '</td>' .
                     '<td>' . e($p->nama) . '</td>' .
-                    '<td>' . e($p->nik ?? '-') . '</td>' .
                     '<td>' . e($p->telepon ?? '-') . '</td>' .
                     '<td>' . e($p->email ?? '-') . '</td>' .
-                    '<td>' . e(optional($p->tanggal_lahir)->format('Y-m-d') ?? '-') . '</td>' .
                     '<td>' . ($p->luas_lahan !== null ? number_format($p->luas_lahan) : '-') . '</td>' .
                     '<td>' . e($p->komoditas) . '</td>' .
                     '<td>' . e($p->status === 'nonaktif' ? 'Non-aktif' : ucfirst($p->status)) . '</td>' .
@@ -148,15 +173,13 @@ class PetaniController extends Controller
         }
 
         $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
-        $csv .= "No,Nama Petani,NIK,No. Telepon/HP,Email,Tanggal Lahir,Luas Lahan (m²),Komoditas,Status,Alamat\n";
+        $csv .= "No,Nama Petani,No. Telepon/HP,Email,Luas Lahan (m²),Komoditas,Status,Alamat\n";
         foreach ($petani as $index => $p) {
             $csv .= implode(',', [
                 $index + 1,
                 '"' . str_replace('"', '""', $p->nama) . '"',
-                '"' . str_replace('"', '""', $p->nik ?? '-') . '"',
                 '"' . str_replace('"', '""', $p->telepon ?? '-') . '"',
                 '"' . str_replace('"', '""', $p->email ?? '-') . '"',
-                '"' . str_replace('"', '""', optional($p->tanggal_lahir)->format('Y-m-d') ?? '-') . '"',
                 '"' . ($p->luas_lahan !== null ? number_format($p->luas_lahan) : '-') . '"',
                 '"' . str_replace('"', '""', $p->komoditas) . '"',
                 '"' . str_replace('"', '""', $p->status === 'nonaktif' ? 'Non-aktif' : ucfirst($p->status)) . '"',
