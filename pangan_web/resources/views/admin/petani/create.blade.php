@@ -38,15 +38,28 @@
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
             <div>
-                <label for="nik" style="display:block; margin-bottom:5px; font-weight:bold;">NIK</label>
-                <input type="text" name="nik" id="nik" value="{{ old('nik') }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                @error('nik')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-            </div>
-
-            <div>
                 <label for="telepon" style="display:block; margin-bottom:5px; font-weight:bold;">No. Telepon/HP</label>
                 <input type="text" name="telepon" id="telepon" value="{{ old('telepon') }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
                 @error('telepon')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
+            </div>
+
+            <div>
+                <label for="email" style="display:block; margin-bottom:5px; font-weight:bold;">Email <span style="color:red;">*</span></label>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                @error('email')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+            <div>
+                <label for="password" style="display:block; margin-bottom:5px; font-weight:bold;">Kata Sandi <span style="color:red;">*</span></label>
+                <input type="password" name="password" id="password" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                @error('password')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
+            </div>
+
+            <div>
+                <label for="password_confirmation" style="display:block; margin-bottom:5px; font-weight:bold;">Konfirmasi Sandi <span style="color:red;">*</span></label>
+                <input type="password" name="password_confirmation" id="password_confirmation" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
             </div>
         </div>
 
@@ -59,45 +72,18 @@
 
             <div>
                 <label for="komoditas" style="display:block; margin-bottom:5px; font-weight:bold;">Komoditas Utama</label>
-                <select name="komoditas" id="komoditas" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                    <option value="">Pilih komoditas</option>
-                    <option value="Padi" {{ old('komoditas') === 'Padi' ? 'selected' : '' }}>Padi</option>
-                    <option value="Jagung" {{ old('komoditas') === 'Jagung' ? 'selected' : '' }}>Jagung</option>
-                    <option value="Padi & Jagung" {{ old('komoditas') === 'Padi & Jagung' ? 'selected' : '' }}>Padi & Jagung</option>
-                </select>
+                <input type="text" name="komoditas" id="komoditas" value="Padi" readonly style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; background-color:#f3f4f6; cursor:not-allowed;">
                 @error('komoditas')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
-            <div>
-                <label for="no_hp" style="display:block; margin-bottom:5px; font-weight:bold;">No HP</label>
-                <input type="text" name="no_hp" id="no_hp" value="{{ old('no_hp') }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                @error('no_hp')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-            </div>
-
-            <div>
-                <label for="email" style="display:block; margin-bottom:5px; font-weight:bold;">Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email') }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                @error('email')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
-            <div>
-                <label for="tanggal_lahir" style="display:block; margin-bottom:5px; font-weight:bold;">Tanggal Lahir</label>
-                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir') }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                @error('tanggal_lahir')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-            </div>
-
-            <div>
-                <label for="status" style="display:block; margin-bottom:5px; font-weight:bold;">Status</label>
-                <select name="status" id="status" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                    <option value="aktif" {{ old('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                    <option value="nonaktif" {{ old('status') === 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
-                </select>
-                @error('status')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-            </div>
+        <div style="margin-bottom:15px;">
+            <label for="status" style="display:block; margin-bottom:5px; font-weight:bold;">Status</label>
+            <select name="status" id="status" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                <option value="aktif" {{ old('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                <option value="nonaktif" {{ old('status') === 'nonaktif' ? 'selected' : '' }}>Non-aktif</option>
+            </select>
+            @error('status')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
         </div>
 
         <div style="margin-bottom:15px;">
