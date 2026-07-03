@@ -171,6 +171,7 @@ class _DistribusiTujuanScreenState extends State<DistribusiTujuanScreen> {
       appBar: AppTopBar(
         showMenu: widget.onLogoutTap != null,
         showLogout: widget.onLogoutTap != null,
+        showPetaniList: true,
         onLogoutTap: widget.onLogoutTap,
       ),
       body: Column(
