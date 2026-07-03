@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Petani;
+use App\Models\Lahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -41,6 +43,75 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Register khusus untuk petani dari aplikasi mobile.
+     * Membuat data petani (status nonaktif) + akun user (role petani).
+     * Akun tidak bisa login sampai admin mengaktifkan status petani.
+     */
+    public function registerPetani(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            // Step 1
+            'name'                  => 'required|string|max:255',
+            'email'                 => 'required|string|email|max:255|unique:users,email',
+            'password'              => 'required|string|min:6|confirmed',
+            // Step 2
+            'alamat'                => 'required|string',
+            'telepon'               => 'nullable|string|max:50',
+            'luas_lahan'            => 'nullable|integer|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal.',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        // Cek duplikasi email di tabel petani
+        if (Petani::where('email', $request->email)->exists()) {
+            return response()->json([
+                'message' => 'Email sudah terdaftar sebagai petani.',
+                'errors'  => ['email' => ['Email sudah terdaftar sebagai petani.']],
+            ], 422);
+        }
+
+        // Buat record Petani (status nonaktif — menunggu aktivasi admin)
+        $petani = Petani::create([
+            'nama'       => $request->name,
+            'email'      => $request->email,
+            'alamat'     => $request->alamat,
+            'telepon'    => $request->telepon,
+            'luas_lahan' => $request->luas_lahan,
+            'komoditas'  => 'Padi',
+            'status'     => 'nonaktif',
+        ]);
+
+        // Buat Lahan jika ada luas_lahan
+        if (!empty($request->luas_lahan) && $request->luas_lahan > 0) {
+            Lahan::create([
+                'petani_id'   => $petani->id,
+                'nama_lahan'  => 'Lahan utama',
+                'luas'        => $request->luas_lahan,
+                'lokasi'      => $request->alamat,
+                'status'      => 'aktif',
+            ]);
+        }
+
+        // Buat akun User dengan role petani (belum bisa login)
+        User::create([
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
+            'role'      => 'petani',
+            'petani_id' => $petani->id,
+        ]);
+
+        return response()->json([
+            'message' => 'Pendaftaran berhasil. Akun Anda sedang menunggu aktivasi oleh admin.',
+        ], 201);
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -54,6 +125,19 @@ class AuthController extends Controller
         }
 
         $user = JWTAuth::user();
+
+        // Jika petani, cek apakah statusnya sudah aktif
+        if ($user->role === 'petani' && $user->petani_id) {
+            $petani = Petani::find($user->petani_id);
+            if ($petani && $petani->status !== 'aktif') {
+                // Invalidate token langsung
+                JWTAuth::invalidate(JWTAuth::getToken());
+                return response()->json([
+                    'error' => 'akun_nonaktif',
+                    'message' => 'Akun Anda belum diaktifkan oleh admin. Silakan hubungi admin untuk aktivasi.',
+                ], 403);
+            }
+        }
 
         return response()->json([
             'message' => 'Login successful',
@@ -89,3 +173,4 @@ class AuthController extends Controller
         }
     }
 }
+
