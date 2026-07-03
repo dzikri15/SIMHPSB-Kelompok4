@@ -982,6 +982,15 @@
                 </a>
             @endrole
 
+            @if($userRole === 'petugas')
+                <span class="nav-section-label">Data Master</span>
+
+                <a href="{{ route('admin.petani.index') }}" class="nav-item {{ request()->routeIs('admin.petani.*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-user-tie"></i></span>
+                    Data Petani
+                </a>
+            @endif
+
             <span class="nav-section-label">Transaksi</span>
 
             <a href="{{ route($routePrefix.'panen.index') }}" class="nav-item {{ request()->routeIs($routePrefix.'panen.*') ? 'active' : '' }}">
