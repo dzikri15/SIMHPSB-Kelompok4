@@ -114,6 +114,12 @@ class PetaniProfileController extends Controller
         $totalBeras    = $panens->sum('konversi_beras');
         $panenTerakhir = $panens->first();
 
+        $config = \App\Models\KonfigurasiHarga::where('is_active', true)
+            ->latest('berlaku_mulai')
+            ->first();
+
+        $hargaGabah = $config ? $config->harga_beli_gabah : 0;
+
         return response()->json([
             'petani'         => $petani,
             'total_lahan'    => $petani->lahan->count(),
@@ -121,6 +127,7 @@ class PetaniProfileController extends Controller
             'total_gabah_kg' => round($totalGabah, 2),
             'total_beras_kg' => round($totalBeras, 2),
             'panen_terakhir' => $panenTerakhir?->tanggal_panen,
+            'harga_beli_gabah'=> $hargaGabah,
         ]);
     }
 }

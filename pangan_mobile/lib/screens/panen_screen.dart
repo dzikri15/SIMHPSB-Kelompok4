@@ -453,27 +453,34 @@ class _PanenScreenState extends State<PanenScreen> {
                   _label('Komoditas'),
                   const SizedBox(height: 8),
                   _inputBox(
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedKomoditas,
-                        isExpanded: true,
-                        icon: Icon(Icons.keyboard_arrow_down,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant),
-                        items: _komoditasList
-                            .map((k) => DropdownMenuItem(
-                                  value: k,
-                                  child: Text(k,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface)),
-                                ))
-                            .toList(),
-                        onChanged: (val) =>
-                            setState(() => _selectedKomoditas = val ?? 'Padi'),
-                      ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.grass_outlined,
+                            size: 18,
+                            color: AppColors.primary),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Padi',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryContainer,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text('Otomatis',
+                              style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11)),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),

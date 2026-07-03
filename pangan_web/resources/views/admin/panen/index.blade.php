@@ -33,45 +33,16 @@
 
                 <div class="form-group">
                     <label>Petani <span style="color:var(--red-500)">*</span></label>
-                    {{-- Hidden input yang dikirim ke server --}}
-                    <input type="hidden" name="petani_id" id="petaniIdInput" value="{{ old('petani_id') }}" required>
-
-                    {{-- Custom searchable dropdown --}}
-                    <div id="petaniDropdown" style="position:relative;">
-                        <div id="petaniDisplay" onclick="togglePetaniDropdown()"
-                            style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface-1,#fff);user-select:none;">
-                            <span id="petaniDisplayText" style="color:var(--text-muted,#9ca3af);">Pilih petani...</span>
-                            <i class="fas fa-chevron-down" id="petaniChevron" style="font-size:12px;color:var(--text-muted);transition:transform .2s;"></i>
-                        </div>
-
-                        <div id="petaniPanel" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:999;background:var(--surface-1,#fff);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden;">
-                            {{-- Search box --}}
-                            <div style="padding:8px;">
-                                <div style="position:relative;">
-                                    <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text-muted);"></i>
-                                    <input type="text" id="petaniSearch" placeholder="Cari nama petani..."
-                                        oninput="filterPetaniList(this.value)"
-                                        onclick="event.stopPropagation()"
-                                        style="width:100%;box-sizing:border-box;padding:8px 10px 8px 30px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;background:var(--surface-2,#f9fafb);">
-                                </div>
-                            </div>
-                            {{-- List dengan scroll --}}
-                            <ul id="petaniList" style="list-style:none;margin:0;padding:4px 0;max-height:220px;overflow-y:auto;">
-                                @forelse($petanis as $p)
-                                <li class="petani-opt"
-                                    data-id="{{ $p->id }}"
-                                    data-label="{{ $p->nama }} – {{ number_format($p->luas_lahan) }} m²"
-                                    data-search="{{ strtolower($p->nama) }}"
-                                    onclick="selectPetani(this)"
-                                    style="padding:9px 14px;cursor:pointer;font-size:13px;border-radius:6px;margin:0 4px;">
-                                    {{ $p->nama }} – {{ number_format($p->luas_lahan) }} m²
-                                </li>
-                                @empty
-                                <li style="padding:12px 14px;font-size:13px;color:var(--text-muted);">Tidak ada data petani.</li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </div>
+                    <select name="petani_id" required>
+                        <option value="">Pilih petani...</option>
+                        @forelse($petanis as $p)
+                            <option value="{{ $p->id }}" {{ old('petani_id') == $p->id ? 'selected' : '' }}>
+                                {{ $p->nama }} – {{ number_format($p->luas_lahan) }} m²
+                            </option>
+                        @empty
+                            <option value="">Tidak ada data petani. Tambahkan petani terlebih dahulu.</option>
+                        @endforelse
+                    </select>
                     @error('petani_id')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
@@ -327,68 +298,6 @@ document.addEventListener('click', function(e) {
     if (row && row.dataset.href) {
         // Jangan navigasi jika klik di dalam td yg sudah stopPropagation (Aksi/Foto)
         window.location.href = row.dataset.href;
-    }
-});
-// ── Custom searchable dropdown petani ────────────────────────────
-function togglePetaniDropdown() {
-    const panel  = document.getElementById('petaniPanel');
-    const chev   = document.getElementById('petaniChevron');
-    const search = document.getElementById('petaniSearch');
-    const isOpen = panel.style.display !== 'none';
-    panel.style.display = isOpen ? 'none' : 'block';
-    chev.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
-    if (!isOpen) { search.value = ''; filterPetaniList(''); search.focus(); }
-}
-
-function filterPetaniList(q) {
-    const kw = q.toLowerCase();
-    document.querySelectorAll('#petaniList .petani-opt').forEach(li => {
-        li.style.display = li.dataset.search.includes(kw) ? '' : 'none';
-    });
-}
-
-function selectPetani(li) {
-    document.getElementById('petaniIdInput').value      = li.dataset.id;
-    document.getElementById('petaniDisplayText').textContent = li.dataset.label;
-    document.getElementById('petaniDisplayText').style.color = 'var(--text-primary, #111)';
-    document.getElementById('petaniPanel').style.display    = 'none';
-    document.getElementById('petaniChevron').style.transform = 'rotate(0deg)';
-    // Tandai item aktif
-    document.querySelectorAll('#petaniList .petani-opt').forEach(el => {
-        el.style.background = el === li ? 'var(--green-50, #f0fdf4)' : '';
-        el.style.fontWeight  = el === li ? '600' : '';
-    });
-}
-
-// Tutup dropdown saat klik di luar
-document.addEventListener('click', function(e) {
-    const dd = document.getElementById('petaniDropdown');
-    if (dd && !dd.contains(e.target)) {
-        document.getElementById('petaniPanel').style.display = 'none';
-        document.getElementById('petaniChevron').style.transform = 'rotate(0deg)';
-    }
-});
-
-// Hover effect untuk list item
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('#petaniList .petani-opt').forEach(li => {
-        li.addEventListener('mouseenter', function() {
-            if (!this.style.background || this.style.background === '') {
-                this.style.background = 'var(--surface-2, #f3f4f6)';
-            }
-        });
-        li.addEventListener('mouseleave', function() {
-            if (this.style.fontWeight !== '600') {
-                this.style.background = '';
-            }
-        });
-    });
-
-    // Restore pilihan saat ada old value (validation error)
-    const oldId = document.getElementById('petaniIdInput').value;
-    if (oldId) {
-        const li = document.querySelector(`#petaniList .petani-opt[data-id="${oldId}"]`);
-        if (li) selectPetani(li);
     }
 });
 </script>

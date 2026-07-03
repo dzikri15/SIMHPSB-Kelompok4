@@ -43,6 +43,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   DateTime _selectedDate = DateTime.now();
   bool _isSaving = false;
   String? _errorMsg;
+  final ScrollController _tujuanScrollCtrl = ScrollController();
 
   late final List<String> _jenisList     = _service.getJenisTransaksi();
   late final List<String> _komoditasList = _service.getKomoditas();
@@ -53,6 +54,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
     _jumlahCtrl.dispose();
     _sumberCtrl.dispose();
     _catatanCtrl.dispose();
+    _tujuanScrollCtrl.dispose();
     super.dispose();
   }
 
@@ -165,11 +167,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
     }
 
     if (_selectedJenis == 'Keluar') {
-      if (_sumberCtrl.text.trim().isEmpty) {
-        setState(() => _errorMsg = 'Sumber / Keterangan wajib diisi');
-        return;
-      }
-      if (_selectedKomoditas != 'Gabah' && _selectedTujuanId == null) {
+      if (_selectedTujuanId == null) {
         setState(() => _errorMsg = 'Pilih tujuan distribusi');
         return;
       }
@@ -248,7 +246,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
 
 
 
-  Widget _buildTujuanDropdown() {
+  Widget _buildTujuanScrollList() {
     return FutureBuilder<List<TujuanDistribusiModel>>(
       future: _tujuanFuture,
       builder: (context, snap) {
@@ -290,44 +288,87 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
               style: TextStyle(fontSize: 12, color: Colors.grey[600]));
         }
 
+        // Scroll list: tampilkan semua opsi dalam container scrollable
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          constraints: const BoxConstraints(maxHeight: 220),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            border: Border.all(color: Theme.of(context).colorScheme.outline, width: 1),
+            border: Border.all(
+                color: _selectedTujuanId != null
+                    ? AppColors.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: _selectedTujuanId != null ? 1.5 : 1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: DropdownButton<int>(
-            value: _selectedTujuanId,
-            hint: Text('Pilih tujuan distribusi',
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 13)),
-            isExpanded: true,
-            underline: const SizedBox(),
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurface),
-            items: tujuanList
-                .map((t) => DropdownMenuItem<int>(
-                      value: t.id,
-                      child: Text(t.nama),
-                    ))
-                .toList(),
-            onChanged: (selectedId) {
-              if (selectedId != null) {
-                final selected = tujuanList.firstWhere(
-                  (t) => t.id == selectedId,
-                  orElse: () => TujuanDistribusiModel(id: selectedId, nama: 'Unknown'),
-                );
-                setState(() {
-                  _selectedTujuanId = selectedId;
-                  _selectedTujuanNama = selected.nama;
-                });
-              }
-            },
-            dropdownColor: Theme.of(context).colorScheme.surface,
+            child: Scrollbar(
+              controller: _tujuanScrollCtrl,
+              thumbVisibility: true,
+              child: ListView.separated(
+                controller: _tujuanScrollCtrl,
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: tujuanList.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 0.8,
+                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+                itemBuilder: (ctx, idx) {
+                  final t = tujuanList[idx];
+                  final isSelected = _selectedTujuanId == t.id;
+                  return InkWell(
+                    onTap: () => setState(() {
+                      _selectedTujuanId = t.id;
+                      _selectedTujuanNama = t.nama;
+                    }),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.08)
+                          : Colors.transparent,
+                      child: Row(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected ? AppColors.primary : Colors.transparent,
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Theme.of(context).colorScheme.outlineVariant,
+                                width: 2,
+                              ),
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, size: 12, color: Colors.white)
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              t.nama,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         );
       },
@@ -496,9 +537,9 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                       items: _komoditasList,
                       onChanged: (v) => setState(() {
                         _selectedKomoditas = v;
-                        // Jika user pilih Gabah dan jenis sebelumnya Masuk → reset jenis
-                        if (v == 'Gabah' && _selectedJenis == 'Masuk') {
-                          _selectedJenis = null;
+                        // Jika user pilih Gabah → otomatis set jenis ke Keluar
+                        if (v == 'Gabah') {
+                          _selectedJenis = 'Keluar';
                         }
                       }),
                     ),
@@ -632,10 +673,10 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     ),
                     const SizedBox(height: 18),
 
-                    if (_selectedJenis == 'Keluar' && _selectedKomoditas != 'Gabah') ...[
+                    if (_selectedJenis == 'Keluar') ...[
                       _label('Tujuan Distribusi'),
                       const SizedBox(height: 8),
-                      _buildTujuanDropdown(),
+                      _buildTujuanScrollList(),
                       const SizedBox(height: 18),
                     ],
 

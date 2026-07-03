@@ -165,7 +165,7 @@ class _AppTopBarState extends State<AppTopBar> {
                   ),
                 ),
 
-              // ── Menu Dropdown (Profil, Dark Mode) ────────────────
+              // ── Menu Dropdown (Profil, Dark Mode, Keluar) ────────────────
               if (widget.showMenu)
                 PopupMenuButton<String>(
                   onSelected: (String value) {
@@ -175,6 +175,8 @@ class _AppTopBarState extends State<AppTopBar> {
                       themeNotifier.value = themeNotifier.value == ThemeMode.light
                           ? ThemeMode.dark
                           : ThemeMode.light;
+                    } else if (value == 'logout') {
+                      widget.onLogoutTap?.call();
                     }
                   },
                   itemBuilder: (BuildContext context) => [
@@ -221,21 +223,30 @@ class _AppTopBarState extends State<AppTopBar> {
                         ],
                       ),
                     ),
+                    if (widget.showLogout && widget.onLogoutTap != null)
+                      PopupMenuItem<String>(
+                        value: 'logout',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.logout_rounded,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Keluar',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                   icon: Icon(
                     Icons.more_vert_rounded,
                     color: Theme.of(context).colorScheme.onSurface,
-                    size: 24,
-                  ),
-                ),
-                
-              // ── Logout Button ─────────────────────────────────────────────
-              if (widget.showLogout)
-                IconButton(
-                  onPressed: widget.onLogoutTap,
-                  icon: Icon(
-                    Icons.logout_rounded,
-                    color: Theme.of(context).colorScheme.error,
                     size: 24,
                   ),
                 ),
