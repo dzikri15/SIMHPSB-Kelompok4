@@ -31,9 +31,11 @@
         </div>
 
         <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
+            @if(auth()->user()->role !== 'petugas')
             <button class="btn btn-primary" onclick="openModal('modalTambah')">
                 <i class="fas fa-plus"></i> Tambah Petani
             </button>
+            @endif
             <a href="{{ route('admin.petani.export', ['format' => 'pdf']) }}" class="btn btn-secondary">
                 <i class="fas fa-file-pdf"></i> PDF
             </a>
@@ -57,7 +59,9 @@
                     <th>Komoditas</th>
                     <th>Alamat</th>
                     <th>Status</th>
+                    @if(auth()->user()->role !== 'petugas')
                     <th>Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -90,6 +94,7 @@
                                 {{ $item->status === 'nonaktif' || $item->status === 'non-aktif' ? 'Non-aktif' : ucfirst($item->status ?? 'aktif') }}
                             </span>
                         </td>
+                        @if(auth()->user()->role !== 'petugas')
                         <td>
                             <div style="display:flex;gap:6px;flex-wrap:wrap;">
                                 <a href="{{ route('admin.petani.edit', $item->id) }}" class="btn btn-secondary btn-icon btn-sm" title="Edit">
@@ -103,10 +108,11 @@
                                 </button>
                             </div>
                         </td>
+                        @endif
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted);">
+                        <td colspan="{{ auth()->user()->role !== 'petugas' ? 8 : 7 }}" style="text-align:center;padding:30px;color:var(--text-muted);">
                             <i class="fas fa-users" style="font-size:32px;margin-bottom:12px;opacity:0.5;"></i><br>
                             Belum ada data petani.
                         </td>
