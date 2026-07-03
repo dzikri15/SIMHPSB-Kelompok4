@@ -18,11 +18,14 @@ class PetaniController extends Controller
 
     public function create()
     {
+        if (auth()->user()->role === 'petugas') abort(403, 'Unauthorized action.');
         return view('admin.petani.create');
     }
 
     public function store(Request $request)
     {
+        if (auth()->user()->role === 'petugas') abort(403, 'Unauthorized action.');
+
         $data = $request->validate([
             'nama' => 'required|string|max:255',
             'alamat' => 'required|string',
@@ -74,17 +77,21 @@ class PetaniController extends Controller
 
     public function show(Petani $petani)
     {
+        if (auth()->user()->role === 'petugas') abort(403, 'Unauthorized action.');
         $petani->load('lahan');
         return view('admin.petani.show', compact('petani'));
     }
 
     public function edit(Petani $petani)
     {
+        if (auth()->user()->role === 'petugas') abort(403, 'Unauthorized action.');
         return view('admin.petani.edit', compact('petani'));
     }
 
     public function update(Request $request, Petani $petani)
     {
+        if (auth()->user()->role === 'petugas') abort(403, 'Unauthorized action.');
+
         $data = $request->validate([
             'nama' => 'required|string|max:255',
             'alamat' => 'required|string',
@@ -108,6 +115,7 @@ class PetaniController extends Controller
 
     public function destroy(Petani $petani)
     {
+        if (auth()->user()->role === 'petugas') abort(403, 'Unauthorized action.');
         $petani->delete();
         return redirect()->route('admin.petani.index')->with('success', 'Petani berhasil dihapus');
     }

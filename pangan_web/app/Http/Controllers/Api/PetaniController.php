@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Petani;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PetaniController extends Controller
 {
@@ -55,5 +56,26 @@ class PetaniController extends Controller
         $petani->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function toggleStatus($id)
+    {
+        $petani = Petani::findOrFail($id);
+        $petani->status = $petani->status === 'aktif' ? 'nonaktif' : 'aktif';
+        $petani->save();
+
+        return response()->json([
+            'success' => true,
+            'status'  => $petani->status,
+            'message' => 'Status berhasil diubah',
+        ]);
+    }
+
+    public function exportPdf()
+    {
+        $petani = Petani::all();
+        $pdf = Pdf::loadView('admin.petani.pdf', compact('petani'));
+        $filename = 'data_petani_' . date('Ymd_His') . '.pdf';
+        return $pdf->download($filename);
     }
 }

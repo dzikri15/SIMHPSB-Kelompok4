@@ -60,6 +60,8 @@ class _PanenScreenState extends State<PanenScreen> {
   static const int _pageSize = 10;
   int _currentPage = 1;
   final ScrollController _petaniScrollCtrl = ScrollController();
+  final TextEditingController _petaniSearchCtrl = TextEditingController();
+  String _petaniSearchQuery = '';
 
   @override
   void initState() {
@@ -76,6 +78,11 @@ class _PanenScreenState extends State<PanenScreen> {
             double.tryParse(_rasioCtrl.text.replaceAll(',', '.')) ?? 61.5;
       });
     });
+    _petaniSearchCtrl.addListener(() {
+      setState(() {
+        _petaniSearchQuery = _petaniSearchCtrl.text.toLowerCase();
+      });
+    });
     _loadPetani();
     _loadRiwayat();
   }
@@ -87,6 +94,7 @@ class _PanenScreenState extends State<PanenScreen> {
     _rasioCtrl.dispose();
     _catatanCtrl.dispose();
     _petaniScrollCtrl.dispose();
+    _petaniSearchCtrl.dispose();
     super.dispose();
   }
 
@@ -145,6 +153,7 @@ class _PanenScreenState extends State<PanenScreen> {
         page++;
       }
       if (mounted) {
+        allPetani.sort((a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
         setState(() {
           _petaniList = allPetani;
           _isLoadingPetani = false;
@@ -261,6 +270,7 @@ class _PanenScreenState extends State<PanenScreen> {
       appBar: AppTopBar(
         showMenu: widget.onLogoutTap != null,
         showLogout: widget.onLogoutTap != null,
+        showPetaniList: true,
         onLogoutTap: widget.onLogoutTap,
       ),
       body: SingleChildScrollView(
@@ -940,95 +950,147 @@ class _PanenScreenState extends State<PanenScreen> {
           style: TextStyle(fontSize: 12, color: Colors.grey[600]));
     }
 
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 220),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border.all(
-            color: _selectedPetani != null
-                ? AppColors.primary
-                : Theme.of(context).colorScheme.outline,
-            width: _selectedPetani != null ? 1.5 : 1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Scrollbar(
-          controller: _petaniScrollCtrl,
-          thumbVisibility: true,
-          child: ListView.separated(
-            controller: _petaniScrollCtrl,
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            itemCount: _petaniList.length,
-            separatorBuilder: (_, __) => Divider(
-              height: 1,
-              thickness: 0.8,
-              color: Theme.of(context)
-                  .colorScheme
-                  .outlineVariant
-                  .withValues(alpha: 0.5),
-            ),
-            itemBuilder: (ctx, idx) {
-              final p = _petaniList[idx];
-              final isSelected = _selectedPetani?.id == p.id;
-              return InkWell(
-                onTap: () => setState(() {
-                  _selectedPetani = p;
-                  if (p.komoditas != null &&
-                      _komoditasList.contains(p.komoditas)) {
-                    _selectedKomoditas = p.komoditas!;
-                  }
-                }),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-                  color: isSelected
-                      ? AppColors.primary.withValues(alpha: 0.08)
-                      : Colors.transparent,
-                  child: Row(
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isSelected ? AppColors.primary : Colors.transparent,
-                          border: Border.all(
-                            color: isSelected
-                                ? AppColors.primary
-                                : Theme.of(context).colorScheme.outlineVariant,
-                            width: 2,
-                          ),
-                        ),
-                        child: isSelected
-                            ? const Icon(Icons.check, size: 12, color: Colors.white)
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          p.nama,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w400,
-                            color: isSelected
-                                ? AppColors.primary
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ],
+    final filteredList = _petaniList.where((p) {
+      return p.nama.toLowerCase().contains(_petaniSearchQuery);
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Search Bar Petani ──
+        Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _petaniSearchCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Cari nama petani...',
+                    hintStyle: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
+                  style: const TextStyle(fontSize: 14),
                 ),
-              );
-            },
+              ),
+              if (_petaniSearchQuery.isNotEmpty)
+                GestureDetector(
+                  onTap: () {
+                    _petaniSearchCtrl.clear();
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: Icon(Icons.close, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+            ],
           ),
         ),
-      ),
+        
+        // ── List Petani ──
+
+
+        Container(
+          constraints: const BoxConstraints(maxHeight: 220),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: Border.all(
+                color: _selectedPetani != null
+                    ? AppColors.primary
+                    : Theme.of(context).colorScheme.outline,
+                width: _selectedPetani != null ? 1.5 : 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Scrollbar(
+              controller: _petaniScrollCtrl,
+              thumbVisibility: true,
+              child: ListView.separated(
+                controller: _petaniScrollCtrl,
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: filteredList.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 0.8,
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outlineVariant
+                      .withValues(alpha: 0.5),
+                ),
+                itemBuilder: (ctx, idx) {
+                  final p = filteredList[idx];
+                  final isSelected = _selectedPetani?.id == p.id;
+                  return InkWell(
+                    onTap: () => setState(() {
+                      _selectedPetani = p;
+                      if (p.komoditas != null &&
+                          _komoditasList.contains(p.komoditas)) {
+                        _selectedKomoditas = p.komoditas!;
+                      }
+                    }),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.08)
+                          : Colors.transparent,
+                      child: Row(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isSelected ? AppColors.primary : Colors.transparent,
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Theme.of(context).colorScheme.outlineVariant,
+                                width: 2,
+                              ),
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, size: 12, color: Colors.white)
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              p.nama,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight:
+                                    isSelected ? FontWeight.w700 : FontWeight.w400,
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

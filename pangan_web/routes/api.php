@@ -33,6 +33,8 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:api')->group(function () {
 
     // ── Petani & Lahan ──────────────────────────────────────────────────
+    Route::get('petani/export-pdf', [PetaniController::class, 'exportPdf']);
+    Route::patch('petani/{id}/toggle-status', [PetaniController::class, 'toggleStatus']);
     Route::apiResource('petani', PetaniController::class);
     Route::apiResource('lahan',  LahanController::class);
 

@@ -72,6 +72,7 @@ class _GudangScreenState extends State<GudangScreen> {
       appBar: AppTopBar(
         showMenu: widget.onLogoutTap != null,
         showLogout: widget.onLogoutTap != null,
+        showPetaniList: true,
         onLogoutTap: widget.onLogoutTap,
       ),
       body: RefreshIndicator(

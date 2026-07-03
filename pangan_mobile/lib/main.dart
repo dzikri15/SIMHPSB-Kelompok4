@@ -7,6 +7,7 @@ import 'core/app_colors.dart';
 import 'screens/landing_screen.dart';        // ← IMPORT BARU
 import 'screens/alert_screen.dart';
 import 'screens/distribusi_tujuan_screen.dart';
+import 'screens/petani_list_screen.dart';
 import 'main_shell.dart';
 import 'petani_shell.dart';
 import 'models/user_model.dart';
@@ -97,6 +98,7 @@ class SimhpApp extends StatelessWidget {
           routes: {
             '/alert': (context) => const AlertScreen(),
             '/distribusi-tujuan': (context) => const DistribusiTujuanScreen(),
+            '/petani_list': (context) => const PetaniListScreen(),
           },
         );
       },
