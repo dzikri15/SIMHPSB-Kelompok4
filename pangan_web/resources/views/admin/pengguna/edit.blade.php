@@ -75,16 +75,16 @@
             <div class="grid-2">
                 <div class="form-group">
                     <label>Password Baru (Opsional)</label>
-                    <input type="password" id="passwordInput" name="password" placeholder="Biarkan kosong jika tidak ingin mengubah" onchange="togglePasswordConfirm()">
-                    <div class="form-hint">Minimal 8 karakter</div>
+                    <input type="password" id="passwordInput" name="password" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                    <div class="form-hint">Minimal 6 karakter</div>
                     @error('password')
                         <small style="color: var(--red-500);">{{ $message }}</small>
                     @enderror
                 </div>
 
-                <div class="form-group" id="confirmGroup" style="display: none;">
-                    <label>Konfirmasi Password Baru <span style="color:var(--red-500)">*</span></label>
-                    <input type="password" name="password_confirmation" placeholder="Ulangi password baru">
+                <div class="form-group" id="confirmGroup">
+                    <label>Konfirmasi Password Baru</label>
+                    <input type="password" name="password_confirmation" placeholder="Ulangi password baru (jika mengisi)">
                 </div>
             </div>
 
@@ -101,15 +101,6 @@
 </div>
 
 <script>
-    function togglePasswordConfirm() {
-        const passwordInput = document.getElementById('passwordInput');
-        const confirmGroup = document.getElementById('confirmGroup');
-        if (passwordInput.value.length > 0) {
-            confirmGroup.style.display = 'block';
-        } else {
-            confirmGroup.style.display = 'none';
-        }
-    }
     function togglePetaniField() {
         const roleSelect = document.getElementById('roleSelect');
         const petaniField = document.getElementById('petaniField');
