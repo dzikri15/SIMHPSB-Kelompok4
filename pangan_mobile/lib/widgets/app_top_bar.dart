@@ -6,12 +6,26 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../main.dart';
 import '../models/alert_model.dart';
 import '../services/alert_service.dart';
-import 'dark_mode_toggle.dart';
+
 
 class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBack;
   final bool showAlert;
-  const AppTopBar({super.key, this.showBack = false, this.showAlert = true});
+  final bool showProfile;
+  final bool showLogout;
+  final bool showMenu;
+  final VoidCallback? onProfileTap;
+  final VoidCallback? onLogoutTap;
+  const AppTopBar({
+    super.key,
+    this.showBack = false,
+    this.showAlert = true,
+    this.showProfile = false,
+    this.showLogout = false,
+    this.showMenu = false,
+    this.onProfileTap,
+    this.onLogoutTap,
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(72);
@@ -83,7 +97,7 @@ class _AppTopBarState extends State<AppTopBar> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'SIMHPSB',
+                  'SIMHP',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -140,8 +154,91 @@ class _AppTopBarState extends State<AppTopBar> {
                 },
               ),
 
-              // ── Dark Mode Toggle ─────────────────────────────────────
-              const DarkModeToggle(),
+              // ── Profile Icon (petani) ─────────────────────────────────────
+              if (widget.showProfile)
+                IconButton(
+                  onPressed: widget.onProfileTap,
+                  icon: Icon(
+                    Icons.person_rounded,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 24,
+                  ),
+                ),
+
+              // ── Menu Dropdown (Profil, Dark Mode) ────────────────
+              if (widget.showMenu)
+                PopupMenuButton<String>(
+                  onSelected: (String value) {
+                    if (value == 'profile') {
+                      widget.onProfileTap?.call();
+                    } else if (value == 'dark_mode') {
+                      themeNotifier.value = themeNotifier.value == ThemeMode.light
+                          ? ThemeMode.dark
+                          : ThemeMode.light;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    if (widget.onProfileTap != null)
+                      PopupMenuItem<String>(
+                        value: 'profile',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person_outline_rounded,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Profil Saya',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    PopupMenuItem<String>(
+                      value: 'dark_mode',
+                      child: Row(
+                        children: [
+                          Icon(
+                            themeNotifier.value == ThemeMode.dark
+                                ? Icons.light_mode_rounded
+                                : Icons.dark_mode_rounded,
+                            size: 18,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            themeNotifier.value == ThemeMode.dark
+                                ? 'Light Mode'
+                                : 'Dark Mode',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  icon: Icon(
+                    Icons.more_vert_rounded,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 24,
+                  ),
+                ),
+                
+              // ── Logout Button ─────────────────────────────────────────────
+              if (widget.showLogout)
+                IconButton(
+                  onPressed: widget.onLogoutTap,
+                  icon: Icon(
+                    Icons.logout_rounded,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 24,
+                  ),
+                ),
             ],
           ),
         ),
