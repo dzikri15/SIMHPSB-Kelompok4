@@ -13,7 +13,7 @@ class PenggunaController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(5);
+        $users = User::orderBy('created_at', 'desc')->get();
         return view('admin.pengguna.index', compact('users'));
     }
 

@@ -3,6 +3,7 @@
 // Menampilkan: sapaan, ringkasan lahan & panen, riwayat panen terbaru
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../core/app_colors.dart';
 import '../../models/panen_model.dart';
 import '../../services/auth_service.dart';
@@ -110,6 +111,12 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
   String _fmtKg(dynamic v) {
     final val = (v is num) ? v.toDouble() : double.tryParse(v.toString()) ?? 0;
     return '${val.toStringAsFixed(0)} kg';
+  }
+
+  String _fmtHarga(dynamic v) {
+    final val = (v is num) ? v.toDouble() : double.tryParse(v.toString()) ?? 0;
+    final n = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    return '${n.format(val)}/kg';
   }
 
   String _fmtRupiah(double v) {
@@ -266,10 +273,10 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: _kartu(
-              icon: Icons.inventory_2_outlined,
-              label: 'Total Beras',
-              value: _fmtKg(_ringkasan['total_beras_kg'] ?? 0),
-              satuan: 'hasil konversi',
+              icon: Icons.price_change_outlined,
+              label: 'Harga Gabah',
+              value: _fmtHarga(_ringkasan['harga_beli_gabah'] ?? 0),
+              satuan: 'saat ini',
               warna: AppColors.primary,
               bg: AppColors.primaryContainer,
             ),

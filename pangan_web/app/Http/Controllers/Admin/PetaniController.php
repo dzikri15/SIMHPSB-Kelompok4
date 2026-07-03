@@ -12,7 +12,7 @@ class PetaniController extends Controller
 {
     public function index()
     {
-        $petani = Petani::paginate(5);
+        $petani = Petani::paginate(10);
         return view('admin.petani.index', compact('petani'));
     }
 
