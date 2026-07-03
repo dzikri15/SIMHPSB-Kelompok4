@@ -27,6 +27,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   List<TransaksiStokModel> _aktivitas = [];
   bool _loading = true;
   String _namaUser = 'Petugas';
+  String _userRole = 'petugas';
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
       if (mounted) {
         setState(() {
           _namaUser = user?.name ?? 'Petugas';
+          _userRole = user?.role ?? 'petugas';
           _ringkasan = {
             'total_petani': petaniData?['total'] ?? petaniData?['meta']?['total'] ?? 0,
             'total_panen':  panenData?['total']  ?? panenData?['meta']?['total']  ?? 0,
@@ -98,6 +100,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
         showAlert: true,
         showLogout: widget.onLogoutTap != null,
         showMenu: widget.onLogoutTap != null,
+        showPetaniList: _userRole == 'petugas' || _userRole == 'admin',
         onLogoutTap: widget.onLogoutTap,
       ),
       body: RefreshIndicator(
@@ -161,6 +164,11 @@ class _BerandaScreenState extends State<BerandaScreen> {
               satuan: 'orang',
               warna: AppColors.primary,
               bg: AppColors.primaryContainer,
+              onTap: () {
+                if (_userRole == 'petugas' || _userRole == 'admin') {
+                  Navigator.pushNamed(context, '/petani_list');
+                }
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -214,52 +222,57 @@ class _BerandaScreenState extends State<BerandaScreen> {
     required String satuan,
     required Color warna,
     required Color bg,
+    VoidCallback? onTap,
   }) {
     final surfaceColor = Theme.of(context).colorScheme.surface;
     
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border(top: BorderSide(color: warna, width: 3)),
-        boxShadow: [
-          BoxShadow(
-            color: warna.withValues(alpha: 0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration:
-                BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: warna, size: 20),
-          ),
-          const SizedBox(height: 12),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Theme.of(context).colorScheme.onSurface)),
-          const SizedBox(height: 2),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          Text(satuan,
-              style: TextStyle(
-                  fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border(top: BorderSide(color: warna, width: 3)),
+          boxShadow: [
+            BoxShadow(
+              color: warna.withValues(alpha: 0.07),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon, color: warna, size: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(value,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(context).colorScheme.onSurface)),
+            const SizedBox(height: 2),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            Text(satuan,
+                style: TextStyle(
+                    fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ],
+        ),
       ),
     );
   }
+
 
   // ── Akses Cepat ────────────────────────────────────────────────────────
   Widget _buildAksesCepat() {
