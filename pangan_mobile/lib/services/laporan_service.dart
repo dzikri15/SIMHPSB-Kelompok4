@@ -1,5 +1,5 @@
 // lib/services/laporan_service.dart
-// Service terhubung ke Laravel API untuk semua jenis laporan SIMHPSB
+// Service terhubung ke Laravel API untuk semua jenis laporan SIMHP
 
 import '../services/api_service.dart';
 

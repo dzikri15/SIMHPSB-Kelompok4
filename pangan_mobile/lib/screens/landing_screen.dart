@@ -58,7 +58,7 @@ class _LandingScreenState extends State<LandingScreen>
       tag: 'SIAP MULAI',
       title: 'Satu Platform,\nSemua Solusi',
       subtitle:
-          'SIMHPSB hadir untuk memperkuat ketahanan pangan nasional '
+          'SIMHP hadir untuk memperkuat ketahanan pangan nasional '
           'dengan teknologi digital yang inovatif.',
       isLast: true,
     ),

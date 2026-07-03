@@ -328,6 +328,15 @@ class StokController extends Controller
             'foto_bukti'            => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
+        // ── Gabah Masuk hanya boleh lewat Pencatatan Panen ──────────────
+        // Tolak jika ada yang mencoba catat Gabah Masuk secara manual via API
+        if (strtolower($data['komoditas']) === 'gabah' && strtolower($data['jenis_transaksi']) === 'masuk') {
+            return response()->json([
+                'message' => 'Gabah Masuk tidak dapat dicatat secara manual. Gunakan menu Pencatatan Panen — stok akan diperbarui otomatis.',
+            ], 422);
+        }
+        // ────────────────────────────────────────────────────────────────
+
         // Tentukan gudang (pakai pertama jika tidak dikirim)
         $gudangId = $data['gudang_id'] ?? Gudang::first()?->id;
         if (! $gudangId) {

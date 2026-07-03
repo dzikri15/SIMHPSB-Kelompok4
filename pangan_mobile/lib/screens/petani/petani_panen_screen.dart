@@ -6,9 +6,11 @@ import '../../core/app_colors.dart';
 import '../../models/panen_model.dart';
 import '../../services/petani_profile_service.dart';
 import '../../widgets/app_top_bar.dart';
+import '../panen_detail_screen.dart';
 
 class PetaniPanenScreen extends StatefulWidget {
-  const PetaniPanenScreen({super.key});
+  final VoidCallback? onProfileTap;
+  const PetaniPanenScreen({super.key, this.onProfileTap});
 
   @override
   State<PetaniPanenScreen> createState() => _PetaniPanenScreenState();
@@ -28,17 +30,33 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final data = await _svc.getPanen(perPage: 50);
-      if (mounted) setState(() { _panens = data; _loading = false; });
+      if (mounted) {
+        setState(() {
+          _panens = data..sort((a, b) {
+            final cmp = b.tanggalPanen.compareTo(a.tanggalPanen);
+            if (cmp != 0) return cmp;
+            return b.id.compareTo(a.id);
+          });
+          _loading = false;
+        });
+      }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+      }
     }
   }
 
   String _fmtKg(double v) {
-    if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)} T';
     return '${v.toStringAsFixed(0)} kg';
   }
 
@@ -46,7 +64,11 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(showAlert: false),
+      appBar: AppTopBar(
+        showAlert: false,
+        showProfile: true,
+        onProfileTap: widget.onProfileTap,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -91,11 +113,15 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                             onRefresh: _load,
                             color: AppColors.primary,
                             child: ListView.separated(
-                              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                               itemCount: _panens.length,
                               separatorBuilder: (_, __) =>
                                   const SizedBox(height: 10),
-                              itemBuilder: (_, i) => _buildCard(_panens[i]),
+                              itemBuilder: (_, i) => InkWell(
+                                onTap: () => PanenDetailScreen.showSheet(context, _panens[i]),
+                                borderRadius: BorderRadius.circular(18),
+                                child: _buildCard(_panens[i]),
+                              ),
                             ),
                           ),
           ),
@@ -108,6 +134,9 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
     final surfaceColor = Theme.of(context).colorScheme.surface;
     final nilaiPanen = p.nilaiPanen;
     final hasNilai   = nilaiPanen > 0;
+    final headerTextColor = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.darkSecondary
+        : AppColors.primary;
 
     return Container(
       decoration: BoxDecoration(
@@ -152,11 +181,11 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        p.lahan?.namaLahan ?? 'Lahan #${p.lahanId}',
+                        'Gabah',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: headerTextColor,
                         ),
                       ),
                       Text(
@@ -189,10 +218,10 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
               ],
             ),
           ),
-          // Body kartu — stats
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _statItem(
                   label: 'Gabah',
@@ -200,17 +229,10 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
                   icon: Icons.grain,
                   color: AppColors.accentOrange,
                 ),
-                _dividerV(),
-                _statItem(
-                  label: 'Beras',
-                  value: _fmtKg(p.konversiBeras ?? 0),
-                  icon: Icons.inventory_2_outlined,
-                  color: AppColors.accentGreen,
-                ),
                 if (hasNilai) ...[
                   _dividerV(),
                   _statItem(
-                    label: 'Nilai',
+                    label: 'Pendapatan',
                     value: _fmtRupiah(nilaiPanen),
                     icon: Icons.payments_outlined,
                     color: AppColors.accentBlue,
@@ -219,20 +241,6 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
               ],
             ),
           ),
-          // Catatan (opsional)
-          if (p.catatan != null && p.catatan!.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-              child: Text(
-                '📝 ${p.catatan}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -244,8 +252,10 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
     required IconData icon,
     required Color color,
   }) {
-    return Expanded(
+    return SizedBox(
+      width: 110,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(height: 4),
@@ -274,13 +284,18 @@ class _PetaniPanenScreenState extends State<PetaniPanenScreen> {
       height: 36,
       width: 1,
       color: AppColors.outlineVariant,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
     );
   }
 
   String _fmtRupiah(double v) {
     if (v >= 1000000) return 'Rp${(v / 1000000).toStringAsFixed(1)}jt';
-    if (v >= 1000) return 'Rp${(v / 1000).toStringAsFixed(0)}rb';
+    if (v >= 1000) {
+      final thousands = v / 1000;
+      return thousands % 1 == 0
+          ? 'Rp${thousands.toStringAsFixed(0)}rb'
+          : 'Rp${thousands.toStringAsFixed(1)}rb';
+    }
     return 'Rp${v.toStringAsFixed(0)}';
   }
 

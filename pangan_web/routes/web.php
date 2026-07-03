@@ -81,6 +81,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
 
     // Petani
     Route::get('petani/export', [PetaniController::class, 'export'])->name('petani.export');
+    Route::patch('petani/{id}/toggle-status', [PetaniController::class, 'toggleStatus'])->name('petani.toggle-status');
     Route::resource('petani', PetaniController::class);
 
     // Panen

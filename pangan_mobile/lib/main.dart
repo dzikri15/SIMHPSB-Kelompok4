@@ -16,11 +16,11 @@ final ValueNotifier<ThemeMode> themeNotifier =
     ValueNotifier(ThemeMode.light);
 
 void main() {
-  runApp(const SimhpsbApp());
+  runApp(const SimhpApp());
 }
 
-class SimhpsbApp extends StatelessWidget {
-  const SimhpsbApp({super.key});
+class SimhpApp extends StatelessWidget {
+  const SimhpApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class SimhpsbApp extends StatelessWidget {
       valueListenable: themeNotifier,
       builder: (context, mode, _) {
         return MaterialApp(
-          title: 'SIMHPSB',
+          title: 'SIMHP',
           debugShowCheckedModeBanner: false,
           themeMode: mode,
           theme: ThemeData(
