@@ -6,11 +6,11 @@
 <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
 <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
 
-# 🌾 SIMHPSB
-### Sistem Informasi Monitoring Hasil Panen dan Stok Beras Berbasis Web & Mobile
+# 🌾 SIMHP
+### Sistem Informasi Monitoring Hasil Panen Berbasis Web & Mobile
 
 *Tugas Besar Rekayasa Sistem Informasi — Kelas-A1 Kelompok 4*  
-*Program Studi Sistem Informasi — Universitas Kebangsaan Republik Indonesia (UKRI) 2025*
+*Program Studi Sistem Informasi — Universitas Kebangsaan Republik Indonesia (UKRI) 2026*
 
 </div>
 
@@ -18,14 +18,14 @@
 
 ## 📌 Tentang Proyek
 
-**SIMHPSB** adalah sistem informasi berbasis web dan mobile yang dirancang untuk membantu pengelola gudang penggilingan padi dalam:
+**SIMHP** adalah sistem informasi berbasis web dan mobile yang dirancang untuk membantu pengelola gudang penggilingan padi dalam:
 
 - Memantau stok gabah dan beras secara **real-time**
-- Mencatat hasil panen dengan **konversi otomatis** gabah → beras (default 61,5%)
+- Mencatat hasil panen dengan gabah → harga (`harga_gabah_per_kg`)
 - Mengelola distribusi ke pelanggan tetap (MBG, toko mitra)
 - Mendapatkan **alert otomatis** saat stok mendekati batas minimum yang dikonfigurasi
-- Menghitung **HPP & margin keuntungan** secara otomatis
-- Menghasilkan **laporan periodik** yang bisa diekspor ke PDF & Excel
+- Menghitung **Harga Beli Gabah & Jual Beras** secara otomatis
+- Menghasilkan **laporan** yang bisa diekspor ke PDF & Excel
 - Integrasi dengan **n8n workflow automation** untuk notifikasi otomatis
 
 > Sistem ini dikembangkan berdasarkan hasil observasi lapangan pada gudang penggilingan padi milik **Silvy Halimatusyadiah** di Desa Gunung Manik, Kecamatan Talaga, Kabupaten Majalengka.
@@ -36,13 +36,13 @@
 
 | Fitur | Deskripsi |
 |---|---|
-| 📊 Dashboard Real-Time | Ringkasan stok, grafik tren panen, alert aktif, kalkulasi margin |
-| 🌾 Pencatatan Panen | Input tonase gabah, konversi otomatis ke estimasi beras, validasi input |
+| 📊 Dashboard Real-Time | Ringkasan stok, grafik tren panen, alert aktif, harga |
+| 🌾 Pencatatan Panen | Input hasil gabah, upload foto bukti, validasi input |
 | 📦 Stok Gudang | Transaksi masuk/keluar, saldo real-time per gudang, tracking perubahan |
 | 🔔 Alert Otomatis | Notifikasi real-time saat stok ≤ batas minimum (konfigurableberas & gabah) |
-| 💰 Manajemen Harga | Konfigurasi harga beli gabah, ongkos giling, harga jual, kalkulasi HPP & margin |
-| 👨‍🌾 Data Petani | CRUD data petani mitra, lahan (sawah/ladang), kontak & riwayat panen |
-| 📋 Laporan | Rekapitulasi panen, stok, distribusi, margin — ekspor PDF & Excel |
+| 💰 Manajemen Harga | Konfigurasi harga beli gabah, harga jual beras |
+| 👨‍🌾 Data Petani | CRUD data petani mitra, lahan (sawah/ladang), kontak, penghasilan & riwayat panen |
+| 📋 Laporan | Rekapitulasi panen, stok — ekspor PDF & Excel |
 | 📱 Mobile App | Aplikasi Flutter untuk petugas lapangan dan petani monitoring panen dari lokasi |
 | 🔐 Autentikasi | JWT Token-based authentication, session management, role-based access |
 | 🔄 Sinkronisasi | Real-time data sync antara web dan mobile app via REST API |
@@ -491,16 +491,16 @@ docker compose exec db mysql -uroot -proot -e "DROP DATABASE simhpsb_db; CREATE 
 
 ## 👥 Tim Pengembang
 
-**Kelompok 4 - Sistem Informasi UKRI 2025**
+**Kelompok 4 - Sistem Informasi UKRI 2026**
 
 | # | Nama | GitHub | Peran utama | Catatan / Tanggung jawab |
 |---|------|--------|-------------|-------------------------|
-| 1️⃣ | Muhammad Dzikri Sagara | [@dzikri15](https://github.com/dzikri15) | Project Manager (PM) · Backend · DevOps (Docker setup) | Arsitektur backend, API design, sprint planning, dan bertanggung jawab atas setup Docker & containerization (hanya bagian Docker). |
-| 2️⃣ | Fahri Noah Mikhailovna | [@NoahMikhailovna](https://github.com/NoahMikhailovna) | Frontend Web · Mobile (Flutter) | UI/UX frontend web, integrasi dengan API, kontribusi pada aplikasi Flutter. |
-| 3️⃣ | Alamsyah | [@L-6969](https://github.com/L-6969) | Diagram · QA Web · Manual Book Web · DevOps | Membantu desain diagram, QA untuk web, dokumentasi manual web, dan berperan di DevOps (n8n workflows & infra). |
-| 4️⃣ | Difa Anisa | [@difanisa](https://github.com/difanisa) | Diagram · QA Web · Manual Book Web | Mendesain diagram sistem, melakukan QA web, menulis manual web. |
-| 5️⃣ | Devina | [@ayoel99](https://github.com/ayoel99) | Diagram · QA Mobile · Manual Book Mobile | Mendesain diagram, QA mobile, menyusun panduan pengguna mobile. |
-| 6️⃣ | Agusta Firman Firdaus | [@AgustaFirmanFirdaus](https://github.com/AgustaFirmanFirdaus) | QA Mobile · Manual Book Mobile · Testing | Pengujian aplikasi mobile, pembuatan dokumentasi manual mobile, pelaksanaan testing |
+| 1️⃣ | Muhammad Dzikri Sagara | [@dzikri15](https://github.com/dzikri15) | PM · Backend · DevOps · Database | Arsitektur backend, API design, sprint planning, dan bertanggung jawab atas setup Docker & containerization (hanya bagian Docker). |
+| 2️⃣ | Fakhry Ahmad Fauzan | [@NoahMikhailovna](https://github.com/NoahMikhailovna) | Frontend Web · Flutter Mobile · API Integration | UI/UX frontend web, integrasi dengan API, kontribusi pada aplikasi Flutter. |
+| 3️⃣ | Muhammad Alamsyah | [@L-6969](https://github.com/L-6969) | n8n · DevOps · QA Web · Diagram | Membantu desain diagram, QA untuk web, dokumentasi manual web, dan berperan di DevOps (n8n workflows & infra). |
+| 4️⃣ | Difa Nisa Lutfiah | [@difanisa](https://github.com/difanisa) | QA Web · Diagram · Dokumentasi | Mendesain diagram sistem, melakukan QA web, menulis manual book web. |
+| 5️⃣ | Devina Ayuliani | [@ayoel99](https://github.com/ayoel99) | QA Mobile · ERD · Laporan | Mendesain diagram, QA mobile, menyusun panduan pengguna mobile. |
+| 6️⃣ | Agusta Firman Firdaus | [@AgustaFirmanFirdaus](https://github.com/AgustaFirmanFirdaus) | QA Mobile · Testing | Pengujian aplikasi mobile, pembuatan dokumentasi manual mobile, pelaksanaan testing |
 
 
 ---
