@@ -39,7 +39,7 @@
 | 📊 Dashboard Real-Time | Ringkasan stok, grafik tren panen, alert aktif, harga |
 | 🌾 Pencatatan Panen | Input hasil gabah, upload foto bukti, validasi input |
 | 📦 Stok Gudang | Transaksi masuk/keluar, saldo real-time per gudang, tracking perubahan |
-| 🔔 Alert Otomatis | Notifikasi real-time saat stok ≤ batas minimum (konfigurableberas & gabah) |
+| 🔔 Alert Otomatis | Notifikasi real-time saat stok ≤ batas minimum (konfigurasi beras & gabah) |
 | 💰 Manajemen Harga | Konfigurasi harga beli gabah, harga jual beras |
 | 👨‍🌾 Data Petani | CRUD data petani mitra, lahan (sawah/ladang), kontak, penghasilan & riwayat panen |
 | 📋 Laporan | Rekapitulasi panen, stok — ekspor PDF & Excel |
