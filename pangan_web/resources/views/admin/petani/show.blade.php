@@ -68,17 +68,11 @@
                     <div style="font-weight:600; color:var(--text-muted);">Nama</div>
                     <div>{{ $petani->nama }}</div>
 
-                    <div style="font-weight:600; color:var(--text-muted);">NIK</div>
-                    <div>{{ $petani->nik ?? '-' }}</div>
-
                     <div style="font-weight:600; color:var(--text-muted);">Komoditas</div>
                     <div>{{ $petani->komoditas ?? '-' }}</div>
 
                     <div style="font-weight:600; color:var(--text-muted);">Luas Lahan</div>
                     <div>{{ $petani->luas_lahan ? $petani->luas_lahan . ' ha' : '-' }}</div>
-
-                    <div style="font-weight:600; color:var(--text-muted);">Tanggal Lahir</div>
-                    <div>{{ $petani->tanggal_lahir ? \Carbon\Carbon::parse($petani->tanggal_lahir)->format('d M Y') : '-' }}</div>
                 </div>
             </div>
 
