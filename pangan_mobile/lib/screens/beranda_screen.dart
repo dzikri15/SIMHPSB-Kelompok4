@@ -373,44 +373,202 @@ class _BerandaScreenState extends State<BerandaScreen> {
     final bg      = isMasuk ? AppColors.accentBlueLight : AppColors.accentRedLight;
     final icon    = isMasuk ? Icons.login_rounded : Icons.logout_rounded;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.outlineVariant),
+    return GestureDetector(
+      onTap: () => _showDetailAktivitas(t),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.outlineVariant),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration:
+                  BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, color: warna, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.komoditasDisplay,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  Text(t.tanggalLabel ?? '-',
+                      style: TextStyle(
+                          fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                ],
+              ),
+            ),
+            Text(t.jumlahDisplay,
+                style: TextStyle(
+                    fontWeight: FontWeight.w800, fontSize: 14, color: warna)),
+            const SizedBox(width: 6),
+            Icon(Icons.chevron_right,
+                size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ],
+        ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration:
-                BoxDecoration(color: bg, borderRadius: BorderRadius.circular(12)),
-            child: Icon(icon, color: warna, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+    );
+  }
+
+  // ── Detail Aktivitas Bottom Sheet ──────────────────────────────────────
+  void _showDetailAktivitas(TransaksiStokModel t) {
+    final isMasuk = t.isMasuk;
+    final warna   = isMasuk ? AppColors.accentBlue : AppColors.accentRed;
+    final bg      = isMasuk ? AppColors.accentBlueLight : AppColors.accentRedLight;
+    final icon    = isMasuk ? Icons.login_rounded : Icons.logout_rounded;
+    final jenisLabel = isMasuk ? 'Masuk' : 'Keluar';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        final surfaceColor = Theme.of(context).colorScheme.surface;
+        final onSurface    = Theme.of(context).colorScheme.onSurface;
+        final onVariant    = Theme.of(context).colorScheme.onSurfaceVariant;
+
+        Widget infoRow(String label, String value, {Color? valueColor}) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.komoditasDisplay,
+                SizedBox(
+                  width: 130,
+                  child: Text(label,
+                      style: TextStyle(fontSize: 13, color: onVariant)),
+                ),
+                Expanded(
+                  child: Text(
+                    value,
                     style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: valueColor ?? onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return DraggableScrollableSheet(
+          initialChildSize: 0.55,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (_, scrollCtrl) => Container(
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: ListView(
+              controller: scrollCtrl,
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 16),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.outlineVariant,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+
+                // Header
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                          color: bg, borderRadius: BorderRadius.circular(14)),
+                      child: Icon(icon, color: warna, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(t.komoditasDisplay,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: onSurface)),
+                          const SizedBox(height: 2),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: bg,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(jenisLabel,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: warna)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(t.jumlahDisplay,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: warna)),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+                Divider(color: AppColors.outlineVariant),
+                const SizedBox(height: 12),
+
+                Text('Detail Transaksi',
+                    style: TextStyle(
                         fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurface)),
-                Text(t.tanggalLabel ?? '-',
-                    style: TextStyle(
-                        fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        fontWeight: FontWeight.w700,
+                        color: onVariant)),
+                const SizedBox(height: 8),
+
+                infoRow('ID Transaksi', '#${t.id}'),
+                infoRow('Tanggal', t.tanggalLabel ?? '-'),
+                infoRow('Komoditas', t.komoditasDisplay),
+                infoRow('Jenis', jenisLabel, valueColor: warna),
+                infoRow('Jumlah', t.jumlahDisplay, valueColor: warna),
+                if (t.jumlahStok != null)
+                  infoRow('Saldo Stok', t.saldoDisplay),
+                if (t.gudang != null)
+                  infoRow('Gudang', t.gudang!.namaGudang),
+                if (t.tujuanDistribusiNama != null && t.tujuanDistribusiNama!.isNotEmpty)
+                  infoRow('Tujuan Distribusi', t.tujuanDistribusiNama!),
+                if (t.dicatatOleh != null && t.dicatatOleh!.isNotEmpty)
+                  infoRow('Dicatat Oleh', t.dicatatOleh!),
+                if (t.keteranganDisplay != '-')
+                  infoRow('Keterangan', t.keteranganDisplay),
+                infoRow('Status',
+                    t.status == 'aktif' ? 'Aktif' : 'Dibatalkan',
+                    valueColor: t.isAktif ? AppColors.primary : AppColors.accentRed),
               ],
             ),
           ),
-          Text(t.jumlahDisplay,
-              style: TextStyle(
-                  fontWeight: FontWeight.w800, fontSize: 14, color: warna)),
-        ],
-      ),
+        );
+      },
     );
   }
 }
