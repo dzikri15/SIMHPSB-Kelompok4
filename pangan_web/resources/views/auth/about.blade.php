@@ -578,15 +578,13 @@
             <div class="team-card leader">
                 <div class="team-avatar">D</div>
                 <div class="team-name">Muhammad Dzikri Sagara</div>
-                <div class="team-role">PM · Backend · DevOps · Database</div>
+                <div class="team-role">PM · Backend · DevOps</div>
                 <div class="team-npm">NPM: 20241320004</div>
                 <div class="team-tags">
                     <span class="tag">Laravel</span>
-                    <span class="tag">REST API</span>
-                    <span class="tag">JWT</span>
-                    <span class="tag">Docker Setup</span>
-                    <span class="tag">Redis</span>
-                    <span class="tag">Migration</span>
+                    <span class="tag">Docker</span>
+                    <span class="tag">n8n</span>
+                    <span class="tag">AI</span>
                 </div>
             </div>
             <div class="team-card">

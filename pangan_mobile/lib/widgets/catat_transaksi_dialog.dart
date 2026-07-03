@@ -13,6 +13,7 @@ import '../core/app_colors.dart';
 import '../services/transaksi_stok_service.dart';
 import '../services/tujuan_distribusi_service.dart';
 import '../models/tujuan_distribusi_model.dart';
+import '../services/api_service.dart';
 
 class CatatTransaksiDialog extends StatefulWidget {
   final Function()? onSave;
@@ -142,6 +143,20 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       return;
     }
 
+    // ── Blokir Gabah Masuk manual ──────────────────────────────────
+    if (_selectedKomoditas == 'Gabah' && _selectedJenis == 'Masuk') {
+      setState(() => _errorMsg =
+          'Gabah Masuk tidak dapat dicatat secara manual. '
+          'Gunakan menu Pencatatan Panen.');
+      return;
+    }
+    // ────────────────────────────────────────────────────────────────
+
+    if (_selectedXFile == null) {
+      setState(() => _errorMsg = 'Bukti foto wajib diisi');
+      return;
+    }
+
     if (_selectedJenis == 'Masuk') {
       if (_sumberCtrl.text.trim().isEmpty) {
         setState(() => _errorMsg = 'Sumber / Tujuan Distribusi wajib diisi');
@@ -154,13 +169,8 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
         setState(() => _errorMsg = 'Sumber / Keterangan wajib diisi');
         return;
       }
-      if (_selectedTujuanId == null) {
+      if (_selectedKomoditas != 'Gabah' && _selectedTujuanId == null) {
         setState(() => _errorMsg = 'Pilih tujuan distribusi');
-        return;
-      }
-      // ── VALIDASI FOTO WAJIB ──────────────────────────
-      if (_selectedXFile == null) {
-        setState(() => _errorMsg = 'Bukti pengiriman (foto) wajib diisi');
         return;
       }
     }
@@ -225,7 +235,12 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       if (mounted) {
         setState(() {
           _isSaving = false;
-          _errorMsg = 'Gagal menyimpan: $e';
+          // Tampilkan pesan spesifik dari backend (ApiException) bukan generic error
+          if (e is ApiException) {
+            _errorMsg = e.message;
+          } else {
+            _errorMsg = 'Gagal menyimpan: $e';
+          }
         });
       }
     }
@@ -407,25 +422,36 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                       children: _jenisList.map((j) {
                         final isMasuk = j.toLowerCase() == 'masuk';
                         final isSelected = _selectedJenis == j;
+                        // Gabah Masuk dinonaktifkan — hanya boleh via Pencatatan Panen
+                        final isDisabled = isMasuk && _selectedKomoditas == 'Gabah';
                         final color = isMasuk
                             ? AppColors.accentBlue
                             : AppColors.accentRed;
+                        final effectiveColor = isDisabled
+                            ? color.withValues(alpha: 0.3)
+                            : color;
                         return Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _selectedJenis = j),
+                            onTap: isDisabled
+                                ? null
+                                : () => setState(() => _selectedJenis = j),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 180),
                               margin: EdgeInsets.only(right: isMasuk ? 8 : 0),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               decoration: BoxDecoration(
-                                color: isSelected
-                                    ? color
-                                    : color.withValues(alpha: 0.06),
+                                color: isDisabled
+                                    ? color.withValues(alpha: 0.04)
+                                    : isSelected
+                                        ? color
+                                        : color.withValues(alpha: 0.06),
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                    color: isSelected
-                                        ? color
-                                        : color.withValues(alpha: 0.2),
+                                    color: isDisabled
+                                        ? color.withValues(alpha: 0.15)
+                                        : isSelected
+                                            ? color
+                                            : color.withValues(alpha: 0.2),
                                     width: 1.5),
                               ),
                               child: Row(
@@ -436,18 +462,22 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                                         ? Icons.login_rounded
                                         : Icons.logout_rounded,
                                     size: 18,
-                                    color: isSelected
-                                        ? AppColors.onPrimary
-                                        : color,
+                                    color: isDisabled
+                                        ? effectiveColor
+                                        : isSelected
+                                            ? AppColors.onPrimary
+                                            : color,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(j,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 14,
-                                          color: isSelected
-                                              ? AppColors.onPrimary
-                                              : color)),
+                                          color: isDisabled
+                                              ? effectiveColor
+                                              : isSelected
+                                                  ? AppColors.onPrimary
+                                                  : color)),
                                 ],
                               ),
                             ),
@@ -464,8 +494,48 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                       value: _selectedKomoditas,
                       hint: 'Pilih komoditas',
                       items: _komoditasList,
-                      onChanged: (v) => setState(() => _selectedKomoditas = v),
+                      onChanged: (v) => setState(() {
+                        _selectedKomoditas = v;
+                        // Jika user pilih Gabah dan jenis sebelumnya Masuk → reset jenis
+                        if (v == 'Gabah' && _selectedJenis == 'Masuk') {
+                          _selectedJenis = null;
+                        }
+                      }),
                     ),
+                    // Info box: Gabah Masuk otomatis dari Pencatatan Panen
+                    if (_selectedKomoditas == 'Gabah')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.accentBlue.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: AppColors.accentBlue.withValues(alpha: 0.3)),
+                          ),
+                          child: const Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.info_outline,
+                                  color: AppColors.accentBlue, size: 16),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Gabah Masuk otomatis tercatat dari menu Pencatatan Panen. '
+                                  'Hanya transaksi Keluar yang dapat dicatat di sini.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.accentBlue,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 18),
 
                     // Jumlah
@@ -562,64 +632,62 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     ),
                     const SizedBox(height: 18),
 
-                    // Tujuan Distribusi + Bukti Foto (hanya Keluar)
-                    if (_selectedJenis == 'Keluar') ...[
+                    if (_selectedJenis == 'Keluar' && _selectedKomoditas != 'Gabah') ...[
                       _label('Tujuan Distribusi'),
                       const SizedBox(height: 8),
                       _buildTujuanDropdown(),
                       const SizedBox(height: 18),
-
-                      // Bukti Pengiriman — wajib untuk Keluar
-                      _label('Bukti Pengiriman (Foto) *'),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _pickFile,
-                              icon: const Icon(Icons.photo_library),
-                              label: Text(_selectedXFile != null
-                                  ? 'File: ${_selectedXFile!.name}'
-                                  : 'Pilih Foto'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _selectedXFile == null
-                                    ? AppColors.accentRed   // merah kalau belum dipilih
-                                    : AppColors.accentBlue, // biru kalau sudah
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                              ),
-                            ),
-                          ),
-                          if (_selectedXFile != null)
-                            IconButton(
-                              onPressed: _clearFile,
-                              icon: const Icon(Icons.close),
-                            ),
-                        ],
-                      ),
-                      // Hint teks wajib
-                      if (_selectedXFile == null)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 4),
-                          child: Text(
-                            '* Foto bukti pengiriman wajib diisi',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.accentRed,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      if (_selectedFile != null && !kIsWeb)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: _buildImagePreview(_selectedFile!),
-                          ),
-                        ),
-                      const SizedBox(height: 18),
                     ],
+
+                    // Bukti Foto — wajib untuk semua jenis transaksi
+                    _label('Bukti Foto *'),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _pickFile,
+                            icon: const Icon(Icons.photo_library),
+                            label: Text(_selectedXFile != null
+                                ? 'File: ${_selectedXFile!.name}'
+                                : 'Pilih Foto'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _selectedXFile == null
+                                  ? AppColors.accentRed
+                                  : AppColors.accentBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                        if (_selectedXFile != null)
+                          IconButton(
+                            onPressed: _clearFile,
+                            icon: const Icon(Icons.close),
+                          ),
+                      ],
+                    ),
+                    if (_selectedXFile == null)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 4),
+                        child: Text(
+                          '* Foto bukti wajib diisi',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.accentRed,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    if (_selectedFile != null && !kIsWeb)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: _buildImagePreview(_selectedFile!),
+                        ),
+                      ),
+                    const SizedBox(height: 18),
 
                     const SizedBox(height: 24),
                   ],

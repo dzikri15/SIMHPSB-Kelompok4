@@ -1,6 +1,6 @@
 // lib/widgets/dark_mode_toggle.dart
 //
-// Tombol toggle dark mode — sama seperti tombol di topbar web SIMHPSB.
+// Tombol toggle dark mode — sama seperti tombol di topbar web SIMHP.
 // Taruh di mana saja: AppBar actions, settings page, dsb.
 //
 // Contoh pakai di AppBar:

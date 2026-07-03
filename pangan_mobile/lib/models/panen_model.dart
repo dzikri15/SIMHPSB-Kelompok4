@@ -4,6 +4,7 @@
 //  2. musimTanam: baca dari field 'musim' (DB) ATAU 'musim_tanam' (Flutter kirim)
 //  3. namaPetani: ambil dari relasi lahan.petani.nama
 
+import '../core/constants.dart';
 import 'lahan_model.dart';
 
 double? _toDouble(dynamic v) {
@@ -37,12 +38,13 @@ class PanenModel {
   final String? petaniNama;
   final String tanggalPanen;    // Format bersih: "YYYY-MM-DD"
   final double jumlahGabah;
-  final double? hargaGabahPerKg;
-  final double? konversiBeras;  // Hasil beras dalam kg (bukan persentase)
-  final String? musimTanam;     // Nilai dari kolom 'musim' di DB
+  final double? hargaGabahPerKg;  // Snapshot historis — tidak berubah walau harga master diubah
+  final double? konversiBeras;    // Hasil beras dalam kg (bukan persentase)
+  final String? musimTanam;       // Nilai dari kolom 'musim' di DB
   final String? komoditas;
   final String? catatan;
   final LahanModel? lahan;
+  final String? fotoBuktiUrl;     // URL foto bukti panen dari backend
 
   // Nama petani: dari relasi API, fallback ke lahan atau petani_id
   String get namaPetani {
@@ -79,6 +81,7 @@ class PanenModel {
     this.komoditas,
     this.catatan,
     this.lahan,
+    this.fotoBuktiUrl,
   });
 
   factory PanenModel.fromJson(Map<String, dynamic> json) {
@@ -108,6 +111,7 @@ class PanenModel {
       petaniNama:      petaniNama,
       tanggalPanen:    tanggalBersih,
       jumlahGabah:     _toDoubleRequired(json['jumlah_gabah']),
+      // hargaGabahPerKg adalah snapshot historis — JANGAN hitung ulang
       hargaGabahPerKg: _toDouble(json['harga_gabah_per_kg']),
       konversiBeras:   _toDouble(json['konversi_beras']),
       musimTanam:      musimRaw,
@@ -116,7 +120,34 @@ class PanenModel {
       lahan: json['lahan'] != null
           ? LahanModel.fromJson(json['lahan'] as Map<String, dynamic>)
           : null,
+      // URL foto bukti: gunakan field 'foto_bukti' (path relatif dari storage)
+      // dan konversi via AppConstants.getStorageFileUrl() agar melewati route
+      // /api/file/{path} yang sudah CORS-friendly untuk Flutter Web.
+      fotoBuktiUrl: _buildFotoUrl(json),
     );
+  }
+
+  /// Bangun URL foto yang bisa diakses lintas-origin (via file proxy)
+  static String? _buildFotoUrl(Map<String, dynamic> json) {
+    // 1. Coba dari path relatif foto_bukti (panen/bukti/...)
+    final relativePath = json['foto_bukti'] as String?;
+    if (relativePath != null && relativePath.isNotEmpty && !relativePath.startsWith('http')) {
+      return AppConstants.getStorageFileUrl(relativePath);
+    }
+    // 2. Coba dari foto_bukti_url yang sudah full URL (fallback)
+    final fullUrl = json['foto_bukti_url'] as String?;
+    if (fullUrl != null && fullUrl.isNotEmpty) {
+      // Jika URL dari asset() Laravel, convert ke file proxy
+      // Contoh: http://localhost/storage/panen/bukti/... → /api/file/panen/bukti/...
+      if (fullUrl.contains('/storage/')) {
+        final storageParts = fullUrl.split('/storage/');
+        if (storageParts.length > 1) {
+          return AppConstants.getStorageFileUrl(storageParts.last);
+        }
+      }
+      return fullUrl;
+    }
+    return null;
   }
 
   Map<String, dynamic> toJson() => {
@@ -132,5 +163,10 @@ class PanenModel {
         'catatan':            catatan,
       };
 
-  double get nilaiPanen => jumlahGabah * (hargaGabahPerKg ?? 0);
+  /// Penghasilan = jumlah_gabah × harga_gabah_per_kg (snapshot historis)
+  /// JANGAN ganti dengan harga master terbaru.
+  double get penghasilan => jumlahGabah * (hargaGabahPerKg ?? 0);
+
+  /// Alias untuk kompatibilitas kode lama
+  double get nilaiPanen => penghasilan;
 }

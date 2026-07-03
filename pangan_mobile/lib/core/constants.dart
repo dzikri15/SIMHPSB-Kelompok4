@@ -8,7 +8,7 @@ class AppConstants {
 
   // ⚠️ PENTING: localhost hanya bekerja di browser. Android perlu IP atau special alias
   // Ubah ke IP LAN kamu (contoh: 192.168.1.100) atau 10.0.2.2 untuk emulator
-  static const String baseUrl = 'http://localhost/api';
+  static const String baseUrl = 'http://10.139.174.52/api';
 
   // ── Storage URLs ──────────────────────────────────────────────────
   // Untuk akses file dari storage/app/public, lewat route api/file/{path}

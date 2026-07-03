@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../main.dart';
 import '../models/alert_model.dart';
 import '../services/alert_service.dart';
-import 'dark_mode_toggle.dart';
+
 
 class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBack;
@@ -97,7 +97,7 @@ class _AppTopBarState extends State<AppTopBar> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'SIMHPSB',
+                  'SIMHP',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -165,11 +165,13 @@ class _AppTopBarState extends State<AppTopBar> {
                   ),
                 ),
 
-              // ── Menu Dropdown (Dark Mode + Logout) - Hanya di Beranda ────
+              // ── Menu Dropdown (Profil, Dark Mode + Logout) ────────────────
               if (widget.showMenu)
                 PopupMenuButton<String>(
                   onSelected: (String value) {
-                    if (value == 'dark_mode') {
+                    if (value == 'profile') {
+                      widget.onProfileTap?.call();
+                    } else if (value == 'dark_mode') {
                       themeNotifier.value = themeNotifier.value == ThemeMode.light
                           ? ThemeMode.dark
                           : ThemeMode.light;
@@ -178,6 +180,26 @@ class _AppTopBarState extends State<AppTopBar> {
                     }
                   },
                   itemBuilder: (BuildContext context) => [
+                    if (widget.onProfileTap != null)
+                      PopupMenuItem<String>(
+                        value: 'profile',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.person_outline_rounded,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Profil Saya',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     PopupMenuItem<String>(
                       value: 'dark_mode',
                       child: Row(

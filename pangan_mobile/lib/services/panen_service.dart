@@ -1,5 +1,6 @@
 // lib/services/panen_service.dart
 
+import 'dart:typed_data';
 import '../models/panen_model.dart';
 import 'api_service.dart';
 
@@ -32,11 +33,31 @@ class PanenService {
     return PanenModel.fromJson(data);
   }
 
-  Future<PanenModel> create(Map<String, dynamic> body) async {
-    final data = await _api.post('panen', body) as Map<String, dynamic>;
+  /// Buat catatan panen BARU — wajib menyertakan foto bukti via multipart.
+  /// Backend akan otomatis mencatat Gabah Masuk ke stok & snapshot harga.
+  Future<PanenModel> createWithFoto(
+    Map<String, dynamic> body,
+    Uint8List fotoBytes, {
+    String fotoName = 'bukti_panen.jpg',
+  }) async {
+    // Konversi semua nilai body ke String (multipart hanya terima String)
+    final formFields = <String, String>{};
+    body.forEach((key, value) {
+      if (value != null) formFields[key] = value.toString();
+    });
+
+    final data = await _api.uploadMultipart(
+      'panen',
+      fileBytes: fotoBytes,
+      fileName: fotoName,
+      fileFieldName: 'foto_bukti',
+      additionalFields: formFields,
+    ) as Map<String, dynamic>;
+
     return PanenModel.fromJson(data);
   }
 
+  /// Update catatan panen (tanpa foto) — pakai JSON biasa.
   Future<PanenModel> update(int id, Map<String, dynamic> body) async {
     final data = await _api.put('panen/$id', body) as Map<String, dynamic>;
     return PanenModel.fromJson(data);
