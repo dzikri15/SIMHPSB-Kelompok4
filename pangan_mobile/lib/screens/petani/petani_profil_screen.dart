@@ -6,7 +6,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/app_colors.dart';
 import '../../models/petani_model.dart';
 import '../../services/petani_profile_service.dart';
+
 import '../../widgets/app_top_bar.dart';
+
  
 class PetaniProfilScreen extends StatefulWidget {
   const PetaniProfilScreen({super.key});
@@ -37,12 +39,14 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
       if (mounted) setState(() { _error = e.toString(); _loading = false; });
     }
   }
+
+
  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: const AppTopBar(showAlert: false),
+      appBar: const AppTopBar(showAlert: false, showBack: true),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -51,7 +55,7 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
                   onRefresh: _load,
                   color: AppColors.primary,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     children: [
                       _buildAvatar(),
                       const SizedBox(height: 24),
@@ -196,15 +200,6 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
       icon: Icons.badge_outlined,
       items: [
         _item('Nama Lengkap', p.nama, Icons.person_outline),
-        if (p.nik != null && p.nik!.isNotEmpty)
-          _item('NIK', p.nik!, Icons.credit_card_outlined),
-        _item(
-          'Tanggal Lahir',
-          (p.tanggalLahir != null && p.tanggalLahir!.isNotEmpty)
-              ? p.tanggalLahir!
-              : '-',
-          Icons.cake_outlined,
-        ),
         if (p.alamat != null && p.alamat!.isNotEmpty)
           _item('Alamat', p.alamat!, Icons.location_on_outlined),
       ],
@@ -309,6 +304,8 @@ class _PetaniProfilScreenState extends State<PetaniProfilScreen> {
       ),
     );
   }
+
+
  
   // ── Builder helpers ────────────────────────────────────────────────────
   Widget _section({
