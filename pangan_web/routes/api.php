@@ -22,11 +22,12 @@ use App\Http\Controllers\Api\PetaniProfileController;
 
 // JWT Auth Routes
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login',    [AuthController::class, 'login']);
-    Route::post('logout',   [AuthController::class, 'logout'])->middleware('auth:api');
-    Route::get('me',        [AuthController::class, 'me'])->middleware('auth:api');
-    Route::post('refresh',  [AuthController::class, 'refresh'])->middleware('auth:api');
+    Route::post('register',         [AuthController::class, 'register']);
+    Route::post('register-petani',  [AuthController::class, 'registerPetani']);
+    Route::post('login',            [AuthController::class, 'login']);
+    Route::post('logout',           [AuthController::class, 'logout'])->middleware('auth:api');
+    Route::get('me',                [AuthController::class, 'me'])->middleware('auth:api');
+    Route::post('refresh',          [AuthController::class, 'refresh'])->middleware('auth:api');
 });
 
 Route::middleware('auth:api')->group(function () {
