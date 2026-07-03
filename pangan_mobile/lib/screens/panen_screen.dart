@@ -59,6 +59,7 @@ class _PanenScreenState extends State<PanenScreen> {
   // Paging riwayat panen
   static const int _pageSize = 10;
   int _currentPage = 1;
+  final ScrollController _petaniScrollCtrl = ScrollController();
 
   @override
   void initState() {
@@ -85,6 +86,7 @@ class _PanenScreenState extends State<PanenScreen> {
     _tonaseCtrl.dispose();
     _rasioCtrl.dispose();
     _catatanCtrl.dispose();
+    _petaniScrollCtrl.dispose();
     super.dispose();
   }
 
@@ -297,45 +299,7 @@ class _PanenScreenState extends State<PanenScreen> {
                           padding: EdgeInsets.all(8),
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ))
-                      : _inputBox(
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<PetaniModel>(
-                              value: _selectedPetani,
-                              hint: Text('Pilih petani...',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant)),
-                              isExpanded: true,
-                              icon: Icon(Icons.keyboard_arrow_down,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant),
-                              items: _petaniList
-                                  .map((p) => DropdownMenuItem(
-                                        value: p,
-                                        child: Text(
-                                          _petaniDropdownLabel(p),
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ))
-                                  .toList(),
-                              onChanged: (val) => setState(() {
-                                _selectedPetani = val;
-                                if (val?.komoditas != null &&
-                                    _komoditasList.contains(val!.komoditas)) {
-                                  _selectedKomoditas = val.komoditas!;
-                                }
-                              }),
-                            ),
-                          ),
-                        ),
+                      : _buildPetaniScrollList(),
                   const SizedBox(height: 16),
                   _label('Musim Tanam *'),
                   const SizedBox(height: 8),
@@ -969,6 +933,104 @@ class _PanenScreenState extends State<PanenScreen> {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────
+
+  Widget _buildPetaniScrollList() {
+    if (_petaniList.isEmpty) {
+      return Text('Tidak ada data petani',
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]));
+    }
+
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 220),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border.all(
+            color: _selectedPetani != null
+                ? AppColors.primary
+                : Theme.of(context).colorScheme.outline,
+            width: _selectedPetani != null ? 1.5 : 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Scrollbar(
+          controller: _petaniScrollCtrl,
+          thumbVisibility: true,
+          child: ListView.separated(
+            controller: _petaniScrollCtrl,
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: _petaniList.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              thickness: 0.8,
+              color: Theme.of(context)
+                  .colorScheme
+                  .outlineVariant
+                  .withValues(alpha: 0.5),
+            ),
+            itemBuilder: (ctx, idx) {
+              final p = _petaniList[idx];
+              final isSelected = _selectedPetani?.id == p.id;
+              return InkWell(
+                onTap: () => setState(() {
+                  _selectedPetani = p;
+                  if (p.komoditas != null &&
+                      _komoditasList.contains(p.komoditas)) {
+                    _selectedKomoditas = p.komoditas!;
+                  }
+                }),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                  color: isSelected
+                      ? AppColors.primary.withValues(alpha: 0.08)
+                      : Colors.transparent,
+                  child: Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected ? AppColors.primary : Colors.transparent,
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
+                            width: 2,
+                          ),
+                        ),
+                        child: isSelected
+                            ? const Icon(Icons.check, size: 12, color: Colors.white)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          p.nama,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w400,
+                            color: isSelected
+                                ? AppColors.primary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _card(
       {required String title, String? subtitle, required Widget child}) {
