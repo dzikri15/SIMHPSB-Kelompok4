@@ -118,11 +118,29 @@
 
     {{-- PAGINATION --}}
     @if(isset($petani) && $petani->hasPages())
-        <div style="padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:13px;color:var(--text-muted);">
+        <div style="padding:16px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;border-top:1px solid var(--border,#e2e8f0);">
+            <div style="width:100%;text-align:center;font-size:12px;color:var(--text-muted);">
                 Menampilkan {{ $petani->firstItem() }}–{{ $petani->lastItem() }} dari {{ $petani->total() }} petani
-            </span>
-            {{ $petani->links() }}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
+                @if($petani->onFirstPage())
+                    <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">First</span>
+                    <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-left"></i></span>
+                @else
+                    <a href="{{ $petani->url(1) }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">First</a>
+                    <a href="{{ $petani->previousPageUrl() }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-left"></i></a>
+                @endif
+                @foreach($petani->getUrlRange(max(1,$petani->currentPage()-2), min($petani->lastPage(),$petani->currentPage()+2)) as $page => $url)
+                    <a href="{{ $url }}" style="padding:6px 10px;border-radius:6px;font-size:12px;text-decoration:none;background:{{ $page == $petani->currentPage() ? 'var(--green-600)' : 'var(--surface-3)' }};color:{{ $page == $petani->currentPage() ? 'white' : 'var(--text-primary)' }};">{{ $page }}</a>
+                @endforeach
+                @if($petani->hasMorePages())
+                    <a href="{{ $petani->nextPageUrl() }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-right"></i></a>
+                    <a href="{{ $petani->url($petani->lastPage()) }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">Last</a>
+                @else
+                    <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-right"></i></span>
+                    <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">Last</span>
+                @endif
+            </div>
         </div>
     @endif
 </div>
