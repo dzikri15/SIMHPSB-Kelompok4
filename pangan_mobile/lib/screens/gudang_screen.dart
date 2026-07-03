@@ -1,5 +1,5 @@
 // lib/screens/gudang_screen.dart
-// Tampilan sesuai web SIMHPSB — 8 summary card + filter + mutasi list
+// Tampilan sesuai web SIMHP — 8 summary card + filter + mutasi list
 // Terhubung ke Laravel via:
 //   GET  /api/stok/summary   → ringkasan statistik
 //   GET  /api/stok/transaksi → daftar mutasi (filterable)
@@ -1012,99 +1012,105 @@ class _GudangScreenState extends State<GudangScreen> {
               ...List.generate(list.length, (idx) {
                 final t = list[idx];
                 final jenisColor = t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
-                return Container(
-                  color: !t.isAktif
-                      ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-                      : idx % 2 == 0
-                          ? Theme.of(context).colorScheme.surface
-                          : Theme.of(context).colorScheme.surfaceContainerLow,
-                  child: Column(children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                return GestureDetector(
+                  onTap: () => _showTransaksiDetail(t),
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    color: !t.isAktif
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                        : idx % 2 == 0
+                            ? Theme.of(context).colorScheme.surface
+                            : Theme.of(context).colorScheme.surfaceContainerLow,
+                    child: Column(
                       children: [
-                        // No
-                        SizedBox(width: colWidths[0], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text('${idx+1}', style: const TextStyle(fontSize: 11)),
-                        )),
-                        // Tanggal
-                        SizedBox(width: colWidths[1], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.tanggalLabel ?? '-', style: const TextStyle(fontSize: 11)),
-                        )),
-                        // Jenis badge
-                        SizedBox(width: colWidths[2], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: _jenisBadge(t, jenisColor),
-                        )),
-                        // Komoditas
-                        SizedBox(width: colWidths[3], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.komoditasDisplay, style: const TextStyle(fontSize: 11)),
-                        )),
-                        // Jumlah
-                        SizedBox(width: colWidths[4], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.jumlahDisplay,
-                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.right),
-                        )),
-                        // Tujuan/Sumber
-                        SizedBox(width: colWidths[5], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(
-                            t.tujuanDistribusiNama ?? t.keteranganDisplay,
-                            style: const TextStyle(fontSize: 11),
-                            maxLines: 2, overflow: TextOverflow.ellipsis,
-                          ),
-                        )),
-                        // Catatan
-                        SizedBox(width: colWidths[6], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.catatan ?? '-',
-                            style: const TextStyle(fontSize: 10),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        )),
-                        // Status
-                        SizedBox(width: colWidths[7], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: _statusBadge(t),
-                        )),
-                        // Bukti
-                        SizedBox(width: colWidths[8], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: t.fotoBukti != null && t.fotoBukti!.isNotEmpty
-                              ? GestureDetector(
-                                  onTap: () => _showFotoPreview(t.fotoBukti!),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.image, size: 18, color: AppColors.primary),
-                                  ),
-                                )
-                              : const Text('-', style: TextStyle(fontSize: 11)),
-                        )),
-                        // Dicatat Oleh
-                        SizedBox(width: colWidths[9], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-                          child: Text(t.dicatatOleh ?? 'Admin',
-                            style: const TextStyle(fontSize: 11),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        )),
-                        // Aksi
-                        SizedBox(width: colWidths[10], child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: _aksiButton(t),
-                        )),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // No
+                            SizedBox(width: colWidths[0], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text('${idx+1}', style: const TextStyle(fontSize: 11)),
+                            )),
+                            // Tanggal
+                            SizedBox(width: colWidths[1], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text(t.tanggalLabel ?? '-', style: const TextStyle(fontSize: 11)),
+                            )),
+                            // Jenis badge
+                            SizedBox(width: colWidths[2], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: _jenisBadge(t, jenisColor),
+                            )),
+                            // Komoditas
+                            SizedBox(width: colWidths[3], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text(t.komoditasDisplay, style: const TextStyle(fontSize: 11)),
+                            )),
+                            // Jumlah
+                            SizedBox(width: colWidths[4], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text(t.jumlahDisplay,
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                                textAlign: TextAlign.right),
+                            )),
+                            // Tujuan/Sumber
+                            SizedBox(width: colWidths[5], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text(
+                                t.tujuanDistribusiNama ?? t.keteranganDisplay,
+                                style: const TextStyle(fontSize: 11),
+                                maxLines: 2, overflow: TextOverflow.ellipsis,
+                              ),
+                            )),
+                            // Catatan
+                            SizedBox(width: colWidths[6], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text(t.catatan ?? '-',
+                                style: const TextStyle(fontSize: 10),
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
+                            )),
+                            // Status
+                            SizedBox(width: colWidths[7], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: _statusBadge(t),
+                            )),
+                            // Bukti
+                            SizedBox(width: colWidths[8], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: t.fotoBukti != null && t.fotoBukti!.isNotEmpty
+                                  ? GestureDetector(
+                                      onTap: () => _showFotoPreview(t.fotoBukti!),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(Icons.image, size: 18, color: AppColors.primary),
+                                      ),
+                                    )
+                                  : const Text('-', style: TextStyle(fontSize: 11)),
+                            )),
+                            // Dicatat Oleh
+                            SizedBox(width: colWidths[9], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+                              child: Text(t.dicatatOleh ?? 'Admin',
+                                style: const TextStyle(fontSize: 11),
+                                maxLines: 1, overflow: TextOverflow.ellipsis),
+                            )),
+                            // Aksi
+                            SizedBox(width: colWidths[10], child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: _aksiButton(t),
+                            )),
+                          ],
+                        ),
+                        if (idx < list.length - 1)
+                          Divider(height: 1, thickness: 0.5,
+                            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
                       ],
                     ),
-                    if (idx < list.length - 1)
-                      Divider(height: 1, thickness: 0.5,
-                        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
-                  ]),
+                  ),
                 );
               }),
             ],
@@ -1122,23 +1128,26 @@ class _GudangScreenState extends State<GudangScreen> {
         final jenisColor = t.isMasuk ? AppColors.accentBlue : AppColors.accentRed;
         return Opacity(
           opacity: t.isAktif ? 1.0 : 0.6,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-                  blurRadius: 4, offset: const Offset(0, 2),
+          child: GestureDetector(
+            onTap: () => _showTransaksiDetail(t),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+                    blurRadius: 4, offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
                 // ── Header baris: nomor + jenis badge + jumlah ──────
                 Container(
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -1206,7 +1215,8 @@ class _GudangScreenState extends State<GudangScreen> {
               ],
             ),
           ),
-        );
+        ),
+      );
       }),
     );
   }
@@ -1290,6 +1300,163 @@ class _GudangScreenState extends State<GudangScreen> {
         constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
         icon: const Icon(Icons.replay, size: 20, color: AppColors.primary),
         onPressed: () => _toggleStatus(t),
+      ),
+    );
+  }
+
+  void _showTransaksiDetail(TransaksiStokModel t) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: double.infinity,
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.92,
+            maxHeight: MediaQuery.of(context).size.height * 0.86,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ── Header ─────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 8, 0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Detail Transaksi Stok',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              // ── Scrollable body ────────────────────────────────
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 4, 24, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _detailRow('Jenis', t.isMasuk ? 'Masuk' : 'Keluar'),
+                      _detailRow('Komoditas', t.komoditasDisplay),
+                      _detailRow('Jumlah', t.jumlahDisplay),
+                      _detailRow('Tanggal', t.tanggalLabel ?? '-'),
+                      _detailRow('Tujuan / Sumber', t.tujuanDistribusiNama ?? t.keteranganDisplay),
+                      if ((t.catatan ?? '').isNotEmpty)
+                        _detailRow('Catatan', t.catatan!),
+                      _detailRow('Dicatat Oleh', t.dicatatOleh ?? 'Admin'),
+                      _detailRow('Status', t.isAktif ? 'Aktif' : 'Dibatalkan'),
+                      _detailRow('Saldo Stok', t.saldoDisplay),
+                      if (t.fotoBukti != null && t.fotoBukti!.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text('Bukti Foto',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.onSurface)),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () => _showFotoPreview(t.fotoBukti!),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Image.network(
+                                  AppConstants.getStorageFileUrl(t.fotoBukti!),
+                                  fit: BoxFit.contain,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                    height: 160,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainer,
+                                    alignment: Alignment.center,
+                                    child: const Icon(Icons.broken_image,
+                                        size: 40, color: Colors.grey),
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.zoom_in,
+                                          color: Colors.white, size: 14),
+                                      SizedBox(width: 4),
+                                      Text('Perbesar',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+              // ── Footer tombol Tutup ────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Tutup'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(label,
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(value, style: const TextStyle(fontSize: 13)),
+          ),
+        ],
       ),
     );
   }

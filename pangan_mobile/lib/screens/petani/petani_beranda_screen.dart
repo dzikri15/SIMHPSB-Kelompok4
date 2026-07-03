@@ -8,6 +8,7 @@ import '../../models/panen_model.dart';
 import '../../services/auth_service.dart';
 import '../../services/petani_profile_service.dart';
 import '../../widgets/app_top_bar.dart';
+import '../login_screen.dart';
 
 class PetaniBerandaScreen extends StatefulWidget {
   final VoidCallback? onProfileTap;
@@ -32,10 +33,18 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
   static const int _pageSize = 5;
   int _currentPage = 1;
 
+  final ScrollController _rekapScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _rekapScrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -64,6 +73,39 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     }
   }
 
+  Future<void> _logout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Keluar'),
+        content: const Text('Yakin ingin keluar dari akun?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Keluar',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    await AuthService().logout();
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    });
+  }
+
   // ── Format helpers ─────────────────────────────────────────────────────
   String _fmtKg(dynamic v) {
     final val = (v is num) ? v.toDouble() : double.tryParse(v.toString()) ?? 0;
@@ -72,7 +114,12 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
 
   String _fmtRupiah(double v) {
     if (v >= 1000000) return 'Rp${(v / 1000000).toStringAsFixed(1)}jt';
-    if (v >= 1000) return 'Rp${(v / 1000).toStringAsFixed(0)}rb';
+    if (v >= 1000) {
+      final thousands = v / 1000;
+      return thousands % 1 == 0
+          ? 'Rp${thousands.toStringAsFixed(0)}rb'
+          : 'Rp${thousands.toStringAsFixed(1)}rb';
+    }
     return 'Rp${v.toStringAsFixed(0)}';
   }
 
@@ -91,8 +138,11 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppTopBar(
         showAlert: false,
-        showProfile: true,
+        showProfile: false, // Sembunyikan profile icon dari kanan atas
         onProfileTap: widget.onProfileTap,
+        showMenu: true,     // Tampilkan menu titik 3
+        showLogout: true,   // Tampilkan menu log out di dalam titik 3
+        onLogoutTap: _logout,
       ),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -100,11 +150,13 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 children: [
                   _buildHeader(),
                   const SizedBox(height: 24),
                   _buildRingkasan(),
+                  const SizedBox(height: 28),
+                  _buildRekapHarian(),
                   const SizedBox(height: 28),
                   _buildPanenRiwayat(),
                 ],
@@ -361,6 +413,9 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     final surfaceColor = Theme.of(context).colorScheme.surface;
     final nilaiPanen = p.nilaiPanen;
     final hasNilai   = nilaiPanen > 0;
+    final headerTextColor = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.darkSecondary
+        : AppColors.primary;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -406,11 +461,11 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        p.lahan?.namaLahan ?? 'Lahan #${p.lahanId}',
+                        'Gabah',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
+                          color: headerTextColor,
                         ),
                       ),
                       Text(
@@ -443,10 +498,10 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
               ],
             ),
           ),
-          // Body kartu — stats
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _statItem(
                   label: 'Gabah',
@@ -454,17 +509,10 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
                   icon: Icons.grain,
                   color: AppColors.accentOrange,
                 ),
-                _dividerV(),
-                _statItem(
-                  label: 'Beras',
-                  value: _fmtKg(p.konversiBeras ?? 0),
-                  icon: Icons.inventory_2_outlined,
-                  color: AppColors.accentGreen,
-                ),
                 if (hasNilai) ...[
                   _dividerV(),
                   _statItem(
-                    label: 'Nilai',
+                    label: 'Pendapatan',
                     value: _fmtRupiah(nilaiPanen),
                     icon: Icons.payments_outlined,
                     color: AppColors.accentBlue,
@@ -473,20 +521,6 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
               ],
             ),
           ),
-          // Catatan (opsional)
-          if (p.catatan != null && p.catatan!.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-              child: Text(
-                '📝 ${p.catatan}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -498,8 +532,10 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
     required IconData icon,
     required Color color,
   }) {
-    return Expanded(
+    return SizedBox(
+      width: 110,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(height: 4),
@@ -528,7 +564,7 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
       height: 36,
       width: 1,
       color: AppColors.outlineVariant,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
     );
   }
 
@@ -654,4 +690,209 @@ class _PetaniBerandaScreenState extends State<PetaniBerandaScreen> {
       ),
     );
   }
+
+  // ── Rekap Harian ───────────────────────────────────────────────────────
+  Widget _buildRekapHarian() {
+    if (_allPanen.isEmpty) return const SizedBox.shrink();
+
+    // Mengelompokkan panen berdasarkan tanggal
+    final Map<String, _RekapDay> maps = {};
+    for (final p in _allPanen) {
+      final key = p.tanggalPanen;
+      final item = maps.putIfAbsent(key, () => _RekapDay(key));
+      item.totalGabah += p.jumlahGabah;
+      item.totalPendapatan += p.nilaiPanen;
+      item.entriCount += 1;
+    }
+
+    final list = maps.values.toList()
+      ..sort((a, b) => b.dateRaw.compareTo(a.dateRaw));
+
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'REKAP HARIAN',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Total Gabah per Tanggal',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryContainer.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
+          const SizedBox(height: 8),
+          
+          // Container dengan tinggi tetap dan Scrollbar agar bisa di-scroll tanpa paging
+          SizedBox(
+            height: 250,
+            child: Scrollbar(
+              controller: _rekapScrollController,
+              thumbVisibility: true,
+              trackVisibility: true,
+              interactive: true,
+              thickness: 5,
+              radius: const Radius.circular(8),
+              child: ListView.separated(
+                controller: _rekapScrollController,
+                padding: const EdgeInsets.only(right: 12), // Jarak agar tidak bertabrakan dengan Scrollbar
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: list.length,
+                separatorBuilder: (_, __) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Divider(color: cs.outlineVariant.withValues(alpha: 0.3)),
+                ),
+                itemBuilder: (context, index) {
+                  final item = list[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _fmtTanggalRekap(item.dateRaw),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${item.entriCount} entri panen',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              _fmtKgFull(item.totalGabah),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            if (item.totalPendapatan > 0) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                _fmtRupiahFull(item.totalPendapatan),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: cs.onSurfaceVariant.withValues(alpha: 0.8),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Helper formatters tambahan ─────────────────────────────────────────
+  String _fmtTanggalRekap(String raw) {
+    try {
+      final dt = DateTime.parse(raw);
+      const bulanS = [
+        '', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+      ];
+      return '${dt.day.toString().padLeft(2, '0')} ${bulanS[dt.month]} ${dt.year}';
+    } catch (_) {
+      return raw;
+    }
+  }
+
+  String _fmtKgFull(double v) {
+    final formatted = v.toInt().toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]}.',
+    );
+    return '$formatted kg';
+  }
+
+  String _fmtRupiahFull(double v) {
+    final formatted = v.toInt().toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (m) => '${m[1]}.',
+    );
+    return 'Rp $formatted';
+  }
+}
+
+// Class penampung rekap harian
+class _RekapDay {
+  final String dateRaw;
+  double totalGabah = 0;
+  double totalPendapatan = 0;
+  int entriCount = 0;
+
+  _RekapDay(this.dateRaw);
 }

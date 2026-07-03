@@ -28,6 +28,17 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    'n8n' => [
+        'webhook_url' => env('N8N_WEBHOOK_URL', 'http://n8n:5678/webhook/simhpsb-chat'),
+        'username' => env('N8N_BASIC_AUTH_USER'),
+        'password' => env('N8N_BASIC_AUTH_PASSWORD'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

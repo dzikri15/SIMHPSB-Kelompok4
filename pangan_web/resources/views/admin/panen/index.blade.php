@@ -2,7 +2,7 @@
 
 @section('title', 'Pencatatan Panen')
 @section('page-title', 'Pencatatan Panen')
-@section('page-subtitle', 'Input tonase panen dengan konversi gabah → beras otomatis')
+@section('page-subtitle', 'Input hasil panen dengan cepat')
 
 @section('content')
 
@@ -28,7 +28,7 @@
             <div class="card-title">Catat Hasil Panen Baru</div>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ route('admin.panen.store') }}">
+            <form method="POST" action="{{ route('admin.panen.store') }}" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -64,44 +64,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Tonase Gabah (kg) <span style="color:var(--red-500)">*</span></label>
-                    <input type="number" name="tonase_gabah" id="tonaseGabah" placeholder="Contoh: 3000"
-                        required min="1" autocomplete="off" oninput="hitungKonversi()" value="{{ old('tonase_gabah') }}">
+                    <label>Hasil Gabah (kg) <span style="color:var(--red-500)">*</span></label>
+                    <input type="number" name="jumlah_gabah" id="jumlahGabah" placeholder="Contoh: 3000"
+                        required min="1" autocomplete="off" value="{{ old('jumlah_gabah') }}">
                     <div class="form-hint">Berat gabah basah setelah panen</div>
-                    @error('tonase_gabah')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
+                    @error('jumlah_gabah')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
-                <div class="form-group">
-                    <label>Rasio Konversi (%)</label>
-                    <input type="number" name="rasio_konversi" id="rasioKonversi" value="{{ old('rasio_konversi', 61.5) }}"
-                        step="0.1" min="50" max="70" oninput="hitungKonversi()">
-                    <div class="form-hint">Default sistem: 61,5% (dapat disesuaikan per batch)</div>
-                    @error('rasio_konversi')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
-                </div>
-
-                {{-- PREVIEW KONVERSI --}}
-                <div id="previewKonversi" style="display:none;background:var(--green-50);border:1.5px solid var(--green-300);border-radius:10px;padding:16px;margin-bottom:18px;">
-                    <div style="font-size:12px;font-weight:700;color:var(--green-700);margin-bottom:10px;">
-                        <i class="fas fa-calculator"></i> Estimasi Hasil Konversi
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                        <div>
-                            <div style="font-size:11px;color:var(--text-muted);">Gabah Input</div>
-                            <div style="font-size:18px;font-weight:800;" id="previewGabah">0 kg</div>
-                        </div>
-                        <div>
-                            <div style="font-size:11px;color:var(--text-muted);">Est. Beras Dihasilkan</div>
-                            <div style="font-size:18px;font-weight:800;color:var(--green-600);" id="previewBeras">0 kg</div>
-                        </div>
-                    </div>
-                    <input type="hidden" name="beras_dihasilkan" id="berasDihasilkan" value="{{ old('beras_dihasilkan') }}">
-                </div>
 
                 <div class="form-group">
                     <label>Komoditas</label>
                     <select name="komoditas">
                         <option value="Padi" {{ old('komoditas') == 'Padi' ? 'selected' : '' }}>Padi</option>
-                        <option value="Jagung" {{ old('komoditas') == 'Jagung' ? 'selected' : '' }}>Jagung</option>
                     </select>
                     @error('komoditas')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
@@ -110,6 +84,30 @@
                     <label>Catatan</label>
                     <textarea name="catatan" rows="2" placeholder="Kondisi panen, cuaca, dll. (opsional)">{{ old('catatan') }}</textarea>
                     @error('catatan')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
+                </div>
+
+                {{-- FOTO BUKTI --}}
+                <div class="form-group">
+                    <label>Foto Bukti Transaksi <span style="color:var(--red-500)">*</span></label>
+                    <div id="foto-drop-zone" onclick="document.getElementById('foto_bukti_input').click()"
+                        style="border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;">
+                        <div id="foto-placeholder">
+                            <i class="fas fa-camera" style="font-size:28px;color:var(--text-muted);margin-bottom:8px;"></i>
+                            <div style="font-size:13px;color:var(--text-muted);">Klik untuk memilih foto</div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">JPG, JPEG, PNG &mdash; maks. 5 MB</div>
+                        </div>
+                        <img id="foto-preview" src="" alt="Preview" style="display:none;max-height:180px;border-radius:8px;object-fit:contain;">
+                    </div>
+                    <input type="file" id="foto_bukti_input" name="foto_bukti" accept="image/jpg,image/jpeg,image/png" required
+                        style="display:none;" onchange="previewFoto(this)">
+                    {{-- Tombol hapus foto (di luar area foto) --}}
+                    <div id="foto-clear-wrap" style="display:none;margin-top:6px;text-align:right;">
+                        <button type="button" onclick="clearFoto(event)"
+                            style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--red-500);font-weight:600;padding:0;">
+                            <i class="fas fa-times"></i> Hapus foto
+                        </button>
+                    </div>
+                    @error('foto_bukti')<span style="color:red; font-size:12px;">{{ $message }}</span>@enderror
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
@@ -124,28 +122,63 @@
         <div class="card-header">
             <div>
                 <div class="card-title">Riwayat Panen Terbaru</div>
-                <div class="card-subtitle">10 entri terbaru</div>
+                <div class="card-subtitle">Scroll untuk melihat semua data</div>
             </div>
         </div>
-        <div class="table-container">
+        <div class="table-container" style="max-height:480px;overflow-y:auto;">
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Petani</th>
-                        <th>Tonase Gabah</th>
-                        <th>Beras Hasil</th>
+                        <th>Hasil Gabah</th>
+                        <th>Penghasilan</th>
+                        <th>Foto</th>
                         <th>Musim</th>
                         <th>Tanggal</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($panenList ?? [] as $p)
-                        <tr>
-                            <td><strong>{{ $p->petani->nama }}</strong></td>
-                            <td>{{ number_format($p->tonase_gabah) }} kg</td>
-                            <td><strong style="color:var(--green-600);">{{ number_format($p->beras_dihasilkan) }} kg</strong></td>
+                        <tr class="panen-row" data-href="{{ route('admin.panen.show', $p->id) }}" style="cursor:pointer;transition:background .15s;">
+                            <td><strong>{{ $p->lahan->petani->nama ?? '-' }}</strong></td>
+                            <td>{{ number_format($p->jumlah_gabah) }} kg</td>
+                            <td style="color:var(--green-700);font-weight:600;">
+                                @if($p->harga_gabah_per_kg > 0)
+                                    Rp {{ number_format($p->jumlah_gabah * $p->harga_gabah_per_kg, 0, ',', '.') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                @if($p->foto_bukti)
+                                    <img src="{{ asset('storage/' . $p->foto_bukti) }}" alt="Bukti"
+                                        style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+                                @else
+                                    <span style="color:var(--text-muted);font-size:11px;">-</span>
+                                @endif
+                            </td>
                             <td><span class="badge badge-green" style="font-size:11px;">{{ $p->musim }}</span></td>
                             <td style="font-size:12px;color:var(--text-muted);">{{ optional($p->tanggal_panen)->format('Y-m-d') }}</td>
+                            <td onclick="event.stopPropagation()">
+                                <div style="display:flex;gap:6px;align-items:center;">
+                                    {{-- Edit --}}
+                                    <a href="{{ route('admin.panen.edit', $p->id) }}"
+                                       style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--blue-500, #3b82f6);color:white;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    {{-- Hapus --}}
+                                    <form method="POST" action="{{ route('admin.panen.destroy', $p->id) }}"
+                                          onsubmit="return confirm('Yakin hapus data panen ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:var(--red-500, #ef4444);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -155,31 +188,119 @@
                 </tbody>
             </table>
         </div>
+        {{-- Paginasi --}}
+        @if($panenList->hasPages())
+            <div style="padding:16px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;border-top:1px solid var(--border,#e2e8f0);">
+                <div style="width:100%;text-align:center;font-size:12px;color:var(--text-muted);">
+                    Menampilkan {{ $panenList->firstItem() }}–{{ $panenList->lastItem() }} dari {{ $panenList->total() }} data
+                </div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">
+                    @if($panenList->onFirstPage())
+                        <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">First</span>
+                        <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-left"></i></span>
+                    @else
+                        <a href="{{ $panenList->url(1) }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">First</a>
+                        <a href="{{ $panenList->previousPageUrl() }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-left"></i></a>
+                    @endif
+                    @foreach($panenList->getUrlRange(max(1,$panenList->currentPage()-2), min($panenList->lastPage(),$panenList->currentPage()+2)) as $page => $url)
+                        <a href="{{ $url }}" style="padding:6px 10px;border-radius:6px;font-size:12px;text-decoration:none;background:{{ $page == $panenList->currentPage() ? 'var(--green-600)' : 'var(--surface-3)' }};color:{{ $page == $panenList->currentPage() ? 'white' : 'var(--text-primary)' }};">{{ $page }}</a>
+                    @endforeach
+                    @if($panenList->hasMorePages())
+                        <a href="{{ $panenList->nextPageUrl() }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;"><i class="fas fa-chevron-right"></i></a>
+                        <a href="{{ $panenList->url($panenList->lastPage()) }}" style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-primary);font-size:12px;text-decoration:none;">Last</a>
+                    @else
+                        <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;"><i class="fas fa-chevron-right"></i></span>
+                        <span style="padding:6px 10px;min-width:66px;text-align:center;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-muted);font-size:12px;cursor:not-allowed;">Last</span>
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 
-@endsection
+{{-- LIGHTBOX FOTO BUKTI PANEN --}}
+<div class="modal-overlay" id="panenImageLightbox" style="display:none;" onclick="closeImageModal()">
+    <div style="position:relative;background:linear-gradient(180deg,rgba(46,125,50,0.95),rgba(16,64,20,0.95));padding:16px;border-radius:8px;max-width:900px;width:95%;max-height:90vh;" onclick="event.stopPropagation()">
+        <button onclick="closeImageModal()" style="position:absolute;right:12px;top:12px;color:#fff;background:transparent;border:none;font-size:20px;cursor:pointer;z-index:1;"><i class="fas fa-times"></i></button>
+        <div style="display:flex;align-items:center;justify-content:center;padding:24px;">
+            <img id="panenImageFull" src="" alt="Bukti Panen"
+                style="max-width:100%;max-height:80vh;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.4);transform:scale(0.98);opacity:0;transition:all .25s ease-in-out;">
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <script>
-function hitungKonversi() {
-    const gabah = parseFloat(document.getElementById('tonaseGabah').value) || 0;
-    const rasio = parseFloat(document.getElementById('rasioKonversi').value) || 61.5;
-    const beras = Math.round(gabah * (rasio / 100));
-    const preview = document.getElementById('previewKonversi');
-
-    if (gabah > 0) {
-        preview.style.display = 'block';
-        document.getElementById('previewGabah').textContent = gabah.toLocaleString('id') + ' kg';
-        document.getElementById('previewBeras').textContent = beras.toLocaleString('id') + ' kg';
-        document.getElementById('berasDihasilkan').value = beras;
-    } else {
-        preview.style.display = 'none';
+function previewFoto(input) {
+    const dropZone = document.getElementById('foto-drop-zone');
+    const placeholder = document.getElementById('foto-placeholder');
+    const preview = document.getElementById('foto-preview');
+    const clearWrap = document.getElementById('foto-clear-wrap');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+            dropZone.style.borderColor = 'var(--green-500)';
+            dropZone.style.background = 'rgba(22,163,74,0.05)';
+            clearWrap.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    hitungKonversi();
+function clearFoto(event) {
+    event.stopPropagation();
+    const input = document.getElementById('foto_bukti_input');
+    const dropZone = document.getElementById('foto-drop-zone');
+    const placeholder = document.getElementById('foto-placeholder');
+    const preview = document.getElementById('foto-preview');
+    const clearWrap = document.getElementById('foto-clear-wrap');
+    input.value = '';
+    preview.src = '';
+    preview.style.display = 'none';
+    placeholder.style.display = 'block';
+    clearWrap.style.display = 'none';
+    dropZone.style.borderColor = 'var(--border)';
+    dropZone.style.background = '';
+}
+function openImageModal(src) {
+    const overlay = document.getElementById('panenImageLightbox');
+    const img = document.getElementById('panenImageFull');
+    if (!overlay || !img) return;
+    img.style.opacity = 0; img.style.transform = 'scale(0.98)';
+    img.src = src;
+    overlay.style.display = 'flex';
+    setTimeout(() => { img.style.opacity = 1; img.style.transform = 'scale(1)'; }, 40);
+}
+function closeImageModal() {
+    const overlay = document.getElementById('panenImageLightbox');
+    const img = document.getElementById('panenImageFull');
+    if (!overlay || !img) return;
+    img.style.opacity = 0; img.style.transform = 'scale(0.98)';
+    setTimeout(() => { overlay.style.display = 'none'; img.src = ''; }, 220);
+}
+document.addEventListener('click', function(e) {
+    const anchor = e.target.closest && e.target.closest('.bukti-link');
+    if (anchor) {
+        e.preventDefault();
+        openImageModal(anchor.dataset.src);
+    }
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeImageModal();
+});
+
+// Klik baris → halaman detail
+document.addEventListener('click', function(e) {
+    const row = e.target.closest && e.target.closest('tr.panen-row');
+    if (row && row.dataset.href) {
+        // Jangan navigasi jika klik di dalam td yg sudah stopPropagation (Aksi/Foto)
+        window.location.href = row.dataset.href;
+    }
 });
 </script>
 @endpush
+
+@endsection

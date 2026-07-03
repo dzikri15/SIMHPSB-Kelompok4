@@ -84,7 +84,7 @@ class AppColors {
 
   // ══════════════════════════════════════════
   // DARK MODE
-  // Dipetakan dari dark-mode.css web (SIMHPSB)
+  // Dipetakan dari dark-mode.css web (SIMHP)
   // --green-400 → primary, --surface-2 → surface, dsb.
   // ══════════════════════════════════════════
 

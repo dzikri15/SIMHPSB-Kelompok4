@@ -16,16 +16,16 @@ import 'services/auth_service.dart';
 import 'models/user_model.dart';     // ← TAMBAH
 
 void main() {
-  runApp(const SimhpsbApp());
+  runApp(const SimhpApp());
 }
 
-class SimhpsbApp extends StatelessWidget {
-  const SimhpsbApp({super.key});
+class SimhpApp extends StatelessWidget {
+  const SimhpApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'SIMHPSB',
+      title: 'SIMHP',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

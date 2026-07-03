@@ -1,7 +1,7 @@
 <?php
 
 // ============================================================
-//  routes/web.php  –  SIMHPSB Admin Routes
+//  routes/web.php  –  SIMHP Admin Routes
 // ============================================================
 
 use Illuminate\Support\Facades\Route;
@@ -17,11 +17,17 @@ use App\Http\Controllers\Admin\PenggunaController;
 use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\Admin\TujuanDistribusiController;
 use App\Http\Controllers\PetaniDashboardController;
+use App\Http\Controllers\ChatbotController;
+
 
 // INTRO PAGE
 Route::get('/intro', function () {
     return view('auth.intro');
 })->name('intro');
+
+Route::get('/about', function () {
+    return view('auth.about');
+})->name('about');
 
 Route::get('/', function () {
     if (!Auth::check()) {
@@ -41,6 +47,11 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'role:petani'])->prefix('petani')->name('petani.')->group(function () {
     Route::get('/', [PetaniDashboardController::class, 'index'])->name('dashboard');
+});
+
+// Chatbot Prabowo — proxy ke n8n, bisa diakses admin & petugas yang sudah login
+Route::middleware(['auth'])->group(function () {
+    Route::post('chatbot/prabowo', [ChatbotController::class, 'send'])->name('chatbot.prabowo');
 });
 
 Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')->group(function () {
@@ -78,6 +89,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
     // Stok Gudang
     Route::get ('stok',       [StokController::class, 'index'])->name('stok.index');
     Route::post('stok',       [StokController::class, 'store'])->name('stok.store');
+    Route::get ('stok/{id}/edit', [StokController::class, 'edit'])->name('stok.edit');
+    Route::put ('stok/{id}',  [StokController::class, 'update'])->name('stok.update');
     Route::get ('stok/{id}',  [StokController::class, 'show'])->name('stok.show');
     Route::patch('stok/{id}/toggle-status', [StokController::class, 'toggleStatus'])->name('stok.toggle-status');
     Route::get('stok/summary', [StokController::class, 'summary'])->name('stok.summary');
@@ -88,6 +101,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         Route::get  ('alert',                    [AlertController::class, 'index'])    ->name('alert.index');
         Route::put  ('alert/konfigurasi',        [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
         Route::patch('alert/{alert}/tangani',    [AlertController::class, 'tangani'])  ->name('alert.tangani');
+
+        // Tujuan Distribusi (manajemen)
+        Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index'])->name('tujuan-distribusi.index');
+        Route::post('tujuan-distribusi', [TujuanDistribusiController::class, 'store'])->name('tujuan-distribusi.store');
+        Route::delete('tujuan-distribusi/{id}', [TujuanDistribusiController::class, 'destroy'])->name('tujuan-distribusi.destroy');
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -111,10 +129,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         // Pengaturan
         Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
         Route::put('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
-
-        // Tujuan Distribusi (manajemen)
-        Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index'])->name('tujuan-distribusi.index');
-        Route::post('tujuan-distribusi', [TujuanDistribusiController::class, 'store'])->name('tujuan-distribusi.store');
-        Route::delete('tujuan-distribusi/{id}', [TujuanDistribusiController::class, 'destroy'])->name('tujuan-distribusi.destroy');
     });
 });

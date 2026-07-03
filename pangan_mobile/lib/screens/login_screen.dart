@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               const Text(
-                'SIMHPSB',
+                'SIMHP',
                 style: TextStyle(
                   fontSize: 28, fontWeight: FontWeight.w900,
                   color: AppColors.primary, letterSpacing: 2,
@@ -130,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Sistem Informasi Monitoring Hasil Panen dan Stok Beras Berbasis Mobile',
+                'Sistem Informasi Monitoring Hasil Panen',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),

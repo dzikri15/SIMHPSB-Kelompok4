@@ -18,6 +18,7 @@ class Panen extends Model
         'konversi_beras',  // Menyimpan HASIL beras dalam kg (bukan persentase)
         'musim',
         'catatan',
+        'foto_bukti',
     ];
 
     protected $casts = [

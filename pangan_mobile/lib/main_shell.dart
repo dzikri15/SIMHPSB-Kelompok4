@@ -20,17 +20,25 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _screens = [
-    BerandaScreen(
-      onNavigateToScreen: (index) {
-        setState(() => _selectedIndex = index);
-      },
-      onLogoutTap: _logout,
-    ),
-    PanenScreen(onLogoutTap: _logout),
-    GudangScreen(onLogoutTap: _logout),
-    DistribusiTujuanScreen(onLogoutTap: _logout),
-  ];
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        return BerandaScreen(
+          onNavigateToScreen: (idx) {
+            setState(() => _selectedIndex = idx);
+          },
+          onLogoutTap: _logout,
+        );
+      case 1:
+        return PanenScreen(onLogoutTap: _logout);
+      case 2:
+        return GudangScreen(onLogoutTap: _logout);
+      case 3:
+        return DistribusiTujuanScreen(onLogoutTap: _logout);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
 
   Future<void> _logout() async {
     final confirm = await showDialog<bool>(
@@ -64,27 +72,27 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: _buildScreen(_selectedIndex),
       bottomNavigationBar: AppBottomNav(
         selectedIndex: _selectedIndex,
         onTap: (i) => setState(() => _selectedIndex = i),
-        items: [
-          const AppBottomNavItem(
+        items: const [
+          AppBottomNavItem(
             icon: Icons.home_outlined,
             iconFill: Icons.home_rounded,
             label: 'Beranda',
           ),
-          const AppBottomNavItem(
+          AppBottomNavItem(
             icon: Icons.agriculture_outlined,
             iconFill: Icons.agriculture,
             label: 'Panen',
           ),
-          const AppBottomNavItem(
+          AppBottomNavItem(
             icon: Icons.warehouse_outlined,
             iconFill: Icons.warehouse_rounded,
             label: 'Gudang',
           ),
-          const AppBottomNavItem(
+          AppBottomNavItem(
             icon: Icons.location_on_outlined,
             iconFill: Icons.location_on_rounded,
             label: 'Distribusi',

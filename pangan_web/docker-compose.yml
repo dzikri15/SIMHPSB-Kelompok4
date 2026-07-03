@@ -21,7 +21,7 @@ services:
       - APP_KEY=base64:B0wFcepdxG0zXQv7+7tDEHEckgwk3FXUuoJ9UDPuXek=
       - TZ=Asia/Jakarta
       - APP_DEBUG=true
-      - APP_URL=http://localhost:8000
+      - APP_URL=http://localhost
       - DB_CONNECTION=mysql
       - DB_HOST=db
       - DB_PORT=3306
@@ -35,10 +35,13 @@ services:
       - REDIS_HOST=redis
       - REDIS_PASSWORD=null
       - REDIS_PORT=6379
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=gemini-2.5-flash
+      - N8N_WEBHOOK_URL=http://n8n:5678/webhook/simhpsb-chat
+      - N8N_BASIC_AUTH_USER=mdzikrisagara@gmail.com
+      - N8N_BASIC_AUTH_PASSWORD=Liga1234
     networks:
       - simhpsb_network
-    ports:
-      - "8000:8000"
 
   # MySQL Database
   db:
@@ -122,7 +125,7 @@ services:
     ports:
       - "5678:5678"
     environment:
-      - N8N_HOST=localhost
+      - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
       - NODE_ENV=production
@@ -136,13 +139,21 @@ services:
       - DB_MYSQLDB_USER=root
       - DB_MYSQLDB_PASSWORD=root
       - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=simhpsb123
+      - N8N_BASIC_AUTH_USER=mdzikrisagara@gmail.com
+      - N8N_BASIC_AUTH_PASSWORD=Liga1234
+      # ── Akses ke API Laravel SIMHPSB ──────────────────────────────
+      - APP_API_URL=http://nginx:80
+      - APP_API_LOGIN_EMAIL=admin@simhpsb.com
+      - APP_API_LOGIN_PASSWORD=password
+      # Wajib di-set TRUE supaya expression {{ $env.APP_API_URL }} bisa dibaca node
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
       db:
         condition: service_healthy
+      app:
+        condition: service_started
     networks:
       - simhpsb_network
 

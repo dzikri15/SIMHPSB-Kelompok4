@@ -9,8 +9,7 @@ use App\Http\Controllers\Api\LahanController;
 use App\Http\Controllers\Api\PanenController;
 use App\Http\Controllers\Api\StokController;
 use App\Http\Controllers\Api\HargaController;
-use App\Http\Controllers\Api\AlertController;
-use App\Http\Controllers\Api\DistribusiController;
+use App\Http\Controllers\Api\AlertController;use App\Http\Controllers\ChatbotController;use App\Http\Controllers\Api\DistribusiController;
 use App\Http\Controllers\Api\TujuanDistribusiController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\PetaniProfileController;
@@ -50,6 +49,7 @@ Route::middleware('auth:api')->group(function () {
 
     // ── Harga (custom route BEFORE apiResource)
     Route::post('harga/calculate', [HargaController::class, 'calculate']);
+    Route::get('harga/aktif',      [HargaController::class, 'aktif']);
     Route::apiResource('harga', HargaController::class);
 
     // ── Alert (custom route BEFORE apiResource)

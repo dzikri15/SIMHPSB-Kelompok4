@@ -1,11 +1,14 @@
 // lib/screens/panen_screen.dart
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../core/app_colors.dart';
 import '../widgets/app_top_bar.dart';
 import '../models/panen_model.dart';
 import '../models/petani_model.dart';
 import '../services/panen_service.dart';
 import '../services/api_service.dart';
+import 'panen_detail_screen.dart';
 
 class _MusimOption {
   final String value;
@@ -18,7 +21,7 @@ const _musimOptions = [
   _MusimOption('hujan', 'Hujan'),
 ];
 
-const _komoditasList = ['Padi', 'Jagung'];
+const _komoditasList = ['Padi'];
 
 class PanenScreen extends StatefulWidget {
   final VoidCallback? onLogoutTap;
@@ -42,6 +45,11 @@ class _PanenScreenState extends State<PanenScreen> {
   final _rasioCtrl = TextEditingController(text: '61.5');
   final _catatanCtrl = TextEditingController();
 
+  // Foto bukti panen
+  final ImagePicker _imagePicker = ImagePicker();
+  Uint8List? _fotoBytes;
+  String? _fotoName;
+
   List<PanenModel> _riwayat = [];
   List<PetaniModel> _petaniList = [];
   bool _isLoadingRiwayat = true;
@@ -51,8 +59,6 @@ class _PanenScreenState extends State<PanenScreen> {
   // Paging riwayat panen
   static const int _pageSize = 10;
   int _currentPage = 1;
-
-  double get _estimasiBeras => _tonaseGabah * (_rasioKonversi / 100);
 
   @override
   void initState() {
@@ -81,6 +87,27 @@ class _PanenScreenState extends State<PanenScreen> {
     _catatanCtrl.dispose();
     super.dispose();
   }
+
+  Future<void> _pickFoto() async {
+    try {
+      final xfile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1920,
+      );
+      if (xfile != null) {
+        final bytes = await xfile.readAsBytes();
+        setState(() {
+          _fotoBytes = bytes;
+          _fotoName = xfile.name;
+        });
+      }
+    } catch (e) {
+      _snack('Gagal memilih foto: $e', isError: true);
+    }
+  }
+
+  void _clearFoto() => setState(() { _fotoBytes = null; _fotoName = null; });
 
   String _todayFormatted() {
     final now = DateTime.now();
@@ -132,7 +159,12 @@ class _PanenScreenState extends State<PanenScreen> {
       final list = await _panenService.getAll();
       if (mounted) {
         setState(() {
-          _riwayat = list.toList()..sort((a, b) => b.tanggalPanen.compareTo(a.tanggalPanen));
+          _riwayat = list.toList()
+            ..sort((a, b) {
+              final cmp = b.tanggalPanen.compareTo(a.tanggalPanen);
+              if (cmp != 0) return cmp;
+              return b.id.compareTo(a.id);
+            });
           _isLoadingRiwayat = false;
           _currentPage = 1;
         });
@@ -154,7 +186,12 @@ class _PanenScreenState extends State<PanenScreen> {
       return;
     }
     if (_tonaseGabah <= 0) {
-      _snack('Tonase gabah harus lebih dari 0', isError: true);
+      _snack('Hasil gabah harus lebih dari 0', isError: true);
+      return;
+    }
+    // Foto bukti WAJIB
+    if (_fotoBytes == null) {
+      _snack('Foto bukti panen wajib diupload', isError: true);
       return;
     }
     final tanggal = _parseDate(_tanggalCtrl.text);
@@ -167,18 +204,22 @@ class _PanenScreenState extends State<PanenScreen> {
         : null;
     setState(() => _isSaving = true);
     try {
-      await _panenService.create({
-        if (lahanId != null) 'lahan_id': lahanId,
-        'petani_id': _selectedPetani!.id,
-        'tanggal_panen': tanggal,
-        'jumlah_gabah': _tonaseGabah,
-        'konversi_factor': _rasioKonversi / 100,
-        'musim_tanam': _selectedMusim,
-        'komoditas': _selectedKomoditas,
-        'catatan': _catatanCtrl.text.trim().isEmpty
-            ? null
-            : _catatanCtrl.text.trim(),
-      });
+      await _panenService.createWithFoto(
+        {
+          if (lahanId != null) 'lahan_id': lahanId,
+          'petani_id': _selectedPetani!.id,
+          'tanggal_panen': tanggal,
+          'jumlah_gabah': _tonaseGabah,
+          'konversi_factor': _rasioKonversi / 100,
+          'musim_tanam': _selectedMusim,
+          'komoditas': _selectedKomoditas,
+          'catatan': _catatanCtrl.text.trim().isEmpty
+              ? null
+              : _catatanCtrl.text.trim(),
+        },
+        _fotoBytes!,
+        fotoName: _fotoName ?? 'bukti_panen.jpg',
+      );
       _tonaseCtrl.clear();
       _catatanCtrl.clear();
       _rasioCtrl.text = '61.5';
@@ -189,8 +230,10 @@ class _PanenScreenState extends State<PanenScreen> {
         _tonaseGabah = 0;
         _rasioKonversi = 61.5;
         _tanggalCtrl.text = _todayFormatted();
+        _fotoBytes = null;
+        _fotoName = null;
       });
-      _snack('Panen berhasil disimpan');
+      _snack('Panen berhasil disimpan. Stok Gabah diperbarui otomatis.');
       _loadRiwayat();
     } on ApiException catch (e) {
       _snack('Error: ${e.message}', isError: true);
@@ -233,7 +276,7 @@ class _PanenScreenState extends State<PanenScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Input tonase panen dengan konversi gabah → beras otomatis',
+              'Input hasil panen dengan konversi gabah → beras otomatis',
               style: TextStyle(
                   fontSize: 13,
                   color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -351,7 +394,7 @@ class _PanenScreenState extends State<PanenScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  _label('Tonase Gabah (kg) *'),
+                  _label('Hasil Gabah (kg) *'),
                   const SizedBox(height: 4),
                   const Text('Berat gabah basah setelah panen',
                       style: TextStyle(
@@ -390,30 +433,6 @@ class _PanenScreenState extends State<PanenScreen> {
                                 fontSize: 12)),
                       ),
                     ]),
-                  ),
-                  const SizedBox(height: 16),
-
-                  _label('Rasio Konversi (%)'),
-                  const SizedBox(height: 4),
-                  Text(
-                      'Default sistem: 61,5% (dapat disesuaikan per batch)',
-                      style: TextStyle(
-                          fontSize: 11,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                  const SizedBox(height: 8),
-                  _inputBox(
-                    child: TextFormField(
-                      controller: _rasioCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface),
-                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -467,66 +486,64 @@ class _PanenScreenState extends State<PanenScreen> {
                           color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
 
-                  if (_tonaseGabah > 0) ...[
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primaryContainer
-                            .withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.2)),
-                      ),
-                      child: Row(children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Icon(Icons.calculate_outlined,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 22),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('ESTIMASI BERAS HASIL',
-                                  style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 1.2,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${_estimasiBeras.toStringAsFixed(0)} kg',
-                                style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    color: Theme.of(context).colorScheme.primary),
-                              ),
-                            ],
+                  // ── Foto Bukti Panen (WAJIB) ───────────────────────
+                  _label('Foto Bukti Panen *'),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Foto wajib diupload sebagai bukti transaksi panen',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _pickFoto,
+                          icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                          label: Text(
+                            _fotoBytes != null
+                                ? '📷 ${_fotoName ?? 'Foto dipilih'}'
+                                : 'Pilih Foto Bukti',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _fotoBytes == null
+                                ? AppColors.accentRed.withValues(alpha: 0.9)
+                                : AppColors.accentGreen.withValues(alpha: 0.9),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                         ),
-                        Text(
-                          '${_rasioKonversi.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                      if (_fotoBytes != null) ...[  
+                        const SizedBox(width: 8),
+                        IconButton(
+                          onPressed: _clearFoto,
+                          icon: const Icon(Icons.close),
+                          tooltip: 'Hapus foto',
                         ),
-                      ]),
+                      ],
+                    ],
+                  ),
+                  if (_fotoBytes == null)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text(
+                        '* Foto bukti panen wajib diisi sebelum menyimpan',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.accentRed,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                  ],
+                  const SizedBox(height: 20),
 
                   SizedBox(
                     width: double.infinity,
@@ -742,17 +759,14 @@ class _PanenScreenState extends State<PanenScreen> {
       ),
       child: Row(
         children: [
-          Expanded(flex: 18, child: Text('PETANI', style: style)),
-          Expanded(flex: 15, child: Text('GABAH', style: style)),
-          Expanded(flex: 14, child: Text('BERAS', style: style)),
-          Expanded(flex: 15, child: Text('MUSIM', style: style)),
-          Expanded(flex: 20, child: Text('TANGGAL', style: style, maxLines: 1)),
+          Expanded(flex: 25, child: Text('PETANI', style: style)),
+          Expanded(flex: 20, child: Text('GABAH', style: style)),
+          Expanded(flex: 20, child: Text('MUSIM', style: style)),
+          Expanded(flex: 25, child: Text('TANGGAL', style: style, maxLines: 1)),
         ],
       ),
     );
   }
-
-  // ── Riwayat Row ───────────────────────────────────────────────────
 
   Widget _riwayatRow(PanenModel r) {
     final musimLabel = r.musimLabel;
@@ -768,101 +782,96 @@ class _PanenScreenState extends State<PanenScreen> {
       return raw;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 1),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(8),
-        border: Border(
-          bottom: BorderSide(
-              color: Theme.of(context)
-                  .colorScheme
-                  .outlineVariant
-                  .withValues(alpha: 0.4),
-              width: 1),
+    return InkWell(
+      onTap: () => PanenDetailScreen.showSheet(context, r),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 1),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(8),
+          border: Border(
+            bottom: BorderSide(
+                color: Theme.of(context)
+                    .colorScheme
+                    .outlineVariant
+                    .withValues(alpha: 0.4),
+                width: 1),
+          ),
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Petani
-          Expanded(
-            flex: 18,
-            child: Text(
-              r.namaPetani,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.onSurface),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Petani
+            Expanded(
+              flex: 25,
+              child: Text(
+                r.namaPetani,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
-          ),
-          // Tonase Gabah
-          Expanded(
-            flex: 15,
-            child: Text(
-              '${r.jumlahGabah.toStringAsFixed(0)} kg',
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurface),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            // Hasil Gabah (label kolom: GABAH)
+            Expanded(
+              flex: 20,
+              child: Text(
+                '${r.jumlahGabah.toStringAsFixed(0)} kg',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurface),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
-          ),
-          // Beras Hasil
-          Expanded(
-            flex: 14,
-            child: Text(
-              r.konversiBeras != null
-                  ? '${r.konversiBeras!.toStringAsFixed(0)} kg'
-                  : '—',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.primary),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            // Musim badge
+            Expanded(
+              flex: 20,
+              child: musimLabel != null
+                  ? Container(
+                      margin: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        musimLabel,
+                        style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.primary),
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    )
+                  : const SizedBox(),
             ),
-          ),
-          // Musim badge
-          Expanded(
-            flex: 15,
-            child: musimLabel != null
-                ? Container(
-                    margin: const EdgeInsets.only(right: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      musimLabel,
-                      style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.primary),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  )
-                : const SizedBox(),
-          ),
-          // Tanggal
-          Expanded(
-            flex: 20,
-            child: Text(
-              formatTanggal(r.tanggalPanen),
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+            // Tanggal
+            Expanded(
+              flex: 23,
+              child: Text(
+                formatTanggal(r.tanggalPanen),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
-          ),
-        ],
+            // Ikon tap indicator
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
+          ],
+        ),
       ),
     );
   }
