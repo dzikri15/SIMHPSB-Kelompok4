@@ -14,6 +14,7 @@ class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showProfile;
   final bool showLogout;
   final bool showMenu;
+  final bool showPetaniList;
   final VoidCallback? onProfileTap;
   final VoidCallback? onLogoutTap;
   const AppTopBar({
@@ -23,6 +24,7 @@ class AppTopBar extends StatefulWidget implements PreferredSizeWidget {
     this.showProfile = false,
     this.showLogout = false,
     this.showMenu = false,
+    this.showPetaniList = false,
     this.onProfileTap,
     this.onLogoutTap,
   });
@@ -107,6 +109,19 @@ class _AppTopBarState extends State<AppTopBar> {
                 ),
               ],
               const Spacer(),
+
+              // ── Ikon Petani (petugas) ───────────────────────────────────────
+              if (widget.showPetaniList)
+                IconButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/petani_list');
+                  },
+                  icon: Icon(
+                    Icons.people_alt_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 24,
+                  ),
+                ),
 
               // ── Ikon Notifikasi / Alert (hanya petugas) ──────────────────
               if (widget.showAlert)
