@@ -38,11 +38,11 @@
         <div class="stat-label">Stok Beras</div>
         <div class="stat-change up">
             <i class="fas fa-arrow-up"></i>
-            Kapasitas max 1.000 kg ({{ round((($stokBeras ?? 450)/1000)*100) }}%)
+            Kapasitas max {{ number_format($kapasitasBeras ?? 1000) }} kg ({{ round((($stokBeras ?? 450)/($kapasitasBeras ?? 1000))*100) }}%)
         </div>
         <div style="margin-top:10px;">
             <div class="progress-bar">
-                <div class="progress-fill" style="width:{{ round((($stokBeras ?? 450)/1000)*100) }}%;background:var(--green-500);"></div>
+                <div class="progress-fill" style="width:{{ min(100, round((($stokBeras ?? 450)/($kapasitasBeras ?? 1000))*100)) }}%;background:var(--green-500);"></div>
             </div>
         </div>
     </div>
@@ -53,11 +53,11 @@
         <div class="stat-label">Stok Gabah</div>
         <div class="stat-change up">
             <i class="fas fa-arrow-up"></i>
-            Kapasitas max 2.000 kg ({{ round((($stokGabah ?? 800)/2000)*100) }}%)
+            Kapasitas max {{ number_format($kapasitasGabah ?? 2000) }} kg ({{ round((($stokGabah ?? 800)/($kapasitasGabah ?? 2000))*100) }}%)
         </div>
         <div style="margin-top:10px;">
             <div class="progress-bar">
-                <div class="progress-fill" style="width:{{ round((($stokGabah ?? 800)/2000)*100) }}%;background:var(--amber-500);"></div>
+                <div class="progress-fill" style="width:{{ min(100, round((($stokGabah ?? 800)/($kapasitasGabah ?? 2000))*100)) }}%;background:var(--amber-500);"></div>
             </div>
         </div>
     </div>
@@ -120,19 +120,32 @@
 <div class="grid-2">
     {{-- Distribusi Terkini --}}
     <div class="card">
-        <div class="card-header">
+        <div class="card-header" style="flex-wrap:wrap;gap:8px;">
             <div>
                 <div class="card-title">Distribusi Terkini</div>
-                <div class="card-subtitle">Transaksi stok keluar terbaru</div>
+                <div class="card-subtitle">Transaksi stok beras keluar — <span id="distribusiCount">{{ count($distribusiTerkini ?? []) }}</span> transaksi</div>
             </div>
             <a href="{{ route('admin.stok.index') }}" class="btn btn-secondary btn-sm">Lihat Semua</a>
         </div>
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
+        <div style="padding:10px 16px;">
+            <div style="position:relative;">
+                <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;"></i>
+                <input
+                    type="text"
+                    id="searchDistribusi"
+                    placeholder="Cari tujuan, jumlah..."
+                    oninput="filterDistribusi()"
+                    style="width:100%;padding:8px 12px 8px 34px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--surface-2);color:var(--text-primary);outline:none;box-sizing:border-box;transition:border-color .2s;"
+                    onfocus="this.style.borderColor='var(--green-500)'"
+                    onblur="this.style.borderColor='var(--border)'"
+                >
+            </div>
+        </div>
+        <div class="table-container" style="max-height:165px;overflow-y:auto;overflow-x:auto;">
+            <table class="data-table" id="distribusiTable" style="width:100%;min-width:400px;">
+                <thead style="position:sticky;top:0;z-index:1;background:var(--surface);">
                     <tr>
                         <th>Tujuan</th>
-                        <th>Komoditas</th>
                         <th>Jumlah</th>
                         <th>Tanggal</th>
                     </tr>
@@ -142,84 +155,56 @@
                         <tr>
                             <td>
                                 <div style="font-weight:600;">{{ $dist->tujuan }}</div>
-                                <div style="font-size:11.5px;color:var(--text-muted);">{{ $dist->jenis_tujuan }}</div>
                             </td>
-                            <td><span class="badge badge-green">{{ $dist->komoditas }}</span></td>
-                            <td><strong>{{ number_format($dist->jumlah) }} kg</strong></td>
-                            <td style="color:var(--text-muted);font-size:12.5px;">{{ $dist->tanggal }}</td>
+                            <td><strong style="color:var(--green-600);">{{ number_format($dist->jumlah) }} kg</strong></td>
+                            <td style="color:var(--text-muted);font-size:12px;white-space:nowrap;">{{ $dist->tanggal }}</td>
                         </tr>
                     @empty
-                        {{-- DUMMY DATA untuk preview --}}
-                        <tr>
-                            <td><div style="font-weight:600;">Dapur MBG 1</div><div style="font-size:11.5px;color:var(--text-muted);">MBG</div></td>
-                            <td><span class="badge badge-green">Beras</span></td>
-                            <td><strong>155 kg</strong></td>
-                            <td style="color:var(--text-muted);font-size:12.5px;">Hari ini</td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-weight:600;">Dapur MBG 2</div><div style="font-size:11.5px;color:var(--text-muted);">MBG</div></td>
-                            <td><span class="badge badge-green">Beras</span></td>
-                            <td><strong>155 kg</strong></td>
-                            <td style="color:var(--text-muted);font-size:12.5px;">Hari ini</td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-weight:600;">Toko Rudi</div><div style="font-size:11.5px;color:var(--text-muted);">Toko Mitra</div></td>
-                            <td><span class="badge badge-green">Beras</span></td>
-                            <td><strong>100 kg</strong></td>
-                            <td style="color:var(--text-muted);font-size:12.5px;">Kemarin</td>
-                        </tr>
-                        <tr>
-                            <td><div style="font-weight:600;">Toko Barokah</div><div style="font-size:11.5px;color:var(--text-muted);">Toko Mitra</div></td>
-                            <td><span class="badge badge-green">Beras</span></td>
-                            <td><strong>80 kg</strong></td>
-                            <td style="color:var(--text-muted);font-size:12.5px;">Kemarin</td>
+                        <tr id="distribusiEmptyRow">
+                            <td colspan="3" style="text-align:center;padding:32px;color:var(--text-muted);">
+                                <i class="fas fa-inbox" style="font-size:28px;margin-bottom:8px;display:block;"></i>
+                                Belum ada data distribusi
+                            </td>
                         </tr>
                     @endforelse
+                    <tr id="distribusiNoResult" style="display:none;">
+                        <td colspan="3" style="text-align:center;padding:24px;color:var(--text-muted);">
+                            <i class="fas fa-search" style="margin-right:6px;"></i>Tidak ditemukan hasil untuk pencarian ini
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     @role('admin')
-        {{-- Ringkasan Margin & HPP --}}
+        {{-- Ringkasan Harga & Estimasi Pendapatan --}}
         <div class="card">
             <div class="card-header">
                 <div>
-                    <div class="card-title">Kalkulasi Margin & HPP</div>
+                    <div class="card-title">Harga & Estimasi Pendapatan</div>
                     <div class="card-subtitle">Berdasarkan harga konfigurasi aktif</div>
                 </div>
                 <a href="{{ route('admin.harga.index') }}" class="btn btn-secondary btn-sm">Ubah Harga</a>
             </div>
             <div class="card-body">
                 <div style="display:flex;flex-direction:column;gap:16px;">
-
-                    <div style="background:var(--surface-2);border-radius:10px;padding:16px;">
-                        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;">Harga Beli Gabah</div>
-                        <div style="font-size:22px;font-weight:800;">Rp {{ number_format($hargaBeliGabah, 0, ',', '.') }} <small style="font-size:13px;font-weight:500;color:var(--text-muted);">/ 100 kg</small></div>
-                    </div>
-
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                         <div style="background:var(--surface-2);border-radius:10px;padding:14px;">
-                            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:6px;">Ongkos Giling</div>
-                            <div style="font-size:17px;font-weight:700;">Rp {{ number_format($ongkosGiling, 0, ',', '.') }} / kg</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;">Harga Beli Gabah</div>
+                            <div style="font-size:17px;font-weight:700;">Rp {{ number_format($hargaBeliGabah, 0, ',', '.') }} / kg</div>
                         </div>
                         <div style="background:var(--surface-2);border-radius:10px;padding:14px;">
-                            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:6px;">Harga Jual Beras</div>
+                            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;">Harga Jual Beras</div>
                             <div style="font-size:17px;font-weight:700;">Rp {{ number_format($hargaJualBeras, 0, ',', '.') }} / kg</div>
                         </div>
-                    </div>
-
-                    <div style="background:var(--green-50);border:1.5px solid var(--green-300);border-radius:10px;padding:16px;">
-                        <div style="font-size:12px;color:var(--green-700);margin-bottom:6px;font-weight:700;">💰 Estimasi Margin Bersih</div>
-                        <div style="font-size:24px;font-weight:800;color:var(--green-700);">Rp {{ number_format($marginPerKg, 0, ',', '.') }} / kg</div>
-                        <div style="font-size:12px;color:var(--green-600);margin-top:4px;">HPP ≈ Rp {{ number_format($hppPerKg, 0, ',', '.') }}/kg &nbsp;|&nbsp; Margin ≈ {{ number_format($marginPercent, 1, ',', '.') }}%</div>
                     </div>
 
                     <div style="background:var(--blue-100);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;">
                         <i class="fas fa-chart-bar" style="font-size:22px;color:var(--blue-500);"></i>
                         <div>
-                            <div style="font-weight:700;font-size:14px;color:#1e40af;">Estimasi Pendapatan dari Stok</div>
-                            <div style="font-size:13px;color:#1e40af;">{{ number_format(($stokBeras ?? 0) * $hargaJualBeras, 0, ',', '.') }} (stok saat ini × harga jual)</div>
+                            <div style="font-weight:700;font-size:14px;color:#1e40af;">Estimasi Pendapatan Bulan Ini</div>
+                            <div style="font-size:14px;font-weight:700;color:#1e40af;">Rp {{ number_format(($totalBerasKeluar ?? 0) * $hargaJualBeras, 0, ',', '.') }} <span style="font-size:11px;opacity:0.8;font-weight:normal;">(beras keluar bulan ini × harga jual)</span></div>
                         </div>
                     </div>
                 </div>
@@ -402,6 +387,29 @@ function markFirstAlertHandled() {
             }
         })
         .catch(error => console.error('Error:', error));
+    }
+}
+
+function filterDistribusi() {
+    const q = document.getElementById('searchDistribusi').value.toLowerCase();
+    const rows = document.querySelectorAll('#distribusiTable tbody tr:not(#distribusiNoResult):not(#distribusiEmptyRow)');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const show = text.includes(q);
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+
+    // Tampilkan / sembunyikan "no result" row
+    const noResult = document.getElementById('distribusiNoResult');
+    if (noResult) noResult.style.display = (visibleCount === 0 && q.length > 0) ? '' : 'none';
+
+    // Update counter
+    const counter = document.getElementById('distribusiCount');
+    if (counter) {
+        counter.textContent = q.length > 0 ? visibleCount + ' hasil' : rows.length;
     }
 }
 </script>

@@ -1,8 +1,69 @@
 # 📋 Changelog SIMHP – Kelompok 4
 
 > Branch: `dzikri-backend`
-> Tanggal: 2 Juli 2026
-> Commit terbaru: `852d2d6`
+> Tanggal: 3 Juli 2026
+> Commit terbaru: `d3b726f`
+
+---
+
+## 🆕 Update Terbaru – Manajemen Tujuan Distribusi & Dashboard Web
+
+### 🌐 Web Dashboard
+- **Tabel Distribusi Terkini:**
+  - Ditambahkan fitur *scroll* di dalam tabel dengan `max-height` agar layout tetap rapi.
+  - Jumlah batas data (*limit*) ditingkatkan dari 20 menjadi **200 baris**.
+  - Header tabel dibuat *sticky* agar tetap terlihat saat menggulir ke bawah.
+  - Ditambahkan **Search Bar** (Live Search via JavaScript) di dalam *card* yang bisa menyaring baris tabel seketika.
+
+### 📍 Halaman Tujuan Distribusi (`/admin/tujuan-distribusi`)
+- **Pembaruan Tampilan:** Antarmuka disamakan dengan gaya halaman "Stok Gudang".
+- **Stat Cards (Kartu Statistik):** Ditambahkan 3 ringkasan langsung di bagian atas: Total Tujuan, Distribusi Terbanyak, dan Total Dikirim (kg) di bulan berjalan.
+- **Kolom Tabel Total Terkirim:** Menampilkan akumulasi jumlah beras yang sudah dikirim secara rinci pada tiap baris data tujuan.
+- **Search & Paginasi (Server-side):**
+  - Ditambahkan fitur pencarian (*search bar*) berbasis *debounce*.
+  - Ditambahkan paginasi gaya Stok Gudang (10 baris per halaman) lengkap dengan *row numbering* yang tersambung antar halaman.
+  - Pengurutan data (*Sorting*) telah diubah menggunakan metode **Natural Sort**, sehingga pola urutannya benar (contoh: MBG 1, MBG 2, ... MBG 10) bukan pengurutan teks biasa.
+
+### 📝 File yang Dimodifikasi pada Update Ini
+| Platform | File |
+|----------|------|
+| **Web** | `resources/views/admin/dashboard.blade.php`<br>`resources/views/admin/tujuan-distribusi/index.blade.php`<br>`app/Http/Controllers/Admin/DashboardController.php`<br>`app/Http/Controllers/Admin/TujuanDistribusiController.php` |
+
+---
+
+## 🆕 Update Sebelumnya – Manajemen Data Petani (Web & Mobile)
+
+### 👨‍🌾 Fitur Manajemen Data Petani (Petugas & Admin)
+
+#### 🌐 Web & API (Backend)
+- **Role Petugas di Web:**
+  - Menambahkan menu **Data Petani** pada sidebar khusus untuk Petugas.
+  - Membatasi hak akses (CRUD): Petugas hanya bisa melihat (read-only) data petani, sedangkan tombol aksi (Edit, Hapus, Tambah) disembunyikan.
+- **Route & Controller API Baru:**
+  - **`toggleStatus`**: API untuk mengaktifkan atau menonaktifkan status akun petani.
+  - **`exportPdf`**: API untuk mengunduh profil detail petani dalam bentuk PDF.
+
+#### 📱 Mobile App (Flutter)
+- **Halaman Baru Data Petani (`PetaniListScreen`):**
+  - Dibuat khusus untuk role petugas agar bisa mengelola data petani.
+  - Dilengkapi fitur **Toggle Status** (Aktif/Nonaktifkan akun petani).
+  - Dilengkapi fitur **Unduh PDF** profil petani.
+- **Aksesibilitas / Navigasi Cepat:**
+  - Ikon shortcut menuju Data Petani ditambahkan di `AppTopBar`.
+  - Kartu "Total Petani" pada dashboard/beranda sekarang bisa diklik untuk langsung menuju daftar petani.
+  - Tombol akses Data Petani juga disematkan di halaman Pencatatan Panen, Stok Gudang, dan Tujuan Distribusi.
+- **Konfigurasi Tambahan:**
+  - Penambahan library `path_provider` dan `open_file` untuk menangani unduhan dokumen PDF.
+  - Penambahan permission `INTERNET`, `READ_EXTERNAL_STORAGE`, dan `WRITE_EXTERNAL_STORAGE` pada `AndroidManifest.xml`.
+  - Penyesuaian `baseUrl` pada `constants.dart`.
+
+### 📝 File yang Dimodifikasi pada Update Ini
+
+| Platform | File |
+|----------|------|
+| **Web** | `app/Http/Controllers/Admin/PetaniController.php`<br>`resources/views/admin/petani/index.blade.php`<br>`resources/views/layout/admin.blade.php` |
+| **API** | `app/Http/Controllers/Api/PetaniProfileController.php`<br>`routes/api.php` |
+| **Mobile** | `lib/main.dart`<br>`lib/core/constants.dart`<br>`lib/services/petani_service.dart`<br>`lib/screens/petani_list_screen.dart` (Baru)<br>`lib/screens/beranda_screen.dart`<br>`lib/screens/panen_screen.dart`<br>`lib/screens/gudang_screen.dart`<br>`lib/screens/distribusi_tujuan_screen.dart`<br>`lib/widgets/app_top_bar.dart`<br>`android/app/src/main/AndroidManifest.xml`<br>`pubspec.yaml` |
 
 ---
 
