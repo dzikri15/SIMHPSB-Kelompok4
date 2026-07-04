@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alert;
+use App\Models\AlertConfiguration;
 use App\Models\KonfigurasiHarga;
 use App\Models\Stok;
 use Carbon\Carbon;
@@ -17,6 +18,13 @@ class DashboardController extends Controller
         $dateColumn = $this->getDateColumn();
         $stokBeras = $this->getCurrentStock('Beras');
         $stokGabah = $this->getCurrentStock('Gabah');
+
+        $totalBerasKeluar = Stok::where('komoditas', 'Beras')
+            ->where('jenis_transaksi', 'keluar')
+            ->whereYear($dateColumn, Carbon::now()->year)
+            ->whereMonth($dateColumn, Carbon::now()->month)
+            ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
+            ->sum('jumlah');
 
         $config = KonfigurasiHarga::where('is_active', true)
             ->orderByDesc('berlaku_mulai')
@@ -35,17 +43,20 @@ class DashboardController extends Controller
         $alertOpenCount = $alertAktif->count() + $alertProses->count();
 
         $distribusiTerkini = Stok::where('jenis_transaksi', 'keluar')
+            ->where('komoditas', 'Beras')
             ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
             ->orderByDesc($dateColumn)
-            ->limit(4)
+            ->limit(200)
             ->get()
             ->map(function ($item) {
+                $raw = $item->tanggal ?? $item->tanggal_update ?? $item->created_at;
+                $tanggalFormatted = $raw ? \Carbon\Carbon::parse($raw)->translatedFormat('d M Y, H:i') : '-';
                 return (object) [
-                    'tujuan' => $item->keterangan ?: 'Distribusi',
+                    'tujuan'      => $item->keterangan ?: 'Distribusi',
                     'jenis_tujuan' => 'Tujuan',
-                    'komoditas' => $item->komoditas,
-                    'jumlah' => $item->jumlah,
-                    'tanggal' => $item->tanggal ?? $item->tanggal_update ?? $item->created_at,
+                    'komoditas'   => $item->komoditas,
+                    'jumlah'      => $item->jumlah,
+                    'tanggal'     => $tanggalFormatted,
                 ];
             });
 
@@ -70,8 +81,11 @@ class DashboardController extends Controller
                 ->sum('jumlah');
         })->toArray();
 
-        $targetBulan = 9000;
-        $targetChart = array_fill(0, count($chartLabels), $targetBulan);
+        $alertConfig    = AlertConfiguration::first();
+        $kapasitasBeras = $alertConfig->kapasitas_max_beras ?? 1000;
+        $kapasitasGabah = $alertConfig->kapasitas_max_gabah ?? 2000;
+        $targetBulan    = $alertConfig->target_pasar ?? 9000;
+        $targetChart    = array_fill(0, count($chartLabels), $targetBulan);
 
         return view('admin.dashboard', compact(
             'stokBeras',
@@ -84,12 +98,15 @@ class DashboardController extends Controller
             'trenPanenGabah',
             'targetChart',
             'targetBulan',
+            'kapasitasBeras',
+            'kapasitasGabah',
             'hargaBeliGabah',
             'ongkosGiling',
             'hargaJualBeras',
             'hppPerKg',
             'marginPerKg',
-            'marginPercent'
+            'marginPercent',
+            'totalBerasKeluar'
         ));
     }
 

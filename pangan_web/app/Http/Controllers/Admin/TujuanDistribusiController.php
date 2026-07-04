@@ -9,13 +9,66 @@ use Illuminate\Http\Request;
 
 class TujuanDistribusiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tujuans = TujuanDistribusi::orderBy('nama')->get();
+        $search = $request->get('search', '');
 
-        return view('admin.tujuan-distribusi.index', [
-            'tujuans' => $tujuans,
-        ]);
+        $query = TujuanDistribusi::query();
+        if ($search) {
+            $query->where('nama', 'like', "%{$search}%");
+        }
+
+        // Hitung total_terkirim tiap tujuan (exact match atau nama + spasi)
+        $allTujuans = $query->get()->map(function ($t) {
+            $total = Stok::where('jenis_transaksi', 'keluar')
+                ->where('status', 'aktif')
+                ->where(function($q) use ($t) {
+                    $q->where('keterangan', $t->nama)
+                      ->orWhere('keterangan', 'like', $t->nama . ' %');
+                })
+                ->sum('jumlah');
+            $t->total_terkirim = (float) $total;
+            return $t;
+        })->sortBy('nama', SORT_NATURAL | SORT_FLAG_CASE)->values();
+
+        // Stat cards
+        $totalTujuan = TujuanDistribusi::count();
+        $bulanIni = now()->month;
+        $tahunIni = now()->year;
+        $stokBulanIni = Stok::where('jenis_transaksi', 'keluar')
+            ->where('komoditas', 'Beras')
+            ->where('status', 'aktif')
+            ->whereMonth('tanggal_update', $bulanIni)
+            ->whereYear('tanggal_update', $tahunIni)
+            ->get();
+        $totalDikirimBulanIni = $stokBulanIni->sum('jumlah');
+
+        // Tujuan terbanyak bulan ini
+        $semuaNama = TujuanDistribusi::pluck('nama')->toArray();
+        $tujuanCount = [];
+        foreach ($stokBulanIni as $stok) {
+            $ket = $stok->keterangan ?? '';
+            foreach ($semuaNama as $nama) {
+                if ($ket === $nama || str_starts_with($ket, $nama . ' ')) {
+                    $tujuanCount[$nama] = ($tujuanCount[$nama] ?? 0) + $stok->jumlah;
+                    break;
+                }
+            }
+        }
+        arsort($tujuanCount);
+        $tujuanTerbanyak = key($tujuanCount) ?? '-';
+
+        // Pagination manual — 10 per page
+        $perPage = 10;
+        $currentPage = (int) $request->get('page', 1);
+        $total = $allTujuans->count();
+        $tujuans = $allTujuans->forPage($currentPage, $perPage);
+        $lastPage = max(1, (int) ceil($total / $perPage));
+
+        return view('admin.tujuan-distribusi.index', compact(
+            'tujuans', 'search', 'currentPage', 'lastPage', 'total',
+            'totalTujuan', 'totalDikirimBulanIni', 'tujuanTerbanyak'
+        ));
     }
 
     public function store(Request $request)
