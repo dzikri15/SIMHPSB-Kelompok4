@@ -37,6 +37,17 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Rename output APK to simhpsb.apk agar mudah diunduh dari web
+    applicationVariants.all {
+        val variant = this
+        variant.outputs.all {
+            val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            if (variant.buildType.name == "release") {
+                output?.outputFileName = "simhpsb.apk"
+            }
+        }
+    }
 }
 
 flutter {
