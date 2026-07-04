@@ -94,6 +94,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
     Route::put ('stok/{id}',  [StokController::class, 'update'])->name('stok.update');
     Route::get ('stok/{id}',  [StokController::class, 'show'])->name('stok.show');
     Route::patch('stok/{id}/toggle-status', [StokController::class, 'toggleStatus'])->name('stok.toggle-status');
+    Route::delete('stok/{id}', [StokController::class, 'destroy'])->name('stok.destroy');
     Route::get('stok/summary', [StokController::class, 'summary'])->name('stok.summary');
 
     // Alert dapat diakses oleh admin dan petugas. Harga, laporan, pengguna, dan pengaturan hanya untuk admin.

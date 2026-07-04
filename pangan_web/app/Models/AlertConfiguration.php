@@ -14,5 +14,8 @@ class AlertConfiguration extends Model
     protected $fillable = [
         'batas_min_beras',
         'batas_min_gabah',
+        'kapasitas_max_beras',
+        'kapasitas_max_gabah',
+        'target_pasar',
     ];
 }

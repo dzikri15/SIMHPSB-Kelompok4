@@ -81,6 +81,7 @@ Route::middleware('auth:api')->group(function () {
     // ── Tujuan Distribusi ──────────────────────────────────────────────
     // GET list - semua yang terauth bisa lihat
     Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index']);
+    Route::get('tujuan-distribusi/{tujuanDistribusi}/histori', [TujuanDistribusiController::class, 'histori']);
     Route::get('tujuan-distribusi/{tujuanDistribusi}', [TujuanDistribusiController::class, 'show']);
 
     // POST/PUT/DELETE - admin & petugas (allow petugas to manage distribution targets)

@@ -136,7 +136,7 @@ class PetaniController extends Controller
     public function export()
     {
         $format = request('format', 'csv');
-        $petani = Petani::all();
+        $petani = Petani::orderBy('nama', 'asc')->get();
 
         if ($format === 'pdf') {
             try {

@@ -28,9 +28,9 @@
         <div class="stat-label">Saldo Beras</div>
         <div style="margin-top:10px;">
             <div class="progress-bar">
-                <div class="progress-fill" style="width:{{ min(100, round((($stokBeras ?? 450)/1000)*100)) }}%;background:var(--green-500);"></div>
+                <div class="progress-fill" style="width:{{ min(100, round((($stokBeras ?? 450)/($kapasitasBeras ?? 1000))*100)) }}%;background:var(--green-500);"></div>
             </div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ round((($stokBeras ?? 450)/1000)*100) }}% kapasitas (max 1.000 kg)</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ round((($stokBeras ?? 450)/($kapasitasBeras ?? 1000))*100) }}% kapasitas (max {{ number_format($kapasitasBeras ?? 1000) }} kg)</div>
         </div>
     </div>
 
@@ -40,48 +40,49 @@
         <div class="stat-label">Saldo Gabah</div>
         <div style="margin-top:10px;">
             <div class="progress-bar">
-                <div class="progress-fill" style="width:{{ min(100, round((($stokGabah ?? 800)/2000)*100)) }}%;background:var(--amber-500);"></div>
+                <div class="progress-fill" style="width:{{ min(100, round((($stokGabah ?? 800)/($kapasitasGabah ?? 2000))*100)) }}%;background:var(--amber-500);"></div>
             </div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ round((($stokGabah ?? 800)/2000)*100) }}% kapasitas (max 2.000 kg)</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">{{ round((($stokGabah ?? 800)/($kapasitasGabah ?? 2000))*100) }}% kapasitas (max {{ number_format($kapasitasGabah ?? 2000) }} kg)</div>
         </div>
     </div>
 
+    @php $monthLabel = \Carbon\Carbon::create($currentYear, $currentMonth, 1)->translatedFormat('F Y'); @endphp
     <div class="stat-card blue">
         <div class="stat-icon"><i class="fas fa-arrow-circle-down"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format(($masukBerasBulanIni ?? 0) + ($masukGabahBulanIni ?? 0)) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
-        <div class="stat-label">Masuk Bulan Ini</div>
+        <div class="stat-label">Masuk {{ $monthLabel }}</div>
         <div class="stat-change up"><i class="fas fa-arrow-up"></i> Gabah + Beras</div>
     </div>
 
     <div class="stat-card red">
         <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format(($keluarBerasBulanIni ?? 0) + ($keluarGabahBulanIni ?? 0)) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
-        <div class="stat-label">Keluar Bulan Ini</div>
+        <div class="stat-label">Keluar {{ $monthLabel }}</div>
         <div class="stat-change down"><i class="fas fa-arrow-down"></i> Distribusi aktif</div>
     </div>
 
     <div class="stat-card blue" style="border-top:3px solid var(--blue-500);">
         <div class="stat-icon"><i class="fas fa-inbox"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($masukBerasBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
-        <div class="stat-label">Masuk Beras Bulan Ini</div>
+        <div class="stat-label">Masuk Beras {{ $monthLabel }}</div>
     </div>
 
     <div class="stat-card amber" style="border-top:3px solid var(--amber-500);">
         <div class="stat-icon"><i class="fas fa-inbox"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($masukGabahBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
-        <div class="stat-label">Masuk Gabah Bulan Ini</div>
+        <div class="stat-label">Masuk Gabah {{ $monthLabel }}</div>
     </div>
 
     <div class="stat-card red" style="border-top:3px solid var(--red-500);">
         <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($keluarBerasBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
-        <div class="stat-label">Keluar Beras Bulan Ini</div>
+        <div class="stat-label">Keluar Beras {{ $monthLabel }}</div>
     </div>
 
     <div class="stat-card red" style="border-top:3px solid var(--red-500);">
         <div class="stat-icon"><i class="fas fa-arrow-circle-up"></i></div>
         <div class="stat-value" style="font-size:20px;">{{ number_format($keluarGabahBulanIni ?? 0) }} <small style="font-size:13px;color:var(--text-muted);">kg</small></div>
-        <div class="stat-label">Keluar Gabah Bulan Ini</div>
+        <div class="stat-label">Keluar Gabah {{ $monthLabel }}</div>
     </div>
 </div>
 
@@ -90,22 +91,22 @@
     <div class="toolbar">
         <div class="search-input-wrap">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchStok" placeholder="Cari tujuan, komoditas..." oninput="filterStok()">
+            <input type="text" id="searchStok" placeholder="Cari tujuan, komoditas..." oninput="filterStok()" value="{{ request('q') }}">
         </div>
 
         <select id="filterJenis" onchange="filterStok()" style="width:auto;min-width:130px;">
             <option value="">Semua Jenis</option>
-            <option value="masuk">Masuk</option>
-            <option value="keluar">Keluar</option>
+            <option value="masuk" {{ request('jenis') == 'masuk' ? 'selected' : '' }}>Masuk</option>
+            <option value="keluar" {{ request('jenis') == 'keluar' ? 'selected' : '' }}>Keluar</option>
         </select>
 
         <select id="filterKomoditas" onchange="filterStok()" style="width:auto;min-width:130px;">
             <option value="">Semua Komoditas</option>
-            <option value="beras">Beras</option>
-            <option value="gabah">Gabah</option>
+            <option value="Beras" {{ request('komoditas') == 'Beras' ? 'selected' : '' }}>Beras</option>
+            <option value="Gabah" {{ request('komoditas') == 'Gabah' ? 'selected' : '' }}>Gabah</option>
         </select>
 
-        <input type="date" id="filterTanggal" onchange="filterStok()" title="Filter tanggal" style="width:auto;">
+        <input type="month" id="filterTanggal" oninput="filterStok()" title="Filter bulan" style="width:auto;" value="{{ request('tanggal') }}">
 
         <button class="btn btn-primary" onclick="openModal('modalTransaksi')">
             <i class="fas fa-plus"></i> Catat Transaksi
@@ -171,10 +172,11 @@
                                 <i class="fas fa-edit"></i>
                             </a>
                             @if($t->status === 'aktif')
-                                <button class="btn btn-danger btn-icon btn-sm" onclick="event.stopPropagation(); performToggle({{ $t->id }})" title="Batalkan transaksi"><i class="fas fa-times"></i></button>
+                                <button class="btn btn-warning btn-icon btn-sm" onclick="event.stopPropagation(); performToggle({{ $t->id }})" title="Batalkan transaksi"><i class="fas fa-times"></i></button>
                             @else
-                                <button class="btn btn-primary btn-icon btn-sm" onclick="event.stopPropagation(); performToggle({{ $t->id }})" title="Aktifkan kembali"><i class="fas fa-redo"></i></button>
+                                <button class="btn btn-success btn-icon btn-sm" onclick="event.stopPropagation(); performToggle({{ $t->id }})" title="Aktifkan kembali"><i class="fas fa-redo"></i></button>
                             @endif
+                            <button class="btn btn-danger btn-icon btn-sm" onclick="event.stopPropagation(); performDelete({{ $t->id }})" title="Hapus permanen"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 @empty
@@ -206,7 +208,7 @@
             </tbody>
         </table>
         {{-- Paginasi --}}
-        @if($transaksis->hasPages())
+        @if($transaksis->total() > 0)
             <div style="padding:16px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;border-top:1px solid var(--border,#e2e8f0);">
                 <div style="width:100%;text-align:center;font-size:12px;color:var(--text-muted);">
                     Menampilkan {{ $transaksis->firstItem() }}–{{ $transaksis->lastItem() }} dari {{ $transaksis->total() }} data
@@ -280,16 +282,27 @@
 
                 <div class="form-group" id="tujuanGroup" style="display:none;">
                     <label>Tujuan Distribusi <span style="color:var(--red-500)">*</span></label>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <select name="tujuan_distribusi" id="tujuanSelect" style="flex:1;">
-                            <option value="">Pilih tujuan</option>
-                            @foreach(($tujuans ?? []) as $t)
-                                <option value="{{ $t->nama }}">{{ $t->nama }}</option>
-                            @endforeach
-                            <option value="__add_new">+ Tambah tujuan baru</option>
-                        </select>
-                        <input type="text" id="quickAddTujuanInput" placeholder="Tambah tujuan..." style="display:none;min-width:160px;" />
+                    {{-- Hidden input for form submission --}}
+                    <input type="hidden" name="tujuan_distribusi" id="tujuanSelectHidden">
+                    {{-- Custom searchable dropdown --}}
+                    <div id="tujuanDropdown" style="position:relative;">
+                        <div id="tujuanTrigger" onclick="toggleTujuanDropdown()" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface);user-select:none;">
+                            <span id="tujuanLabel" style="color:var(--text-muted);">Pilih tujuan</span>
+                            <i class="fas fa-chevron-down" style="font-size:12px;color:var(--text-muted);transition:.2s;"></i>
+                        </div>
+                        <div id="tujuanPanel" style="display:none;position:absolute;z-index:1000;width:100%;top:calc(100% + 4px);background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md);overflow:hidden;">
+                            <div style="padding:8px;">
+                                <input type="text" id="tujuanSearch" placeholder="🔍 Cari tujuan..." oninput="filterTujuanList()" style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid var(--border);font-size:13px;background:var(--surface-2);">
+                            </div>
+                            <ul id="tujuanList" style="list-style:none;margin:0;padding:0 0 6px;max-height:200px;overflow-y:auto;">
+                                @foreach(($tujuans ?? []) as $t)
+                                    <li onclick="selectTujuan('{{ $t->nama }}')" style="padding:9px 14px;cursor:pointer;font-size:13px;" class="tujuan-opt" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background=''">{{ $t->nama }}</li>
+                                @endforeach
+                                <li onclick="showQuickAddTujuan()" style="padding:9px 14px;cursor:pointer;font-size:13px;color:var(--green-600);font-weight:600;border-top:1px solid var(--border);margin-top:4px;" onmouseover="this.style.background='var(--surface-2)'" onmouseout="this.style.background=''">+ Tambah tujuan baru</li>
+                            </ul>
+                        </div>
                     </div>
+                    <input type="text" id="quickAddTujuanInput" placeholder="Ketik nama tujuan baru lalu tekan Enter..." style="display:none;margin-top:8px;width:100%;" />
                 </div>
 
                 <div class="form-group" id="sumberGroup">
@@ -332,7 +345,18 @@
 
 @endsection
 
+
 @push('scripts')
+<script>
+// Load SlimSelect CSS dynamically
+(function(){
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/slim-select@latest/dist/slimselect.css';
+    document.head.appendChild(link);
+})();
+</script>
+<script src="https://unpkg.com/slim-select@latest/dist/slimselect.min.js"></script>
 <script>
 // Styles for muted row
 const style = document.createElement('style');
@@ -364,30 +388,26 @@ function performToggle(id) {
         const row = document.getElementById(`stokRow-${id}`);
         if (row) {
             const statusCell = row.querySelector('td:nth-child(9)');
-            const actionCell = row.querySelector('td:nth-child(11)');
+            const actionCell = row.querySelector('.row-action');
             if (statusCell) {
                 statusCell.innerHTML = data.status === 'aktif'
                     ? '<span class="badge badge-green">Aktif</span>'
                     : '<span class="badge badge-gray">Dibatalkan</span>';
             }
             if (actionCell) {
-                if (data.status === 'aktif') {
-                    actionCell.querySelectorAll('button').forEach(b => b.remove());
-                    const btn = document.createElement('button');
-                    btn.className = 'btn btn-danger btn-icon btn-sm';
-                    btn.title = 'Batalkan transaksi';
-                    btn.onclick = () => performToggle(id);
-                    btn.innerHTML = '<i class="fas fa-times"></i>';
-                    actionCell.appendChild(btn);
-                } else {
-                    actionCell.querySelectorAll('button').forEach(b => b.remove());
-                    const btn = document.createElement('button');
-                    btn.className = 'btn btn-primary btn-icon btn-sm';
-                    btn.title = 'Aktifkan kembali';
-                    btn.onclick = () => performToggle(id);
-                    btn.innerHTML = '<i class="fas fa-redo"></i>';
-                    actionCell.appendChild(btn);
-                }
+                actionCell.innerHTML = `
+                    <a href="/admin/stok/${id}" class="btn btn-secondary btn-icon btn-sm" title="Lihat detail transaksi">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="/admin/stok/${id}/edit" class="btn btn-primary btn-icon btn-sm" title="Edit transaksi" onclick="event.stopPropagation()">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    ${data.status === 'aktif' 
+                        ? '<button class="btn btn-warning btn-icon btn-sm" onclick="event.stopPropagation(); performToggle(' + id + ')" title="Batalkan transaksi"><i class="fas fa-times"></i></button>' 
+                        : '<button class="btn btn-success btn-icon btn-sm" onclick="event.stopPropagation(); performToggle(' + id + ')" title="Aktifkan kembali"><i class="fas fa-redo"></i></button>'
+                    }
+                    <button class="btn btn-danger btn-icon btn-sm" onclick="event.stopPropagation(); performDelete(${id})" title="Hapus permanen"><i class="fas fa-trash"></i></button>
+                `;
             }
             row.classList.toggle('muted-row', data.status !== 'aktif');
         }
@@ -421,17 +441,47 @@ function performToggle(id) {
     .catch(err => { alert('Gagal menghubungi server'); console.error(err); });
 }
 
+function performDelete(id) {
+    if (!confirm('Apakah Anda yakin ingin menghapus permanen transaksi ini?')) return;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin/stok/' + id;
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    
+    form.appendChild(csrfInput);
+    form.appendChild(methodInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+let filterTimeout;
 function filterStok() {
-    const q = document.getElementById('searchStok').value.toLowerCase();
-    const j = document.getElementById('filterJenis').value.toLowerCase();
-    const k = document.getElementById('filterKomoditas').value.toLowerCase();
-    document.querySelectorAll('#tableStok tbody tr').forEach(row => {
-        const text = row.textContent.toLowerCase();
-        const matchQ = text.includes(q);
-        const matchJ = j === '' || text.includes(j);
-        const matchK = k === '' || text.includes(k);
-        row.style.display = (matchQ && matchJ && matchK) ? '' : 'none';
-    });
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(() => {
+        const q = document.getElementById('searchStok').value;
+        const j = document.getElementById('filterJenis').value;
+        const k = document.getElementById('filterKomoditas').value;
+        const t = document.getElementById('filterTanggal').value;
+        
+        const url = new URL(window.location.href);
+        if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+        if (j) url.searchParams.set('jenis', j); else url.searchParams.delete('jenis');
+        if (k) url.searchParams.set('komoditas', k); else url.searchParams.delete('komoditas');
+        if (t) url.searchParams.set('tanggal', t); else url.searchParams.delete('tanggal');
+        
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    }, 400);
 }
 
 function onKomoditasChange() {
@@ -439,15 +489,15 @@ function onKomoditasChange() {
     const jenis = document.getElementById('jenisTransaksi');
     const note = document.getElementById('gabahMasukNote');
     
-    // Sembunyikan opsi "Masuk" jika komoditas "Gabah"
     for (let i = 0; i < jenis.options.length; i++) {
-        if (jenis.options[i].value === 'masuk') {
-            jenis.options[i].style.display = (komoditas === 'Gabah') ? 'none' : 'block';
+        if (komoditas === 'Gabah') {
+            jenis.options[i].style.display = (jenis.options[i].value === 'keluar') ? 'block' : 'none';
+        } else {
+            jenis.options[i].style.display = 'block';
         }
     }
     
-    // Jika jenis saat ini "Masuk" dan berubah ke "Gabah", ganti jadi "Keluar" otomatis
-    if (komoditas === 'Gabah' && jenis.value === 'masuk') {
+    if (komoditas === 'Gabah') {
         jenis.value = 'keluar';
     }
     
@@ -464,14 +514,12 @@ function toggleTujuan() {
     const komoditas = document.getElementById('komoditasTransaksi') ? document.getElementById('komoditasTransaksi').value : '';
     const tujuan = document.getElementById('tujuanGroup');
     const warning = document.getElementById('stokWarning');
-    const tujuanSelect = document.getElementById('tujuanSelect');
-
     if (jenis === 'keluar' && komoditas === 'Beras') {
         tujuan.style.display = 'block';
-        if (tujuanSelect) tujuanSelect.setAttribute('required', 'required');
+        document.getElementById('tujuanSelectHidden').setAttribute('required', 'required');
     } else {
         tujuan.style.display = 'none';
-        if (tujuanSelect) tujuanSelect.removeAttribute('required');
+        document.getElementById('tujuanSelectHidden').removeAttribute('required');
     }
 
     warning.style.display = jenis === 'keluar' ? 'flex' : 'none';
@@ -566,18 +614,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Quick-add tujuan distribusi from transaksi modal
-    const tujuanSelect = document.getElementById('tujuanSelect');
     const quickInput = document.getElementById('quickAddTujuanInput');
-    if (tujuanSelect) {
-        tujuanSelect.addEventListener('change', function() {
-            if (this.value === '__add_new') {
-                quickInput.style.display = 'block';
-                quickInput.focus();
-            } else {
-                quickInput.style.display = 'none';
-            }
-        });
-    }
+
+    // Close custom dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('tujuanDropdown');
+        const panel = document.getElementById('tujuanPanel');
+        if (dropdown && panel && !dropdown.contains(e.target)) {
+            panel.style.display = 'none';
+        }
+    });
 
     if (quickInput) {
         quickInput.addEventListener('keydown', function(e) {
@@ -667,6 +713,50 @@ document.addEventListener('click', function(e) {
         e.preventDefault();
         openImageModal(cell.dataset.src);
     }
+
 });
+
+// Custom dropdown functions
+function toggleTujuanDropdown() {
+    const panel = document.getElementById('tujuanPanel');
+    const search = document.getElementById('tujuanSearch');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        search.focus();
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function filterTujuanList() {
+    const q = document.getElementById('tujuanSearch').value.toLowerCase();
+    const items = document.querySelectorAll('#tujuanList li.tujuan-opt');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? 'block' : 'none';
+    });
+}
+
+function selectTujuan(name) {
+    document.getElementById('tujuanSelectHidden').value = name;
+    document.getElementById('tujuanLabel').textContent = name;
+    document.getElementById('tujuanLabel').style.color = 'var(--text-primary)';
+    document.getElementById('tujuanPanel').style.display = 'none';
+    document.getElementById('quickAddTujuanInput').style.display = 'none';
+    document.getElementById('quickAddTujuanInput').removeAttribute('required');
+}
+
+function showQuickAddTujuan() {
+    document.getElementById('tujuanSelectHidden').value = '__add_new';
+    document.getElementById('tujuanLabel').textContent = '+ Tambah tujuan baru';
+    document.getElementById('tujuanLabel').style.color = 'var(--green-600)';
+    document.getElementById('tujuanPanel').style.display = 'none';
+    
+    const quickInput = document.getElementById('quickAddTujuanInput');
+    quickInput.style.display = 'block';
+    quickInput.setAttribute('required', 'required');
+    quickInput.focus();
+}
+
 </script>
 @endpush

@@ -1020,6 +1020,11 @@
                     <span class="icon"><i class="fas fa-file-alt"></i></span>
                     Laporan
                 </a>
+
+                <a href="{{ route('admin.pengaturan') }}" class="nav-item {{ request()->routeIs('admin.pengaturan*') ? 'active' : '' }}">
+                    <span class="icon"><i class="fas fa-cog"></i></span>
+                    Pengaturan
+                </a>
             @endrole
 
             @if(in_array($userRole, ['admin', 'petugas']))
