@@ -44,7 +44,7 @@ android {
         variant.outputs.all {
             val output = this as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
             if (variant.buildType.name == "release") {
-                output?.outputFileName = "simhpsb.apk"
+                output?.outputFileName = "simhp.apk"
             }
         }
     }
