@@ -33,7 +33,7 @@ class TujuanDistribusiController extends Controller
                 })
         ]);
 
-        $query->orderBy('nama');
+        $query->orderByRaw('LENGTH(nama) ASC, nama ASC');
 
         // Jika diminta paginasi
         if ($request->has('page') || $request->has('with_stats')) {
