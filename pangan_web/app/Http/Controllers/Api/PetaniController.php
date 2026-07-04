@@ -73,7 +73,7 @@ class PetaniController extends Controller
 
     public function exportPdf()
     {
-        $petani = Petani::all();
+        $petani = Petani::orderBy('nama', 'asc')->get();
         $pdf = Pdf::loadView('admin.petani.pdf', compact('petani'));
         $filename = 'data_petani_' . date('Ymd_His') . '.pdf';
         return $pdf->download($filename);

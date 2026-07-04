@@ -16,19 +16,46 @@ use Illuminate\Support\Facades\Schema;
 
 class StokController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $dateColumn = Schema::hasColumn('stok_beras', 'tanggal_update')
             ? 'tanggal_update'
             : (Schema::hasColumn('stok_beras', 'tanggal') ? 'tanggal' : 'created_at');
 
-        $transactions = Stok::with('user')
-            ->whereNotNull('jenis_transaksi')
-            ->orderByDesc($dateColumn)
-            ->paginate(10);
+        $query = Stok::with('user')->whereNotNull('jenis_transaksi');
+
+        if ($request->filled('tanggal')) {
+            $parts = explode('-', $request->tanggal);
+            if (count($parts) == 2) {
+                $query->whereYear($dateColumn, $parts[0])
+                      ->whereMonth($dateColumn, $parts[1]);
+            }
+        }
+        if ($request->filled('jenis')) {
+            $query->where('jenis_transaksi', $request->jenis);
+        }
+        if ($request->filled('komoditas')) {
+            $query->where('komoditas', $request->komoditas);
+        }
+        if ($request->filled('q')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('keterangan', 'like', '%' . $request->q . '%')
+                  ->orWhere('catatan', 'like', '%' . $request->q . '%');
+            });
+        }
+
+        $transactions = $query->orderByDesc($dateColumn)->paginate(10)->withQueryString();
 
         $currentMonth = now()->month;
         $currentYear = now()->year;
+
+        if ($request->filled('tanggal')) {
+            $parts = explode('-', $request->tanggal);
+            if (count($parts) == 2) {
+                $currentYear = $parts[0];
+                $currentMonth = $parts[1];
+            }
+        }
 
         $stokBeras = $this->getCurrentStock('Beras');
         $stokGabah = $this->getCurrentStock('Gabah');
@@ -61,6 +88,10 @@ class StokController extends Controller
             ->whereMonth($dateColumn, $currentMonth)
             ->sum('jumlah');
 
+        $alertConfig    = AlertConfiguration::first();
+        $kapasitasBeras = $alertConfig->kapasitas_max_beras ?? 1000;
+        $kapasitasGabah = $alertConfig->kapasitas_max_gabah ?? 2000;
+
         return view('admin.stok.index', [
             'transaksis' => $transactions,
             'stokBeras' => max(0, $stokBeras),
@@ -69,6 +100,10 @@ class StokController extends Controller
             'keluarBerasBulanIni' => $keluarBerasBulanIni,
             'masukGabahBulanIni' => $masukGabahBulanIni,
             'keluarGabahBulanIni' => $keluarGabahBulanIni,
+            'currentMonth' => $currentMonth,
+            'currentYear' => $currentYear,
+            'kapasitasBeras' => $kapasitasBeras,
+            'kapasitasGabah' => $kapasitasGabah,
             'tujuans' => TujuanDistribusi::orderBy('nama')->get(),
             'petanis' => Petani::orderBy('nama')->get(),
         ]);
@@ -213,6 +248,25 @@ $path = $file->storeAs('bukti-distribusi', $filename, 'public');            // s
                 'stokGabah' => max(0, $stokGabah),
             ],
         ]);
+    }
+
+    public function destroy(int $id)
+    {
+        $stok = Stok::findOrFail($id);
+        $komoditas = $stok->komoditas;
+        
+        // Hapus foto bukti jika ada
+        if ($stok->foto_bukti && \Illuminate\Support\Facades\Storage::disk('public')->exists($stok->foto_bukti)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($stok->foto_bukti);
+        }
+        
+        $stok->delete();
+
+        // Recalculate saldo
+        $this->recalculateSaldo($komoditas);
+
+        return redirect()->route('admin.stok.index')
+            ->with('success', 'Transaksi stok berhasil dihapus permanen.');
     }
 
     /**

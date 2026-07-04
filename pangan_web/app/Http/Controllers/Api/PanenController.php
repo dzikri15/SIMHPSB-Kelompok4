@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\Petani;
+use App\Models\Lahan;
 
 class PanenController extends Controller
 {
@@ -46,7 +48,7 @@ class PanenController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'lahan_id'           => 'required|integer|exists:lahan,id',
+            'lahan_id'           => 'nullable|integer|exists:lahan,id',
             'tanggal_panen'      => 'required|date',
             'jumlah_gabah'       => 'required|numeric|min:0',
             'harga_gabah_per_kg' => 'nullable|numeric|min:0',
@@ -56,10 +58,32 @@ class PanenController extends Controller
             // field dari Flutter
             'musim_tanam'        => 'nullable|string|max:100',
             'komoditas'          => 'nullable|string|max:50',
-            'petani_id'          => 'nullable|integer|exists:petani,id',
+            'petani_id'          => 'required_without:lahan_id|integer|exists:petani,id',
             // Foto bukti panen — WAJIB via multipart form-data
             'foto_bukti'         => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
+
+        if (empty($data['lahan_id']) && !empty($data['petani_id'])) {
+            $petani = Petani::find($data['petani_id']);
+            $lahan = $petani?->lahan()->first();
+            
+            if (! $lahan && $petani) {
+                if (! empty($petani->luas_lahan) && $petani->luas_lahan > 0) {
+                    $lahan = Lahan::create([
+                        'petani_id' => $petani->id,
+                        'nama_lahan' => 'Lahan utama',
+                        'luas' => $petani->luas_lahan,
+                        'lokasi' => $petani->alamat,
+                        'status' => 'aktif',
+                    ]);
+                }
+            }
+            
+            if (! $lahan) {
+                return response()->json(['message' => 'Petani belum memiliki lahan terdaftar.'], 422);
+            }
+            $data['lahan_id'] = $lahan->id;
+        }
 
         // ── Snapshot harga gabah per kg dari konfigurasi aktif ──────────
         // Jika Flutter tidak kirim harga, ambil harga aktif dari DB (historis tidak berubah walau harga master diubah)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\AlertController;
+use App\Models\AlertConfiguration;
 use App\Models\Gudang;
 use App\Models\Stok;
 use Illuminate\Http\Request;
@@ -190,11 +191,10 @@ class StokController extends Controller
             ->orderByDesc('id')
             ->value('jumlah_stok') ?? 0;
 
-        // Kapasitas gudang (sum dari semua gudang aktif)
-        $kapasitasTotal = (float) Gudang::where('status', 'aktif')->sum('kapasitas');
-        // Bagi rata 50-50 jika tidak ada pemisahan per komoditas
-        $kapasitasBeras = $kapasitasTotal / 2;
-        $kapasitasGabah = $kapasitasTotal / 2;
+        // Kapasitas dari konfigurasi pengaturan admin
+        $alertConfig    = AlertConfiguration::first();
+        $kapasitasBeras = (float) ($alertConfig->kapasitas_max_beras ?? 1000);
+        $kapasitasGabah = (float) ($alertConfig->kapasitas_max_gabah ?? 2000);
 
         // Transaksi bulan ini (hanya transaksi aktif)
         $transaksiBase = Stok::where('status', 'aktif')
@@ -233,8 +233,8 @@ class StokController extends Controller
         return response()->json([
             'saldo_beras'            => $saldoBeras,
             'saldo_gabah'            => $saldoGabah,
-            'kapasitas_beras'        => $kapasitasBeras ?: 1000,
-            'kapasitas_gabah'        => $kapasitasGabah ?: 2000,
+            'kapasitas_beras'        => $kapasitasBeras,
+            'kapasitas_gabah'        => $kapasitasGabah,
             'masuk_bulan_ini'        => $masukBulanIni,
             'keluar_bulan_ini'       => $keluarBulanIni,
             'masuk_beras_bulan_ini'  => $masukBerasBulanIni,
