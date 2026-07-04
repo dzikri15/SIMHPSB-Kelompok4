@@ -1753,7 +1753,8 @@ class _GudangScreenState extends State<GudangScreen> {
   void _showCatatTransaksiDialog() {
     showDialog(
       context: context,
-      builder: (_) => CatatTransaksiDialog(
+      useRootNavigator: false,  // agar MediaQuery.viewInsets (keyboard) terbaca dengan benar
+      builder: (ctx) => CatatTransaksiDialog(
         parentContext: context,
         onSave: () {
           // Dialog berhasil menyimpan transaksi ke API

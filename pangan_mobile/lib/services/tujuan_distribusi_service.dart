@@ -23,6 +23,33 @@ class TujuanDistribusiService {
     }
   }
 
+  /// GET /api/tujuan-distribusi?page=x&search=y&with_stats=1
+  Future<Map<String, dynamic>> getPaginated({int page = 1, String search = '', bool withStats = false}) async {
+    try {
+      final queryParams = <String>[];
+      queryParams.add('page=$page');
+      if (search.isNotEmpty) queryParams.add('search=$search');
+      if (withStats) queryParams.add('with_stats=1');
+
+      final url = 'tujuan-distribusi?${queryParams.join('&')}';
+      final response = await _api.get(url);
+      
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Gagal memuat tujuan distribusi: $e');
+    }
+  }
+
+  /// GET /api/tujuan-distribusi/{id}/histori
+  Future<Map<String, dynamic>> getHistori(int id, {int page = 1}) async {
+    try {
+      final response = await _api.get('tujuan-distribusi/$id/histori?page=$page');
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Gagal memuat histori tujuan: $e');
+    }
+  }
+
   /// POST /api/tujuan-distribusi (admin only)
   Future<TujuanDistribusiModel> create(String nama) async {
     try {

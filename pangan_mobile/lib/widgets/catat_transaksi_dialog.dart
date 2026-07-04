@@ -378,23 +378,33 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
   @override
   Widget build(BuildContext context) {
     final surfaceColor = Theme.of(context).colorScheme.surface;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width > 600 ? 500 : MediaQuery.of(context).size.width - 24,
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
+    // RepaintBoundary: isolasi repaint dialog dari widget lain di layar
+    // MediaQuery.removeViewInsets: dialog tidak terdorong naik saat keyboard muncul
+    return RepaintBoundary(
+      child: MediaQuery.removeViewInsets(
+      removeBottom: true,
+      context: context,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        insetAnimationDuration: Duration.zero,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width > 600 ? 500 : MediaQuery.of(context).size.width - 24,
+            maxHeight: screenHeight * 0.85,
         ),
         decoration: BoxDecoration(
           color: surfaceColor,
           borderRadius: BorderRadius.circular(28),
+          // Shadow ringan (blurRadius kecil) agar tidak menyebabkan frame drop
+          // saat keyboard muncul — shadow blur mahal di repaint.
           boxShadow: [
             BoxShadow(
-              color: AppColors.brandDark.withValues(alpha: 0.18),
-              blurRadius: 40,
-              offset: const Offset(0, 12),
+              color: AppColors.brandDark.withValues(alpha: 0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -830,8 +840,10 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
             ),
           ],
         ),
+        ),
       ),
-    );
+    ),  // end MediaQuery.removeViewInsets
+    );  // end RepaintBoundary
   }
 
   Widget _label(String text) => Text(text,
