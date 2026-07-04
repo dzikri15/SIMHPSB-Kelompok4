@@ -479,7 +479,7 @@
     <div class="nav-links" id="navLinks">
         <a href="{{ route('intro') }}">Beranda</a>
         <a href="{{ route('about') }}" class="active">Tentang</a>
-        <a href="{{ asset('simhpsb.apk') }}" class="nav-download" download>
+        <a href="{{ asset('simhp.apk') }}" class="nav-download" download>
             <span>⬇</span>
             <span>Unduh APK</span>
         </a>
