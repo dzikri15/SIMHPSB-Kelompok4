@@ -147,12 +147,12 @@ SIMHPSB-Kelompok4/
 │   │   ├── services/
 │   │   │   ├── auth_service.dart         # JWT authentication
 │   │   │   ├── api_service.dart          # HTTP client with token refresh
-│   │   │   ├── transaksi_stok_service.dart   # Stok transactions
+│   │   │   └── transaksi_stok_service.dart   # Stok transactions
 │   │   │   
 │   │   ├── models/                       # Data models
 │   │   ├── widgets/
-│   │   │   ├── catat_transaksi_dialog.dart   # Dialog catat stok
-│   │   │   └── 
+│   │   │   └── catat_transaksi_dialog.dart   # Dialog catat stok
+│   │   │   
 │   │   └── core/
 │   │       └── constants.dart            # Base URL & app constants
 │   ├── android/
