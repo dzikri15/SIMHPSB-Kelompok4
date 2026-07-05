@@ -5,6 +5,8 @@ services:
     container_name: simhpsb_app
     restart: unless-stopped
     working_dir: /app
+    volumes: 
+      -app_public:/app/public
     depends_on:
       db:
         condition: service_healthy
