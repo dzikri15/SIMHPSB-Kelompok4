@@ -5,8 +5,8 @@ services:
     container_name: simhpsb_app
     restart: unless-stopped
     working_dir: /app
-    volumes: 
-      -app_public:/app/public
+    volumes:
+      - app_public:/app/public
     depends_on:
       db:
         condition: service_healthy
@@ -85,15 +85,11 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - NODE_ENV=production
-      - WEBHOOK_URL=https://simhp.my.id/n8n/
+      - WEBHOOK_URL=https://n8n.simhp.my.id/
       - GENERIC_TIMEZONE=Asia/Jakarta
       - TZ=Asia/Jakarta
-      - DB_TYPE=mysqldb
-      - DB_MYSQLDB_HOST=db
-      - DB_MYSQLDB_PORT=3306
-      - DB_MYSQLDB_DATABASE=n8n_db
-      - DB_MYSQLDB_USER=${DB_USERNAME}
-      - DB_MYSQLDB_PASSWORD=${DB_PASSWORD}
+      # n8n v2.x hanya support 'sqlite' dan 'postgresdb' (MySQL sudah dihapus)
+      - DB_TYPE=sqlite
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_AUTH_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_AUTH_PASSWORD}
