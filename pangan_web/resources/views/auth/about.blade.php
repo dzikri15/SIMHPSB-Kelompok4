@@ -651,6 +651,15 @@
                     <span class="tag">Manual Book</span>
                 </div>
             </div>
+            <div class="team-card">
+                <div class="team-avatar">P</div>
+                <div class="team-name">Paiton Wenda</div>
+                <div class="team-role">Anggota Tim</div>
+                <div class="team-npm">NPM: 20241320043</div>
+                <div class="team-tags">
+                    <span class="tag">Support</span>
+                </div>
+            </div>
         </div>
     </div>
 
