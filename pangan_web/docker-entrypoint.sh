@@ -21,12 +21,16 @@ until nc -z redis 6379; do
 done
 echo "Redis is ready!"
 
-# Clear semua cache
-echo "Clearing cache..."
-php artisan config:clear 2>/dev/null || true
-php artisan cache:clear 2>/dev/null || true
-php artisan view:clear 2>/dev/null || true
-php artisan route:clear 2>/dev/null || true
+# Clear cache hanya di local, production pakai cache
+if [ "${APP_ENV}" = "local" ] || [ "${APP_ENV}" = "development" ]; then
+    echo "Clearing cache (development mode)..."
+    php artisan config:clear 2>/dev/null || true
+    php artisan cache:clear 2>/dev/null || true
+    php artisan view:clear 2>/dev/null || true
+    php artisan route:clear 2>/dev/null || true
+else
+    echo "Skipping cache clear (production mode)"
+fi
 
 # Generate app key kalau belum ada
 if grep -q "APP_KEY=base64:" /app/.env 2>/dev/null; then
@@ -51,8 +55,17 @@ else
     php artisan migrate --force
 fi
 
+# Optimasi cache di production
+if [ "${APP_ENV}" = "production" ]; then
+    echo "Caching config, routes, and views for production..."
+    php artisan config:cache 2>/dev/null || true
+    php artisan route:cache 2>/dev/null || true
+    php artisan view:cache 2>/dev/null || true
+    echo "Production cache done!"
+fi
+
 echo "========================================="
-echo "  SIMHPSB is ready at http://localhost"
+echo "  SIMHPSB is ready at https://simhp.my.id"
 echo "========================================="
 
 exec "$@"

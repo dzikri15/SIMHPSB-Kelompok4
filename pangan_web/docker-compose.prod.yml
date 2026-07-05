@@ -1,0 +1,124 @@
+services:
+  # Laravel Application (pull dari Docker Hub)
+  app:
+    image: ${DOCKERHUB_USERNAME}/simhpsb-app:${APP_IMAGE_TAG:-latest}
+    container_name: simhpsb_app
+    restart: unless-stopped
+    working_dir: /app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Jakarta
+    networks:
+      - simhpsb_network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: simhpsb_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./simhpsb_db.sql:/docker-entrypoint-initdb.d/init.sql
+    # Port TIDAK di-expose ke luar — akses hanya via internal network
+    networks:
+      - simhpsb_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USERNAME}", "-p${DB_PASSWORD}"]
+      timeout: 20s
+      retries: 10
+      interval: 5s
+
+  # Redis (tidak expose port ke publik)
+  redis:
+    image: redis:7-alpine
+    container_name: simhpsb_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    # Port TIDAK di-expose ke luar
+    networks:
+      - simhpsb_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      timeout: 5s
+      retries: 10
+      interval: 3s
+
+  # Nginx — HTTP saja (SSL di-handle Cloudflare)
+  nginx:
+    image: nginx:alpine
+    container_name: simhpsb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - app_public:/app/public
+      - ./docker/nginx/conf.d/production.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - simhpsb_network
+
+  # n8n Workflow Automation + AI Agent
+  n8n:
+    image: n8nio/n8n
+    container_name: simhpsb_n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"   # Hanya listen di localhost VPS (tidak langsung publik)
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://simhp.my.id/n8n/
+      - GENERIC_TIMEZONE=Asia/Jakarta
+      - TZ=Asia/Jakarta
+      - DB_TYPE=mysqldb
+      - DB_MYSQLDB_HOST=db
+      - DB_MYSQLDB_PORT=3306
+      - DB_MYSQLDB_DATABASE=n8n_db
+      - DB_MYSQLDB_USER=${DB_USERNAME}
+      - DB_MYSQLDB_PASSWORD=${DB_PASSWORD}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_AUTH_PASSWORD}
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - APP_API_URL=http://nginx:80
+      - APP_API_LOGIN_EMAIL=${APP_ADMIN_EMAIL}
+      - APP_API_LOGIN_PASSWORD=${APP_ADMIN_PASSWORD}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+    networks:
+      - simhpsb_network
+
+networks:
+  simhpsb_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  redis_data:
+    driver: local
+  n8n_data:
+    driver: local
+  app_public:
+    driver: local
