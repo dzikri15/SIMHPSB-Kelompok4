@@ -166,7 +166,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
       }
     }
 
-    if (_selectedJenis == 'Keluar') {
+    if (_selectedJenis == 'Keluar' && _selectedKomoditas == 'Beras') {
       if (_selectedTujuanId == null) {
         setState(() => _errorMsg = 'Pilih tujuan distribusi');
         return;
@@ -678,7 +678,7 @@ class _CatatTransaksiDialogState extends State<CatatTransaksiDialog> {
                     ),
                     const SizedBox(height: 18),
 
-                    if (_selectedJenis == 'Keluar') ...[
+                    if (_selectedJenis == 'Keluar' && _selectedKomoditas == 'Beras') ...[
                       _label('Tujuan Distribusi'),
                       const SizedBox(height: 8),
                       _buildTujuanScrollList(),
