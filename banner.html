@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banner SIMHPSB – Print</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Lora:ital,wght@1,500&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Banner ukuran 60×160cm pada layar = 600×1600px (skala 1:10) */
+    body {
+      background: #e8e8e8;
+      display: flex;
+      justify-content: center;
+      padding: 40px 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .banner {
+      width: 600px;
+      height: 1600px;
+      background: #0f2218;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── AMBIENT GLOW ── */
+    .glow-top {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(56, 161, 105, .28) 0%, transparent 65%);
+      top: -120px;
+      left: -80px;
+      pointer-events: none;
+    }
+
+    .glow-mid {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(34, 100, 60, .2) 0%, transparent 65%);
+      top: 700px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .glow-bot {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(56, 161, 105, .15) 0%, transparent 65%);
+      bottom: 80px;
+      left: -60px;
+      pointer-events: none;
+    }
+
+    /* ── GRID TEXTURE ── */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      position: relative;
+      z-index: 10;
+      padding: 22px 40px 16px;
+      border-bottom: 1px solid rgba(79, 213, 133, .15);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .logo-box {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(145deg, #3ecf74, #1e6b40);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(79, 213, 133, .35);
+      flex-shrink: 0;
+    }
+
+    .logo-box svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .brand-name {
+      font-size: 36px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .brand-name span {
+      color: #4fd585;
+    }
+
+    .tagline {
+      font-family: 'Lora', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: rgba(255, 255, 255, .5);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .univ-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(79, 213, 133, .1);
+      border: 1px solid rgba(79, 213, 133, .2);
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #4fd585;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 10;
+      padding: 20px 40px 18px;
+      border-bottom: 1px solid rgba(79, 213, 133, .1);
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #4fd585;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 18px;
+      height: 2px;
+      background: #4fd585;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .hero-headline {
+      font-size: 26px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 10px;
+    }
+
+    .hero-headline em {
+      font-style: normal;
+      color: #4fd585;
+    }
+
+    .hero-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, .55);
+      line-height: 1.7;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #4fd585;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 16px;
+      height: 2px;
+      background: #4fd585;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow-area {
+      position: relative;
+      z-index: 10;
+      padding: 20px 40px;
+      border-bottom: 1px solid rgba(79, 213, 133, .1);
+    }
+
+    .flow-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      padding-left: 20px;
+    }
+
+    .flow-grid::before {
+      content: '';
+      position: absolute;
+      top: 24px;
+      bottom: 24px;
+      left: 44px;
+      width: 2px;
+      border-left: 2px dashed rgba(79, 213, 133, .5);
+      z-index: 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid rgba(79, 213, 133, .15);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .flow-step-number {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #3ecf74, #1e6b40);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 5px #0f2218, 0 0 0 7px rgba(79, 213, 133, .3);
+    }
+
+    .flow-step-content {
+      flex: 1;
+    }
+
+    .flow-step-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .flow-step-title span {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: rgba(79, 213, 133, .15);
+      color: #4fd585;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .flow-step-desc {
+      font-size: 11px;
+      color: rgba(255, 255, 255, .6);
+      line-height: 1.55;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      position: relative;
+      z-index: 10;
+      padding: 18px 40px;
+      border-bottom: 1px solid rgba(79, 213, 133, .1);
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .feat-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .feat-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(79, 213, 133, .1);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      border: 1px solid rgba(79, 213, 133, .15);
+    }
+
+    .feat-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+
+    .feat-desc {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .45);
+      line-height: 1.5;
+    }
+
+    /* ── TECH STACK + QR ── */
+    .stack-section {
+      position: relative;
+      z-index: 10;
+      padding: 16px 40px;
+      border-bottom: 1px solid rgba(79, 213, 133, .1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .stack-left {
+      flex: 1;
+    }
+
+    .stack-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    /* QR box inline */
+    .qr-box {
+      width: 72px;
+      height: 72px;
+      background: #fff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qr-inner-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* ── TEAM ── */
+    .team-section {
+      position: relative;
+      z-index: 10;
+      padding: 16px 40px;
+      border-bottom: 1px solid rgba(79, 213, 133, .1);
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 0;
+    }
+
+    .team-card {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(79, 213, 133, .12);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .team-card.lead {
+      border-color: rgba(79, 213, 133, .28);
+      background: rgba(79, 213, 133, .05);
+    }
+
+    .team-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #3ecf74, #1e6b40);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: #fff;
+      margin: 0 auto 6px;
+      box-shadow: 0 0 0 2px rgba(79, 213, 133, .2);
+    }
+
+    .team-name {
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+
+    .team-role {
+      font-size: 8px;
+      color: #4fd585;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      position: relative;
+      z-index: 10;
+      padding: 14px 40px 20px;
+      text-align: center;
+    }
+
+    .footer-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.3px;
+      margin-bottom: 3px;
+    }
+
+    .footer-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .35);
+      margin-bottom: 4px;
+    }
+
+    .footer-url {
+      font-size: 11px;
+      font-weight: 700;
+      color: #4fd585;
+      letter-spacing: .02em;
+    }
+
+    /* Print */
+    @media print {
+      body {
+        background: none;
+        padding: 0;
+      }
+
+      .banner {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="banner">
+    <div class="glow-top"></div>
+    <div class="glow-mid"></div>
+    <div class="glow-bot"></div>
+    <div class="grid"></div>
+
+    <!-- ── HEADER ── -->
+    <div class="header">
+      <div class="header-top">
+        <div class="logo-box">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 4C16 4 10 8 8 14C6 20 10 26 16 26C22 26 26 20 24 14C22 8 16 4 16 4Z"
+              fill="rgba(79,213,133,.9)" />
+            <path d="M16 10C16 10 13 13 13 17C13 21 16 24 16 24" stroke="rgba(255,255,255,.6)" stroke-width="1.5"
+              stroke-linecap="round" />
+            <path d="M19 11C19 11 20 14 19 17" stroke="rgba(255,255,255,.4)" stroke-width="1" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <div class="brand-name">SIM<span>HP</span></div>
+        </div>
+      </div>
+      <div class="tagline">Sistem Informasi Monitoring Hasil Panen</div>
+      <div style="margin-top:8px;">
+        <div class="univ-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          UKRI · Kelompok 4 · 2026
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HERO ── -->
+    <div class="hero">
+      <div class="hero-eyebrow">Tentang Sistem</div>
+      <div class="hero-headline">
+        Pantau panen &amp; stok beras<br>
+        <em>secara real-time.</em>
+      </div>
+      <div class="hero-desc">
+        Dibangun berdasarkan observasi lapangan di gudang penggilingan padi milik Silvy Halimatusyadiah,
+        Desa Gunung Manik, Majalengka — untuk membantu petugas gudang dan petani
+        dalam satu ekosistem digital yang terintegrasi.
+      </div>
+    </div>
+
+    <!-- ── ALUR SISTEM ── -->
+    <div class="flow-area">
+      <div class="section-label">Alur Bisnis &amp; Sistem</div>
+      <div class="flow-grid">
+
+        <div class="flow-step">
+          <div class="flow-step-number">1</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Penerimaan Gabah <span>Input Data Panen</span></div>
+            <div class="flow-step-desc">
+              Petani melapor ke gudang. Petugas mencatat gabah masuk dan mengunggah foto bukti ke sistem. Petani
+              langsung mendapatkan rincian penghasilan (Harga per kg × Berat Masuk).
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-number">2</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Penggilingan<span>Manajemen Stok</span></div>
+            <div class="flow-step-desc">
+              Proses penggilingan mengubah gabah menjadi beras. Petugas menginput mutasi stok secara manual (gabah
+              keluar &amp; beras masuk) karena berat pasti berubah setelah digiling.
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-number">3</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Distribusi ke Tujuan <span>Tracking Keluar</span></div>
+            <div class="flow-step-desc">
+              Beras yang siap didistribusikan ke tujuan (pasar/toko). Petugas mencatat jumlah beras keluar beserta
+              tujuan untuk menjaga akurasi stok gudang.
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-number">4</div>
+          <div class="flow-step-content">
+            <div class="flow-step-title">Monitoring Pimpinan <span>Dashboard &amp; AI</span></div>
+            <div class="flow-step-desc">
+              Seluruh alur dari awal panen hingga distribusi terpantau real-time oleh Pimpinan di Dashboard Web.
+              Pimpinan juga dapat bertanya sisa stok secara instan kepada HPSBBot (AI).
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── FEATURES ── -->
+    <div class="features">
+      <div class="section-label">Fitur Utama</div>
+      <div class="feat-grid">
+        <div class="feat-item">
+          <div class="feat-icon">🌾</div>
+          <div>
+            <div class="feat-name">Monitoring Panen Real-time</div>
+            <div class="feat-desc">Pantau &amp; catat hasil panen langsung dengan bukti foto akurat.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon">📦</div>
+          <div>
+            <div class="feat-name">Manajemen Stok Gudang</div>
+            <div class="feat-desc">Mutasi stok manual untuk saldo gabah dan beras yang transparan.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon">📍</div>
+          <div>
+            <div class="feat-name">Distribusi ke Tujuan Terukur</div>
+            <div class="feat-desc">Tracking distribusi beras secara real-time.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon">🤖</div>
+          <div>
+            <div class="feat-name">Chatbot AI HPSBBot</div>
+            <div class="feat-desc">Asisten AI cerdas untuk tanya jawab stok dengan cepat.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon">📱</div>
+          <div>
+            <div class="feat-name">Aplikasi Mobile Flutter</div>
+            <div class="feat-desc">Akses melalui HP untuk semua pengguna.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TECH STACK + QR ── -->
+    <div class="stack-section">
+      <div class="stack-left">
+        <div class="section-label">Teknologi</div>
+        <div class="stack-pills">
+          <img src="https://cdn.simpleicons.org/laravel/ffffff" height="20" alt="Laravel">
+          <img src="https://cdn.simpleicons.org/flutter/ffffff" height="20" alt="Flutter">
+          <img src="https://cdn.simpleicons.org/docker/ffffff" height="20" alt="Docker">
+          <img src="https://cdn.simpleicons.org/n8n/ffffff" height="20" alt="n8n">
+          <img src="https://cdn.simpleicons.org/googlegemini/ffffff" height="20" alt="Gemini">
+        </div>
+      </div>
+      <!-- QR Code - di sebelah kanan teknologi -->
+      <div class="qr-box" title="Scan untuk akses repo GitHub">
+        <div class="qr-inner-wrap">
+          <svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="14" height="14" rx="2" fill="#071a0e" />
+            <rect x="4" y="4" width="10" height="10" rx="1" fill="#fff" />
+            <rect x="6" y="6" width="6" height="6" rx="1" fill="#071a0e" />
+            <rect x="36" y="2" width="14" height="14" rx="2" fill="#071a0e" />
+            <rect x="38" y="4" width="10" height="10" rx="1" fill="#fff" />
+            <rect x="40" y="6" width="6" height="6" rx="1" fill="#071a0e" />
+            <rect x="2" y="36" width="14" height="14" rx="2" fill="#071a0e" />
+            <rect x="4" y="38" width="10" height="10" rx="1" fill="#fff" />
+            <rect x="6" y="40" width="6" height="6" rx="1" fill="#071a0e" />
+            <rect x="20" y="2" width="4" height="4" fill="#071a0e" />
+            <rect x="26" y="2" width="4" height="4" fill="#071a0e" />
+            <rect x="20" y="8" width="4" height="4" fill="#071a0e" />
+            <rect x="20" y="20" width="4" height="4" fill="#071a0e" />
+            <rect x="26" y="20" width="4" height="4" fill="#071a0e" />
+            <rect x="32" y="20" width="4" height="4" fill="#071a0e" />
+            <rect x="20" y="26" width="4" height="4" fill="#071a0e" />
+            <rect x="32" y="26" width="4" height="4" fill="#071a0e" />
+            <rect x="20" y="32" width="4" height="4" fill="#071a0e" />
+            <rect x="26" y="32" width="4" height="4" fill="#071a0e" />
+            <rect x="36" y="20" width="4" height="4" fill="#071a0e" />
+            <rect x="36" y="26" width="4" height="4" fill="#071a0e" />
+            <rect x="44" y="20" width="4" height="4" fill="#071a0e" />
+            <rect x="40" y="26" width="4" height="4" fill="#071a0e" />
+            <rect x="36" y="32" width="4" height="4" fill="#071a0e" />
+            <rect x="44" y="32" width="4" height="4" fill="#071a0e" />
+          </svg>
+          <div
+            style="font-size:5px;color:#071a0e;font-weight:700;font-family:monospace;text-align:center;line-height:1.2;">
+            GitHub<br>Repo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TEAM ── -->
+    <div class="team-section">
+      <div class="section-label">Tim Pengembang</div>
+      <div class="team-grid">
+        <div class="team-card lead">
+          <div class="team-avatar">D</div>
+          <div class="team-name">M. Dzikri Sagara</div>
+          <div class="team-role">PM · Backend · DevOps</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">F</div>
+          <div class="team-name">Fakhry A. Fauzan</div>
+          <div class="team-role">Frontend · Mobile</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">A</div>
+          <div class="team-name">M. Alamsyah</div>
+          <div class="team-role">n8n · DevOps · QA</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">D</div>
+          <div class="team-name">Difa Nisa Lutfiah</div>
+          <div class="team-role">QA Web · Diagram</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">D</div>
+          <div class="team-name">Devina Ayuliani</div>
+          <div class="team-role">QA Mobile · ERD</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">A</div>
+          <div class="team-name">Agusta F. Firdaus</div>
+          <div class="team-role">QA Mobile · Testing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <div class="footer">
+      <div class="footer-title">SIMHPSB — Kelompok 4</div>
+      <div class="footer-sub">Program Studi Sistem Informasi · UKRI 2026</div>
+      <div class="footer-url">github.com/dzikri15/SIMHPSB-Kelompok4</div>
+    </div>
+
+  </div>
+
+</body>
+
+</html>
