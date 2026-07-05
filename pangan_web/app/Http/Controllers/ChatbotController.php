@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KonfigurasiHarga;
+use App\Models\Stok;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatbotController extends Controller
 {
     /**
      * POST /chatbot/prabowo
-     * Proxy request dari chat widget (browser) ke n8n webhook.
-     * Tujuannya supaya browser hanya komunikasi dengan satu origin
-     * (server Laravel via nginx), bukan langsung ke n8n.
+     * Langsung panggil Gemini API dengan konteks data dari database.
+     * Tidak perlu n8n — lebih simpel dan lebih cepat.
      */
     public function send(Request $request)
     {
@@ -19,38 +21,119 @@ class ChatbotController extends Controller
             'message' => 'required|string|max:1000',
         ]);
 
-        // URL internal n8n di dalam Docker network.
-        // Diambil dari .env supaya mudah diganti saat pindah ke VPS.
-        $n8nConfig = config('services.n8n', []);
-        $n8nWebhookUrl = $n8nConfig['webhook_url'] ?? 'http://n8n:5678/webhook/simhpsb-chat';
+        $geminiKey   = config('services.gemini.api_key');
+        $geminiModel = config('services.gemini.model', 'gemini-2.5-flash');
 
-        $http = Http::timeout(30);
-        if (!empty($n8nConfig['username']) && !empty($n8nConfig['password'])) {
-            $http = $http->withBasicAuth($n8nConfig['username'], $n8nConfig['password']);
+        if (empty($geminiKey)) {
+            return response()->json([
+                'reply' => 'Maaf Kak, HPSBBot belum dikonfigurasi. Hubungi admin.',
+            ]);
         }
 
+        // ── Ambil konteks data dari database ─────────────────────────────────
+        $konteks = $this->buildKonteks();
+
+        // ── Buat system prompt ────────────────────────────────────────────────
+        $systemPrompt = <<<PROMPT
+Kamu adalah HPSBBot, asisten AI untuk Sistem Informasi Manajemen Harga Pangan dan Stok Beras (SIMHPSB) Kelompok 4.
+Tugasmu membantu admin dan petugas menjawab pertanyaan seputar stok beras dan harga pangan.
+
+Data terkini dari sistem:
+{$konteks}
+
+Aturan menjawab:
+- Gunakan Bahasa Indonesia yang ramah dan sopan.
+- Jawab singkat, padat, dan akurat berdasarkan data di atas.
+- Jika data tidak tersedia, katakan dengan jujur.
+- Jangan membuat angka atau data fiktif.
+- Panggil pengguna dengan "Kak".
+PROMPT;
+
+        // ── Kirim ke Gemini API ───────────────────────────────────────────────
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}";
+
         try {
-            $response = $http->post($n8nWebhookUrl, [
-                'message' => $data['message'],
+            $response = Http::timeout(30)->post($url, [
+                'system_instruction' => [
+                    'parts' => [['text' => $systemPrompt]],
+                ],
+                'contents' => [
+                    [
+                        'role'  => 'user',
+                        'parts' => [['text' => $data['message']]],
+                    ],
+                ],
+                'generationConfig' => [
+                    'temperature'     => 0.7,
+                    'maxOutputTokens' => 512,
+                ],
             ]);
 
             if ($response->failed()) {
+                Log::error('Gemini API error: ' . $response->body());
                 return response()->json([
-                    'reply' => 'Maaf Kak, HPSBBot sedang tidak bisa diakses. Coba lagi sebentar ya.',
-                ], 200);
+                    'reply' => 'Maaf Kak, HPSBBot sedang gangguan. Coba lagi ya.',
+                ]);
             }
 
             $result = $response->json();
+            $reply  = $result['candidates'][0]['content']['parts'][0]['text']
+                      ?? 'Maaf Kak, tidak ada respons dari HPSBBot.';
 
-            return response()->json([
-                'reply' => $result['reply'] ?? 'Maaf Kak, ada kendala saat memproses pesan.',
-            ]);
+            return response()->json(['reply' => trim($reply)]);
+
         } catch (\Exception $e) {
-            \Log::error('Chatbot HPSBBot error: ' . $e->getMessage());
-
+            Log::error('ChatbotController error: ' . $e->getMessage());
             return response()->json([
                 'reply' => 'Maaf Kak, gagal menghubungi HPSBBot. Coba beberapa saat lagi.',
-            ], 200);
+            ]);
         }
+    }
+
+    /**
+     * Bangun konteks data dari database untuk dikirim ke Gemini.
+     */
+    private function buildKonteks(): string
+    {
+        $lines = [];
+
+        // ── Harga aktif ───────────────────────────────────────────────────────
+        $harga = KonfigurasiHarga::where('is_active', true)
+            ->latest('berlaku_mulai')
+            ->first();
+
+        if ($harga) {
+            $lines[] = "=== HARGA AKTIF ===";
+            $lines[] = "Harga Beli Gabah : Rp " . number_format($harga->harga_beli_gabah, 0, ',', '.');
+            $lines[] = "Harga Jual Beras : Rp " . number_format($harga->harga_jual_beras, 0, ',', '.');
+            if ($harga->ongkos_giling) {
+                $lines[] = "Ongkos Giling    : Rp " . number_format($harga->ongkos_giling, 0, ',', '.');
+            }
+            if ($harga->rasio_konversi) {
+                $lines[] = "Rasio Konversi   : " . $harga->rasio_konversi;
+            }
+            $lines[] = "Berlaku Mulai    : " . optional($harga->berlaku_mulai)->format('d M Y');
+        } else {
+            $lines[] = "=== HARGA === Belum ada konfigurasi harga aktif.";
+        }
+
+        // ── Stok terbaru (5 transaksi terakhir) ──────────────────────────────
+        $stoks = Stok::latest('tanggal_update')->take(5)->get();
+
+        if ($stoks->isNotEmpty()) {
+            $lines[] = "";
+            $lines[] = "=== STOK BERAS (5 TRANSAKSI TERAKHIR) ===";
+            foreach ($stoks as $s) {
+                $tgl    = optional($s->tanggal_update)->format('d M Y') ?? '-';
+                $jumlah = number_format($s->jumlah_stok ?? $s->jumlah, 0, ',', '.');
+                $jenis  = $s->jenis_transaksi ?? '-';
+                $lines[] = "- [{$tgl}] {$s->komoditas}: {$jumlah} kg ({$jenis})";
+            }
+        } else {
+            $lines[] = "";
+            $lines[] = "=== STOK === Belum ada data stok.";
+        }
+
+        return implode("\n", $lines);
     }
 }

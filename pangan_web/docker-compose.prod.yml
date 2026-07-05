@@ -73,40 +73,6 @@ services:
     networks:
       - simhpsb_network
 
-  # n8n Workflow Automation + AI Agent
-  n8n:
-    image: n8nio/n8n
-    container_name: simhpsb_n8n
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:5678:5678"   # Hanya listen di localhost VPS (tidak langsung publik)
-    environment:
-      - N8N_HOST=0.0.0.0
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - NODE_ENV=production
-      - WEBHOOK_URL=https://n8n.simhp.my.id/
-      - GENERIC_TIMEZONE=Asia/Jakarta
-      - TZ=Asia/Jakarta
-      # n8n v2.x hanya support 'sqlite' dan 'postgresdb' (MySQL sudah dihapus)
-      - DB_TYPE=sqlite
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=${N8N_AUTH_USER}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_AUTH_PASSWORD}
-      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
-      - APP_API_URL=http://nginx:80
-      - APP_API_LOGIN_EMAIL=${APP_ADMIN_EMAIL}
-      - APP_API_LOGIN_PASSWORD=${APP_ADMIN_PASSWORD}
-    volumes:
-      - n8n_data:/home/node/.n8n
-    depends_on:
-      db:
-        condition: service_healthy
-      app:
-        condition: service_started
-    networks:
-      - simhpsb_network
-
 networks:
   simhpsb_network:
     driver: bridge
@@ -115,8 +81,6 @@ volumes:
   dbdata:
     driver: local
   redis_data:
-    driver: local
-  n8n_data:
     driver: local
   app_public:
     driver: local
