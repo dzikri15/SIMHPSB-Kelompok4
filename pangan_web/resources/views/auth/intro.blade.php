@@ -417,15 +417,17 @@
         }
 
         /* Title */
-        .title {
-            font-size: clamp(56px, 10vw, 96px);
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: -4px;
-            line-height: .95;
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
+.title {
+    font-size: clamp(56px, 10vw, 96px);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -4px;
+    line-height: .95;
+    margin-bottom: 16px;
+    padding-right: 12px;
+    padding-bottom: 4px;
+    overflow: visible;
+}
         .title-char {
             display: inline-block;
             opacity: 0;
