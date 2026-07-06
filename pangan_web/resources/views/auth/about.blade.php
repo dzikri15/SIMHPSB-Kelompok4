@@ -422,7 +422,15 @@
             transition: transform .2s, border-color .2s;
         }
         .stack-item:hover { transform: translateY(-3px); border-color: rgba(79,213,133,.28); }
-        .stack-icon { font-size: 28px; margin-bottom: 8px; }
+        .stack-icon {
+            font-size: 28px; margin-bottom: 8px;
+            display: flex; align-items: center; justify-content: center;
+            height: 32px;
+        }
+        .stack-icon img {
+            display: block;
+            object-fit: contain;
+        }
         .stack-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .stack-desc { font-size: 11px; color: rgba(255,255,255,.4); }
 
@@ -646,7 +654,6 @@
                 <div class="team-role">QA Mobile · Testing</div>
                 <div class="team-npm">NPM: 20241320016</div>
                 <div class="team-tags">
-                  
                     <span class="tag">Testing</span>
                     <span class="tag">Manual Book</span>
                 </div>
@@ -673,42 +680,58 @@
 
         <div class="stack-grid">
             <div class="stack-item">
-                <div class="stack-icon">🐘</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/laravel/FF2D20" alt="Laravel" width="32" height="32">
+                </div>
                 <div class="stack-name">Laravel 12</div>
                 <div class="stack-desc">Backend & API</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">💙</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/flutter/02569B" alt="Flutter" width="32" height="32">
+                </div>
                 <div class="stack-name">Flutter</div>
                 <div class="stack-desc">Mobile App</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">🐬</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/mysql/4479A1" alt="MySQL" width="32" height="32">
+                </div>
                 <div class="stack-name">MySQL 8</div>
                 <div class="stack-desc">Database</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">🔴</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/redis/FF4438" alt="Redis" width="32" height="32">
+                </div>
                 <div class="stack-name">Redis</div>
                 <div class="stack-desc">Cache & Queue</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">🐳</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" width="32" height="32">
+                </div>
                 <div class="stack-name">Docker</div>
                 <div class="stack-desc">Containerization</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">🌐</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/nginx/009639" alt="Nginx" width="32" height="32">
+                </div>
                 <div class="stack-name">Nginx</div>
                 <div class="stack-desc">Web Server</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">⚡</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/n8n/EA4B71" alt="n8n" width="32" height="32">
+                </div>
                 <div class="stack-name">n8n</div>
                 <div class="stack-desc">AI Workflow</div>
             </div>
             <div class="stack-item">
-                <div class="stack-icon">🤖</div>
+                <div class="stack-icon">
+                    <img src="https://cdn.simpleicons.org/googlegemini/8E75B2" alt="Gemini" width="32" height="32">
+                </div>
                 <div class="stack-name">Gemini 2.5</div>
                 <div class="stack-desc">AI Model</div>
             </div>
