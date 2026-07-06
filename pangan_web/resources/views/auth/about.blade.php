@@ -215,8 +215,6 @@
 
         @media (max-width: 560px) {
             nav {
-                flex-direction: column;
-                align-items: flex-start;
                 padding: 14px 18px;
             }
             .nav-links {
@@ -910,6 +908,13 @@ if (navLinks) {
         });
     });
 }
+
+document.addEventListener('click', (e) => {
+    if (nav && nav.classList.contains('open') && !nav.contains(e.target)) {
+        nav.classList.remove('open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+    }
+});
 </script>
 </body>
 </html>

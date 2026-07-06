@@ -674,6 +674,13 @@ if (navLinks) {
         });
     });
 }
+
+document.addEventListener('click', (e) => {
+    if (nav && nav.classList.contains('open') && !nav.contains(e.target)) {
+        nav.classList.remove('open');
+        if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+    }
+});
 </script>
 </body>
 </html>
