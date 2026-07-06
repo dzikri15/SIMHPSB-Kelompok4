@@ -89,7 +89,7 @@
             .nav-cta { padding: 10px 16px; font-size: 12px !important; width: 100%; }
         }
         @media (max-width: 560px) {
-            nav { flex-direction: column; align-items: stretch; padding: 14px 18px; }
+            nav { padding: 14px 18px; }
             .nav-links { justify-content: stretch; gap: 10px; padding: 10px 0 0; }
             .nav-links a, .nav-cta { text-align: center; }
         }
