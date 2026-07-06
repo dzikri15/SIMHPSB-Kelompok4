@@ -173,8 +173,6 @@
 
         @media (max-width: 560px) {
             nav {
-                flex-direction: column;
-                align-items: stretch;
                 padding: 14px 18px;
             }
             .nav-links {
