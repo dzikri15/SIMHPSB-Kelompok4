@@ -136,32 +136,32 @@
         }
         .logo-container { transform-style: preserve-3d; perspective: 1000px; cursor: pointer; }
         .logo-icon {
-            width: 90px; height: 90px; border-radius: 22px;
-            display: flex; align-items: center; justify-content: center; font-size: 38px;
+            width: 150px; height: 150px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 50px;
             background: transparent;
         }
         .logo-img { filter: drop-shadow(0 20px 30px rgba(46,125,50,.4)); transition: filter .3s ease; }
         .logo-img:hover { filter: drop-shadow(0 30px 40px rgba(46,125,50,.6)); }
-        .logo-ring { position: absolute; inset: -10px; border-radius: 32px; border: 1px solid rgba(79,213,133,.2); animation: ring-pulse 3s ease-in-out infinite; }
-        .logo-ring-2 { position: absolute; inset: -20px; border-radius: 42px; border: 1px solid rgba(79,213,133,.08); animation: ring-pulse 3s ease-in-out infinite .5s; }
+        .logo-ring { position: absolute; inset: -14px; border-radius: 50%; border: 1.5px solid rgba(79,213,133,.2); animation: ring-pulse 3s ease-in-out infinite; }
+        .logo-ring-2 { position: absolute; inset: -28px; border-radius: 50%; border: 1.5px solid rgba(79,213,133,.08); animation: ring-pulse 3s ease-in-out infinite .5s; }
         @keyframes ring-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(1.04); } }
         .logo-ring-spin {
             position: absolute;
-            inset: -16px;
+            inset: -20px;
             border-radius: 50%;
             background: conic-gradient(from 0deg, transparent 0%, rgba(79,213,133,.75) 12%, transparent 26%, transparent 100%);
-            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
-                    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
+                    mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
             animation: ring-spin 4s linear infinite;
             will-change: transform;
         }
         .logo-ring-spin-2 {
             position: absolute;
-            inset: -26px;
+            inset: -36px;
             border-radius: 50%;
             background: conic-gradient(from 180deg, transparent 0%, rgba(126,232,161,.4) 10%, transparent 22%, transparent 100%);
-            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-                    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
+                    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
             animation: ring-spin 6s linear infinite reverse;
             will-change: transform;
         }
