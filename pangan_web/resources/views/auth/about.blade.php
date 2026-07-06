@@ -508,34 +508,55 @@
     </div>
 
     <!-- OVERVIEW -->
-    <div class="section" id="s1">
-        <div class="section-label">Overview</div>
-        <h2>Apa itu SIMHP?</h2>
-        <p>SIMHP adalah platform digital terintegrasi untuk membantu manajemen data hasil panen gabah dan stok beras secara real-time. Dibangun khusus untuk membantu petani, petugas gudang, dan admin dalam satu ekosistem yang efisien.</p>
-
-        <div class="info-grid">
-            <div class="info-card">
-                <div class="info-card-icon">🌾</div>
-                <h4>Tujuan Dibangun</h4>
-                <p>Mengatasi tantangan pencatatan manual hasil panen dan stok beras yang rawan error, tidak real-time, dan sulit dipantau secara terpusat.</p>
-            </div>
-            <div class="info-card">
-                <div class="info-card-icon">🎯</div>
-                <h4>Target Pengguna</h4>
-                <p>Admin gudang, petugas lapangan, dan manajemen yang membutuhkan visibilitas data pangan secara cepat dan akurat.</p>
-            </div>
-            <div class="info-card">
-                <div class="info-card-icon">📍</div>
-                <h4>Studi Kasus</h4>
-                <p>Berdasarkan studi lapangan di wilayah Majalengka — dengan kapasitas gudang 2 ton gabah / 1 ton beras dan target distribusi 9.000 kg beras/bulan.</p>
-            </div>
-            <div class="info-card">
-                <div class="info-card-icon">🤖</div>
-                <h4>AI Terintegrasi</h4>
-                <p>Dilengkapi chatbot HPSBBot berbasis Google Gemini + n8n yang bisa menjawab pertanyaan stok dan harga secara real-time dari database.</p>
-            </div>
+    <div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2c0 4-3 5-3 9a3 3 0 0 0 6 0c0-4-3-5-3-9Z"/>
+                <path d="M12 11v11"/>
+                <path d="M8 14c-2 1-3 3-3 5"/>
+                <path d="M16 14c2 1 3 3 3 5"/>
+            </svg>
         </div>
+        <h4>Tujuan Dibangun</h4>
+        <p>Mengatasi tantangan pencatatan manual hasil panen dan stok beras yang rawan error, tidak real-time, dan sulit dipantau secara terpusat.</p>
     </div>
+    <div class="info-card">
+        <div class="info-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+            </svg>
+        </div>
+        <h4>Target Pengguna</h4>
+        <p>Admin gudang, petugas lapangan, dan manajemen yang membutuhkan visibilitas data pangan secara cepat dan akurat.</p>
+    </div>
+    <div class="info-card">
+        <div class="info-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+        </div>
+        <h4>Studi Kasus</h4>
+        <p>Berdasarkan studi lapangan di wilayah Majalengka — dengan kapasitas gudang 2 ton gabah / 1 ton beras dan target distribusi 9.000 kg beras/bulan.</p>
+    </div>
+    <div class="info-card">
+        <div class="info-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="12" rx="2"/>
+                <circle cx="8.5" cy="14" r="1.5" fill="#4fd585"/>
+                <circle cx="15.5" cy="14" r="1.5" fill="#4fd585"/>
+                <path d="M12 8V4"/>
+                <circle cx="12" cy="3" r="1" fill="#4fd585"/>
+                <path d="M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/>
+            </svg>
+        </div>
+        <h4>AI Terintegrasi</h4>
+        <p>Dilengkapi chatbot HPSBBot berbasis Google Gemini + n8n yang bisa menjawab pertanyaan stok dan harga secara real-time dari database.</p>
+    </div>
+</div>
 
     <div class="divider-line"></div>
 
