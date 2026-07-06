@@ -316,6 +316,19 @@ function closeWarningModal() {
     </div>
 </div>
 
+{{-- MODAL KONFIRMASI HAPUS ALERT --}}
+<div class="modal-overlay" id="modalHapusAlert" onclick="if(event.target===this) closeModalHapus()">
+    <div class="modal-box" style="max-width:380px;">
+        <div class="modal-icon" style="font-size:36px;">🗑️</div>
+        <h3 class="modal-title" style="color:#991b1b;">Hapus Alert</h3>
+        <p class="modal-message" id="modalHapusMsg">Yakin ingin menghapus alert ini dari riwayat?</p>
+        <div class="modal-actions">
+            <button class="btn-confirm" style="background:var(--surface-2);color:var(--text-primary);border:1px solid var(--border);" onclick="closeModalHapus()">Batal</button>
+            <button class="btn-confirm" style="background:#dc2626;" id="btnKonfirmasiHapus">Hapus</button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -478,65 +491,78 @@ function showSuccessMessage(message) {
     }
 }
 
-function hapusAlert(alertId) {
-    if (!confirm('Hapus alert ini dari riwayat?')) return;
+function openModalHapus(message, onConfirm) {
+    document.getElementById('modalHapusMsg').textContent = message;
+    const btn = document.getElementById('btnKonfirmasiHapus');
+    // Clone button untuk reset event listener sebelumnya
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    newBtn.addEventListener('click', () => {
+        closeModalHapus();
+        onConfirm();
+    });
+    requestAnimationFrame(() => document.getElementById('modalHapusAlert').classList.add('open'));
+}
 
-    fetch(`{{ route('admin.alert.destroy', ':id') }}`.replace(':id', alertId), {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const row = document.querySelector(`tr.alert-row[data-id="${alertId}"]`);
-            if (row) {
-                row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(20px)';
-                setTimeout(() => row.remove(), 300);
+function closeModalHapus() {
+    document.getElementById('modalHapusAlert').classList.remove('open');
+}
+
+function hapusAlert(alertId) {
+    openModalHapus('Hapus alert ini dari riwayat? Tindakan ini tidak dapat dibatalkan.', () => {
+        fetch(`{{ route('admin.alert.destroy', ':id') }}`.replace(':id', alertId), {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
-            // Kurangi counter selesai
-            const counter = document.getElementById('count-selesai');
-            if (counter) counter.textContent = Math.max(0, parseInt(counter.textContent || '0') - 1);
-            showSuccessMessage(data.message || 'Alert berhasil dihapus');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Gagal menghapus alert');
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const row = document.querySelector(`tr.alert-row[data-id="${alertId}"]`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => row.remove(), 300);
+                }
+                const counter = document.getElementById('count-selesai');
+                if (counter) counter.textContent = Math.max(0, parseInt(counter.textContent || '0') - 1);
+                showSuccessMessage(data.message || 'Alert berhasil dihapus');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showSuccessMessage('Gagal menghapus alert');
+        });
     });
 }
 
 function hapusSemua() {
-    if (!confirm('Hapus SEMUA alert yang sudah selesai dari riwayat? Tindakan ini tidak dapat dibatalkan.')) return;
-
-    fetch(`{{ route('admin.alert.destroyAll') }}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ status: 'selesai' })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Hapus semua baris selesai dari tabel
-            document.querySelectorAll('tr.alert-row[data-status="selesai"]').forEach(row => row.remove());
-            // Reset counter
-            const counter = document.getElementById('count-selesai');
-            if (counter) counter.textContent = '0';
-            showSuccessMessage(data.message || 'Semua alert selesai berhasil dihapus');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Gagal menghapus alert');
+    openModalHapus('Hapus SEMUA alert yang sudah selesai? Tindakan ini tidak dapat dibatalkan.', () => {
+        fetch(`{{ route('admin.alert.destroyAll') }}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: 'selesai' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelectorAll('tr.alert-row[data-status="selesai"]').forEach(row => row.remove());
+                const counter = document.getElementById('count-selesai');
+                if (counter) counter.textContent = '0';
+                showSuccessMessage(data.message || 'Semua alert selesai berhasil dihapus');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
     });
 }
 </script>
