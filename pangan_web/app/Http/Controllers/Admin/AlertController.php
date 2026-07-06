@@ -156,9 +156,28 @@ class AlertController extends Controller
         return redirect()->back()->with('success', 'Alert stok berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        throw new HttpException(405, 'Method not allowed');
+        $alert = Alert::findOrFail($id);
+        $alert->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Alert berhasil dihapus']);
+        }
+
+        return redirect()->back()->with('success', 'Alert berhasil dihapus.');
+    }
+
+    public function destroyAll(Request $request)
+    {
+        $status = $request->input('status', 'selesai');
+        $deleted = Alert::where('status', $status)->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => "{$deleted} alert berhasil dihapus"]);
+        }
+
+        return redirect()->back()->with('success', "{$deleted} alert berhasil dihapus.");
     }
 
     public function konfigurasi(Request $request)

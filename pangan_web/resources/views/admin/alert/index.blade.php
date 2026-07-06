@@ -196,6 +196,11 @@ function closeWarningModal() {
                 <option value="dalam_penanganan" {{ $selectedStatus === 'dalam_penanganan' ? 'selected' : '' }}>Dalam Penanganan</option>
                 <option value="selesai" {{ $selectedStatus === 'selesai' ? 'selected' : '' }}>Sudah Ditangani</option>
             </select>
+            @if($alertSelesai > 0)
+            <button type="button" class="btn btn-sm" onclick="hapusSemua()" style="background:var(--red-100);color:#991b1b;border:1.5px solid var(--red-200);">
+                <i class="fas fa-trash-alt"></i> Hapus Semua Selesai
+            </button>
+            @endif
         </div>
     </div>
 
@@ -248,11 +253,18 @@ function closeWarningModal() {
                                     <i class="fas fa-check"></i> Tandai Ditangani
                                 </button>
                             @elseif($normalizedStatus == 'dalam_penanganan')
-                                <button type="button" class="btn btn-success btn-sm" onclick="tandaiSelesai({{ $a->id }})">
-                                    <i class="fas fa-flag-checkered"></i> Selesai
-                                </button>
+                                <div style="display:flex;gap:6px;">
+                                    <button type="button" class="btn btn-success btn-sm" onclick="tandaiSelesai({{ $a->id }})">
+                                        <i class="fas fa-flag-checkered"></i> Selesai
+                                    </button>
+                                </div>
                             @else
-                                <span style="font-size:12px;color:var(--text-muted);">✓ Selesai</span>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="font-size:12px;color:var(--text-muted);">✓ Selesai</span>
+                                    <button type="button" class="btn btn-sm" onclick="hapusAlert({{ $a->id }})" style="background:var(--red-100);color:#991b1b;border:1px solid var(--red-200);padding:4px 8px;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             @endif
                         </td>
                     </tr>
@@ -362,9 +374,9 @@ function renderActionCell(alertId, status) {
     if (status === 'aktif') {
         cell.innerHTML = `<button type="button" class="btn btn-primary btn-sm" onclick="tandaiDitangani(${alertId})"><i class="fas fa-check"></i> Tandai Ditangani</button>`;
     } else if (status === 'dalam_penanganan') {
-        cell.innerHTML = `<button type="button" class="btn btn-success btn-sm" onclick="tandaiSelesai(${alertId})"><i class="fas fa-flag-checkered"></i> Selesai</button>`;
+        cell.innerHTML = `<div style="display:flex;gap:6px;"><button type="button" class="btn btn-success btn-sm" onclick="tandaiSelesai(${alertId})"><i class="fas fa-flag-checkered"></i> Selesai</button></div>`;
     } else {
-        cell.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">✓ Selesai</span>';
+        cell.innerHTML = `<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:12px;color:var(--text-muted);">✓ Selesai</span><button type="button" class="btn btn-sm" onclick="hapusAlert(${alertId})" style="background:var(--red-100);color:#991b1b;border:1px solid var(--red-200);padding:4px 8px;"><i class="fas fa-trash"></i></button></div>`;
     }
 }
 
@@ -464,6 +476,68 @@ function showSuccessMessage(message) {
         mainContent.insertBefore(alertBanner, mainContent.firstChild);
         setTimeout(() => alertBanner.remove(), 3000);
     }
+}
+
+function hapusAlert(alertId) {
+    if (!confirm('Hapus alert ini dari riwayat?')) return;
+
+    fetch(`{{ route('admin.alert.destroy', ':id') }}`.replace(':id', alertId), {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.querySelector(`tr.alert-row[data-id="${alertId}"]`);
+            if (row) {
+                row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(20px)';
+                setTimeout(() => row.remove(), 300);
+            }
+            // Kurangi counter selesai
+            const counter = document.getElementById('count-selesai');
+            if (counter) counter.textContent = Math.max(0, parseInt(counter.textContent || '0') - 1);
+            showSuccessMessage(data.message || 'Alert berhasil dihapus');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Gagal menghapus alert');
+    });
+}
+
+function hapusSemua() {
+    if (!confirm('Hapus SEMUA alert yang sudah selesai dari riwayat? Tindakan ini tidak dapat dibatalkan.')) return;
+
+    fetch(`{{ route('admin.alert.destroyAll') }}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ status: 'selesai' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Hapus semua baris selesai dari tabel
+            document.querySelectorAll('tr.alert-row[data-status="selesai"]').forEach(row => row.remove());
+            // Reset counter
+            const counter = document.getElementById('count-selesai');
+            if (counter) counter.textContent = '0';
+            showSuccessMessage(data.message || 'Semua alert selesai berhasil dihapus');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Gagal menghapus alert');
+    });
 }
 </script>
 @endpush

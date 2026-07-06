@@ -103,6 +103,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,petugas'
         Route::get  ('alert',                    [AlertController::class, 'index'])    ->name('alert.index');
         Route::put  ('alert/konfigurasi',        [AlertController::class, 'konfigurasi'])->name('alert.konfigurasi');
         Route::patch('alert/{alert}/tangani',    [AlertController::class, 'tangani'])  ->name('alert.tangani');
+        Route::delete('alert/{id}',              [AlertController::class, 'destroy'])  ->name('alert.destroy');
+        Route::delete('alert',                   [AlertController::class, 'destroyAll'])->name('alert.destroyAll');
 
         // Tujuan Distribusi (manajemen)
         Route::get('tujuan-distribusi', [TujuanDistribusiController::class, 'index'])->name('tujuan-distribusi.index');
