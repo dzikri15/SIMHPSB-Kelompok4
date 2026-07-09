@@ -367,6 +367,19 @@
         }
         .team-card.leader .team-avatar { border-color: rgba(79,213,133,.8); box-shadow: 0 10px 30px rgba(79,213,133,.25); }
 
+        @media (max-width: 600px) {
+            .team-grid { grid-template-columns: repeat(2, 1fr); gap: 16px 12px; }
+            .team-card { padding: 0; }
+            .team-avatar { width: 140px; height: 185px; margin-bottom: 12px; font-size: 20px; border-width: 1.5px; }
+            .team-name { font-size: 13px; margin-bottom: 4px; letter-spacing: 0; }
+            .team-role { font-size: 9px; margin-bottom: 8px; }
+            .team-npm { font-size: 9px; margin-bottom: 8px; }
+            .team-social { gap: 6px; margin-bottom: 10px; }
+            .team-social a { width: 26px; height: 26px; border-radius: 6px; }
+            .team-social a svg { width: 12px; height: 12px; }
+            .tag { padding: 2px 6px; font-size: 8.5px; }
+        }
+
         /* ── STACK ── */
         .stack-grid {
             display: grid;
