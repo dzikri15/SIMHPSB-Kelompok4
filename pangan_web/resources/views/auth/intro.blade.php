@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMHP</title>
+    <title>SIMHP – Sistem Informasi Monitoring Hasil Panen</title>
+    <meta name="description" content="SIMHP adalah sistem monitoring hasil panen berbasis web dan mobile untuk pengelolaan stok pangan secara real-time.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -17,6 +17,8 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             background: #060f09;
         }
+
+        /* ── NAV ── */
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             display: flex; align-items: center; justify-content: space-between;
@@ -24,10 +26,10 @@
             background: rgba(6,15,9,.85);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(79,213,133,.1);
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: padding 0.4s;
+            opacity: 0; transform: translateY(-20px);
+            transition: opacity .6s ease, transform .6s ease, padding .4s;
         }
+        nav.visible { opacity: 1; transform: translateY(0); }
         nav.scrolled { padding: 14px 40px; }
         .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .nav-logo {
@@ -91,6 +93,8 @@
             .nav-links { justify-content: stretch; gap: 10px; padding: 10px 0 0; }
             .nav-links a, .nav-cta { text-align: center; }
         }
+
+        /* ── PAGE ── */
         #page {
             position: relative; min-height: 100vh; background: #060f09;
             display: flex; align-items: center; justify-content: center; padding: 60px 0;
@@ -111,21 +115,53 @@
             mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 80%);
         }
         #dots-canvas { position: absolute; inset: 0; pointer-events: none; }
+
+        /* ── CONTENT FADE-IN (CSS keyframes, no JS library) ── */
         .content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 24px; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(.75); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* Each element animates via CSS with staggered delay */
+        nav.visible            { animation: fadeDown .6s ease both; }
+        .badge                 { animation: fadeUp .6s .15s ease both; }
+        .logo-wrap             { animation: scaleIn .7s .25s cubic-bezier(.34,1.56,.64,1) both; }
+        .title                 { animation: fadeUp .55s .4s ease both; }
+        #divider               { animation: fadeUp .45s .55s ease both; }
+        .subtitle              { animation: fadeUp .5s .6s ease both; }
+        .stats                 { animation: fadeUp .5s .7s ease both; }
+        .cta-wrap              { animation: fadeUp .5s .8s ease both; }
+        .corner, #skip         { animation: fadeUp .5s 1s ease both; }
+
+        /* ── BADGE ── */
         .badge {
             display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px 6px 8px;
             background: rgba(79,213,133,.1); border: 1px solid rgba(79,213,133,.25); border-radius: 100px;
             font-size: 11.5px; font-weight: 600; color: #4fd585; letter-spacing: 0.04em; text-transform: uppercase;
-            margin-bottom: 28px; opacity: 0; transform: translateY(10px);
+            margin-bottom: 28px;
         }
         .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4fd585; box-shadow: 0 0 8px #4fd585; animation: pulse-dot 2s ease-in-out infinite; }
         @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(.7); } }
+
+        /* ── LOGO ── */
         .logo-wrap {
-            position: relative; margin-bottom: 24px; opacity: 0;
-            transform: perspective(1000px) scale(.7) translateY(20px) rotateY(180deg);
-            transform-style: preserve-3d; transform-origin: center; cursor: pointer;
+            position: relative; margin-bottom: 24px; cursor: pointer;
+            animation: scaleIn .7s .25s cubic-bezier(.34,1.56,.64,1) both, logo-float 4s 1s ease-in-out infinite;
         }
-        .logo-container { transform-style: preserve-3d; perspective: 1000px; cursor: pointer; }
+        @keyframes logo-float {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-10px); }
+        }
         .logo-icon {
             width: 150px; height: 150px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 50px;
@@ -137,9 +173,7 @@
         .logo-ring-2 { position: absolute; inset: -28px; border-radius: 50%; border: 1.5px solid rgba(79,213,133,.08); animation: ring-pulse 3s ease-in-out infinite .5s; }
         @keyframes ring-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(1.04); } }
         .logo-ring-spin {
-            position: absolute;
-            inset: -20px;
-            border-radius: 50%;
+            position: absolute; inset: -20px; border-radius: 50%;
             background: conic-gradient(from 0deg, transparent 0%, rgba(79,213,133,.75) 12%, transparent 26%, transparent 100%);
             -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
                     mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
@@ -147,9 +181,7 @@
             will-change: transform;
         }
         .logo-ring-spin-2 {
-            position: absolute;
-            inset: -36px;
-            border-radius: 50%;
+            position: absolute; inset: -36px; border-radius: 50%;
             background: conic-gradient(from 180deg, transparent 0%, rgba(126,232,161,.4) 10%, transparent 22%, transparent 100%);
             -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
                     mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
@@ -157,24 +189,24 @@
             will-change: transform;
         }
         @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+        /* ── TITLE ── */
         .title {
             font-size: clamp(56px, 10vw, 96px); font-weight: 900; color: #fff;
             letter-spacing: -4px; line-height: .95; margin-bottom: 16px;
             padding-right: 12px; padding-bottom: 4px; overflow: visible;
         }
-        .title-char { display: inline-block; opacity: 0; transform: translateY(80px) rotate(4deg); }
         .subtitle {
             font-family: 'Lora', serif; font-style: italic; font-size: clamp(13px, 1.8vw, 15.5px);
-            color: rgba(255,255,255,.4); line-height: 1.8; margin-bottom: 44px;
-            opacity: 0; transform: translateY(16px); max-width: 380px;
+            color: rgba(255,255,255,.4); line-height: 1.8; margin-bottom: 44px; max-width: 380px;
         }
-        .divider { width: 1px; height: 0; background: linear-gradient(180deg, transparent, rgba(79,213,133,.5), transparent); margin: 0 auto 32px; }
-        .stats { display: flex; gap: 0; margin-bottom: 44px; opacity: 0; transform: translateY(16px); }
+        #divider { width: 1px; height: 48px; background: linear-gradient(180deg, transparent, rgba(79,213,133,.5), transparent); margin: 0 auto 32px; }
+        .stats { display: flex; gap: 0; margin-bottom: 44px; }
         .stat { padding: 14px 28px; text-align: center; border-right: 1px solid rgba(255,255,255,.07); }
         .stat:last-child { border-right: none; }
         .stat-num { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -1px; display: block; }
         .stat-label { font-size: 11px; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; display: block; }
-        .cta-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: 0; transform: translateY(20px); }
+        .cta-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
         .btn-primary {
             position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 15px 36px;
             background: linear-gradient(135deg, #38a169, #2b7a4f); color: #fff; border: none; border-radius: 14px;
@@ -188,8 +220,11 @@
         .btn-arrow { width: 20px; height: 20px; background: rgba(255,255,255,.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: transform .2s, background .2s; }
         .btn-primary:hover .btn-arrow { transform: translateX(3px); background: rgba(255,255,255,.25); }
         .hint-text { font-size: 11.5px; color: rgba(255,255,255,.2); letter-spacing: .03em; }
-        #fade-overlay { position: fixed; inset: 0; background: #060f09; opacity: 0; pointer-events: none; z-index: 9999; backdrop-filter: blur(0px); }
-        .corner { position: absolute; z-index: 10; opacity: 0; }
+
+        /* ── MISC ── */
+        #fade-overlay { position: fixed; inset: 0; background: #060f09; opacity: 0; pointer-events: none; z-index: 9999; transition: opacity .6s ease; }
+        #fade-overlay.active { opacity: 1; pointer-events: all; }
+        .corner { position: absolute; z-index: 10; }
         .corner-tl { top: 20px; left: 24px; }
         .corner-br { bottom: 20px; right: 24px; text-align: right; }
         .corner-label { font-size: 10.5px; color: rgba(255,255,255,.2); letter-spacing: .08em; text-transform: uppercase; }
@@ -197,20 +232,17 @@
         #skip {
             position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
             font-size: 11px; color: rgba(255,255,255,.18); cursor: pointer; z-index: 20;
-            letter-spacing: .04em; opacity: 0; transition: color .2s; white-space: nowrap;
+            letter-spacing: .04em; transition: color .2s; white-space: nowrap;
         }
         #skip:hover { color: rgba(255,255,255,.45); }
 
         ::-webkit-scrollbar { width: 14px; height: 14px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(79, 213, 133, 0.4); border-radius: 8px; border: 3px solid transparent; background-clip: padding-box; transition: background .2s ease, box-shadow .2s ease; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(79, 213, 133, 0.85); background-clip: padding-box; box-shadow: 0 0 12px rgba(79, 213, 133, 0.5); }
-        ::-webkit-scrollbar-thumb:active { background: rgba(79, 213, 133, 1); }
+        ::-webkit-scrollbar-thumb { background: rgba(79, 213, 133, 0.4); border-radius: 8px; border: 3px solid transparent; background-clip: padding-box; transition: background .2s ease; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(79, 213, 133, 0.85); background-clip: padding-box; }
     </style>
 </head>
 <body>
-
-
 
 <nav id="mainNav">
     <a href="{{ route('intro') }}" class="nav-brand">
@@ -241,23 +273,23 @@
     <div class="grid-lines"></div>
     <canvas id="dots-canvas"></canvas>
 
-    <div class="corner corner-tl" id="cornerTl">
+    <div class="corner corner-tl">
         <div class="corner-label">SIMHP</div>
         <div class="corner-val">v1.2 · 2025</div>
     </div>
-    <div class="corner corner-br" id="cornerBr">
+    <div class="corner corner-br">
         <div class="corner-label"></div>
         <div class="corner-val">UKRI</div>
     </div>
 
     <div class="content">
 
-        <div class="badge" id="badge">
+        <div class="badge">
             <span class="badge-dot"></span>
             Sistem Monitoring Pangan
         </div>
 
-        <div class="logo-wrap logo-container" id="logoWrap">
+        <div class="logo-wrap" id="logoWrap">
             <div class="logo-ring-spin-2"></div>
             <div class="logo-ring-spin"></div>
             <div class="logo-ring"></div>
@@ -265,16 +297,16 @@
             <div class="logo-icon logo-img"><img src="{{ asset('foto/petani_logo.png') }}" alt="SIMHP" style="width:100%;height:100%;object-fit:contain;"></div>
         </div>
 
-        <div class="title" id="title"><!-- chars injected --></div>
+        <div class="title" id="title">SIMHP</div>
 
-        <div class="divider" id="divider"></div>
+        <div id="divider"></div>
 
-        <p class="subtitle" id="subtitle">
+        <p class="subtitle">
             Sistem Informasi Monitoring Hasil Panen<br>
              Berbasis Web
         </p>
 
-        <div class="stats" id="stats">
+        <div class="stats">
             <div class="stat">
                 <span class="stat-num">Real‑Time</span>
                 <span class="stat-label">Dashboard</span>
@@ -289,7 +321,7 @@
             </div>
         </div>
 
-        <div class="cta-wrap" id="ctaWrap">
+        <div class="cta-wrap">
             <button class="btn-primary" id="btnMasuk" onclick="handleEnter()">
                 Masuk ke SIMHP
                 <span class="btn-arrow">
@@ -308,13 +340,7 @@
 <div id="fade-overlay"></div>
 
 <script>
-'SIMHP'.split('').forEach(c => {
-    const s = document.createElement('span');
-    s.className = 'title-char';
-    s.textContent = c;
-    document.getElementById('title').appendChild(s);
-});
-
+// ── Floating particles (canvas) ──
 const canvas = document.getElementById('dots-canvas');
 const ctx = canvas.getContext('2d');
 let orbs = [];
@@ -343,12 +369,10 @@ function createOrbs() {
 createOrbs();
 
 let animFrame;
-function drawOrbs(ts) {
+function drawOrbs() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     orbs.forEach(o => {
-        o.x += o.vx;
-        o.y += o.vy;
-        o.phase += .008;
+        o.x += o.vx; o.y += o.vy; o.phase += .008;
         const pulse = Math.sin(o.phase) * .3;
         if (o.x < 0) o.x = canvas.width;
         if (o.x > canvas.width) o.x = 0;
@@ -363,137 +387,69 @@ function drawOrbs(ts) {
 }
 drawOrbs();
 
+// ── Trigger CSS animations on load ──
+document.getElementById('mainNav').classList.add('visible');
 
+// ── Nav scroll ──
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('mainNav');
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+});
 
-const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, paused: true });
-
-function showPage() {
-    gsap.timeline({ defaults: { ease: 'power3.out' } })
-        .to('#page', { opacity: 1, y: 0, duration: 0.9 })
-        .call(() => { if (tl) tl.play(); }, null, '-=0.2');
-}
-
-window.addEventListener('load', showPage);
-if (document.readyState === 'complete') showPage();
-
-tl.to('nav',        { opacity: 1, y: 0, duration: 0.8 }, 0.1)
-  .to('#badge',    { opacity: 1, y: 0, duration: .7 }, .2)
-  .to('#logoWrap', { opacity: 1, scale: 1, y: 0, rotationY: 0, duration: 1.2, ease: 'back.out(1.7)' }, .35)
-  .to('#logoWrap', { y: -10, duration: 3, ease: 'power1.inOut', repeat: -1, yoyo: true }, 1.8)
-  .to('.title-char', {
-        opacity: 1, y: 0, rotate: 0,
-        duration: .6, stagger: .055, ease: 'back.out(1.4)'
-    }, .55)
-  .to('#divider',  { height: 48, duration: .6, ease: 'power2.out' }, .75)
-  .to('#subtitle', { opacity: 1, y: 0, duration: .6 }, .85)
-  .to('#stats',    { opacity: 1, y: 0, duration: .6 }, .95)
-  .to('#ctaWrap',  { opacity: 1, y: 0, duration: .65, ease: 'back.out(1.3)' }, 1.05)
-  .to(['#cornerTl','#cornerBr','#skip'], { opacity: 1, duration: .5, stagger: .1 }, 1.2);
-
+// ── Fade overlay helper ──
 const loginUrl = "{{ route('login') }}";
+const aboutUrl = "{{ route('about') }}";
 let going = false;
+let redirected = false;
 
-function goLogin() {
+function doFade(url) {
     if (going) return;
     going = true;
-
     cancelAnimationFrame(animFrame);
-
     const overlay = document.getElementById('fade-overlay');
-
-    overlay.style.pointerEvents = 'all';
-
-    gsap.to('.content, .corner, #skip, nav', {
-        filter: 'blur(12px)', opacity: 0, duration: 0.55, ease: 'power2.inOut'
-    });
-    gsap.to('.amb, .grid-lines', { opacity: 0, duration: .5, ease: 'power2.in' });
-    gsap.to(overlay, {
-        opacity: 1, duration: .65, ease: 'power2.inOut', delay: .15,
-        onComplete: () => { window.location.href = loginUrl; }
-    });
+    overlay.classList.add('active');
+    setTimeout(() => { window.location.href = url; }, 600);
 }
 
-function handleEnter() { goLogin(); }
+function goLogin()      { doFade(loginUrl); }
+function handleEnter()  { goLogin(); }
 
-const logoElem = document.getElementById('logoWrap');
-logoElem.addEventListener('mousemove', (e) => {
-    const rect = logoElem.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    gsap.to(logoElem, {
-        rotationX: -y / 10, rotationY: x / 10, transformPerspective: 500, duration: 0.3, ease: 'power2.out'
-    });
-});
-logoElem.addEventListener('mouseleave', () => {
-    gsap.to(logoElem, { rotationX: 0, rotationY: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
-});
+// ── Swipe / scroll to next page ──
+window.addEventListener('wheel', e => {
+    if (!redirected && e.deltaY > 30) { redirected = true; doFade(aboutUrl); }
+}, { passive: true });
 
+let touchStart = 0;
+window.addEventListener('touchstart', e => { touchStart = e.touches[0].screenY; }, { passive: true });
+window.addEventListener('touchmove', e => {
+    if (!redirected && e.touches[0].screenY < touchStart - 40) { redirected = true; doFade(aboutUrl); }
+}, { passive: true });
+
+// ── Keyboard ──
 document.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goLogin(); }
 });
 
-const aboutUrl = "{{ route('about') }}";
-let redirected = false;
-
-function triggerForward() {
-    if (redirected) return;
-    redirected = true;
-
-    const overlay = document.getElementById('fade-overlay');
-    overlay.style.pointerEvents = 'all';
-
-    gsap.to('.content, .corner, #skip, nav', {
-        filter: 'blur(12px)', opacity: 0, duration: 0.55, ease: 'power2.inOut'
-    });
-
-    gsap.to(overlay, {
-        opacity: 1, duration: 0.65, ease: 'power2.inOut',
-        onComplete: () => { window.location.href = aboutUrl; }
-    });
-}
-
-window.addEventListener('wheel', (e) => {
-    if (!redirected && e.deltaY > 30) { triggerForward(); }
-}, { passive: true });
-
-let touchStart = 0;
-window.addEventListener('touchstart', (e) => {
-    touchStart = e.touches[0].screenY;
-}, { passive: true });
-window.addEventListener('touchmove', (e) => {
-    let touchEnd = e.touches[0].screenY;
-    if (!redirected && touchEnd < touchStart - 40) { triggerForward(); }
-}, { passive: true });
-
-window.addEventListener('scroll', () => {
-    const nav = document.getElementById('mainNav');
-    if (window.scrollY > 50) { nav.classList.add('scrolled'); } else { nav.classList.remove('scrolled'); }
-});
-
+// ── Mobile navbar ──
 const navToggle = document.getElementById('navToggle');
 const nav = document.querySelector('nav');
 const navLinks = document.getElementById('navLinks');
 
 if (navToggle) {
     navToggle.addEventListener('click', () => {
-        if (!nav) return;
         nav.classList.toggle('open');
-        const expanded = nav.classList.contains('open');
-        navToggle.setAttribute('aria-expanded', String(expanded));
+        navToggle.setAttribute('aria-expanded', String(nav.classList.contains('open')));
     });
 }
-
 if (navLinks) {
     navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
-            if (!nav) return;
             nav.classList.remove('open');
             if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
         });
     });
 }
-
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
     if (nav && nav.classList.contains('open') && !nav.contains(e.target)) {
         nav.classList.remove('open');
         if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
