@@ -305,32 +305,37 @@
         .timeline-item h4 { font-size: 16px; color: #fff; font-weight: 700; margin-bottom: 6px; }
         .timeline-item p { font-size: 13.5px; color: rgba(255,255,255,.6); line-height: 1.7; }
 
-        /* ── TEAM ── */
         .team-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px 20px;
+            margin-top: 40px;
         }
         .team-card {
-            background: rgba(15,33,24,.9);
-            border: 1px solid rgba(79,213,133,.13);
-            border-radius: 20px; padding: 28px 20px;
+            background: transparent;
+            border: none;
+            padding: 10px;
             text-align: center;
-            backdrop-filter: blur(14px);
-            transition: transform .25s, border-color .25s;
+            transition: transform .3s ease;
         }
-        .team-card:hover { transform: translateY(-4px); border-color: rgba(79,213,133,.28); scale: 1.02; }
+        .team-card:hover { transform: translateY(-8px); scale: 1.03; }
         .team-avatar {
-            width: 64px; height: 64px;
+            width: 180px; height: 240px;
             border-radius: 50%;
-            background-color: #22a157;
+            background-color: #11271b;
             background-size: cover; background-position: center;
             display: flex; align-items: center; justify-content: center;
-            font-size: 26px; font-weight: 800; color: #fff;
-            margin: 0 auto 14px;
-            box-shadow: 0 0 0 3px rgba(79,213,133,.2), 0 8px 24px rgba(34,161,85,.3);
+            font-size: 32px; font-weight: 800; color: rgba(255,255,255,.1);
+            margin: 0 auto 20px;
+            border: 2px solid rgba(79,213,133,.5);
+            box-shadow: 0 10px 30px rgba(79,213,133,.15);
+            transition: box-shadow .3s, border-color .3s;
         }
-        .team-name { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .team-card:hover .team-avatar {
+            border-color: #4fd585;
+            box-shadow: 0 15px 40px rgba(79,213,133,.3);
+        }
+        .team-name { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 6px; letter-spacing: -0.2px; }
         .team-role {
             font-size: 12px; color: #4fd585;
             font-weight: 600; letter-spacing: .04em;
@@ -339,13 +344,13 @@
         .team-npm { font-size: 11px; color: rgba(255,255,255,.35); margin-bottom: 12px; }
         .team-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
         .tag {
-            padding: 3px 9px;
+            padding: 4px 10px;
             background: rgba(79,213,133,.1);
             border: 1px solid rgba(79,213,133,.2);
             border-radius: 100px;
             font-size: 10px; color: #4fd585; font-weight: 600;
         }
-        .team-card.leader { border-color: rgba(79,213,133,.35); }
+        .team-card.leader .team-avatar { border-color: rgba(79,213,133,.8); box-shadow: 0 10px 30px rgba(79,213,133,.25); }
 
         /* ── STACK ── */
         .stack-grid {
