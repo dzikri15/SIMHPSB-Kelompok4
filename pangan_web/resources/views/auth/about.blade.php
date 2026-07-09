@@ -6,8 +6,6 @@
     <title>Tentang SIMHP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -95,7 +93,6 @@
             background: rgba(79,213,133,.08);
             border-color: rgba(79,213,133,.45);
         }
-
         .nav-toggle {
             display: none;
             border: none;
@@ -171,75 +168,22 @@
             }
         }
 
-        @media (max-width: 560px) {
-            nav {
-                padding: 14px 18px;
-            }
-            .nav-links {
-                justify-content: stretch;
-                gap: 10px;
-                padding: 10px 0 0;
-            }
-            .nav-links a,
-            .nav-cta {
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 860px) {
-            nav {
-                padding: 14px 24px;
-                gap: 12px;
-                flex-wrap: wrap;
-                justify-content: space-between;
-            }
-            .nav-logo {
-                width: 32px;
-                height: 32px;
-            }
-            .nav-name { font-size: 14px; }
-            .nav-links {
-                flex: 1 1 100%;
-                justify-content: flex-end;
-                gap: 16px;
-                flex-wrap: wrap;
-            }
-            .nav-links a {
-                font-size: 12px;
-            }
-            .nav-cta {
-                padding: 8px 16px;
-                font-size: 12px !important;
-            }
-        }
-
-        @media (max-width: 560px) {
-            nav {
-                padding: 14px 18px;
-            }
-            .nav-links {
-                width: 100%;
-                justify-content: space-between;
-                gap: 10px;
-            }
-            .nav-links a,
-            .nav-cta {
-                flex: 1 1 100%;
-                text-align: center;
-            }
-            .nav-links {
-                padding: 10px 0 0;
-            }
-            .nav-cta {
-                width: 100%;
-            }
-        }
-
         /* ── EXIT OVERLAY ── */
         #fade-overlay {
             position: fixed; inset: 0; background: #060f09; opacity: 0;
             pointer-events: none; z-index: 9999;
+            transition: opacity 0.6s ease;
         }
+        #fade-overlay.active { opacity: 1; pointer-events: all; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .hero { animation: fadeUp .8s ease both; }
+        .info-card, .stack-item, .team-card, .timeline-item { animation: fadeUp .6s ease both; animation-play-state: paused; }
+        .section { animation: fadeUp .8s ease both; animation-play-state: paused; }
+        .animate-on-scroll { animation-play-state: running !important; }
 
         /* ── CONTENT WRAPPER ── */
         .wrapper {
@@ -253,7 +197,6 @@
         .hero {
             text-align: center;
             padding: 60px 0 80px;
-            opacity: 0; transform: translateY(30px);
         }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 7px;
@@ -290,7 +233,7 @@
         }
 
         /* ── SECTION ── */
-        .section { margin-bottom: 80px; opacity: 0; transform: translateY(24px); }
+        .section { margin-bottom: 80px; }
         .section-label {
             display: inline-flex; align-items: center; gap: 8px;
             font-size: 11px; font-weight: 700; color: #4fd585;
@@ -324,7 +267,7 @@
             backdrop-filter: blur(14px);
             transition: transform .25s, border-color .25s;
         }
-        .info-card:hover { transform: translateY(-4px); border-color: rgba(79,213,133,.28); }
+        .info-card:hover { transform: translateY(-4px); border-color: rgba(79,213,133,.28); scale: 1.02; }
         .info-card-icon {
             width: 44px; height: 44px;
             background: rgba(79,213,133,.12);
@@ -376,11 +319,12 @@
             backdrop-filter: blur(14px);
             transition: transform .25s, border-color .25s;
         }
-        .team-card:hover { transform: translateY(-4px); border-color: rgba(79,213,133,.28); }
+        .team-card:hover { transform: translateY(-4px); border-color: rgba(79,213,133,.28); scale: 1.02; }
         .team-avatar {
             width: 64px; height: 64px;
             border-radius: 50%;
-            background: linear-gradient(145deg, #3ecf74, #22a157);
+            background-color: #22a157;
+            background-size: cover; background-position: center;
             display: flex; align-items: center; justify-content: center;
             font-size: 26px; font-weight: 800; color: #fff;
             margin: 0 auto 14px;
@@ -402,7 +346,6 @@
             font-size: 10px; color: #4fd585; font-weight: 600;
         }
         .team-card.leader { border-color: rgba(79,213,133,.35); }
-        .team-card.leader .team-avatar { background: linear-gradient(145deg, #4fd585, #2b7a4f); }
 
         /* ── STACK ── */
         .stack-grid {
@@ -417,7 +360,7 @@
             text-align: center;
             transition: transform .2s, border-color .2s;
         }
-        .stack-item:hover { transform: translateY(-3px); border-color: rgba(79,213,133,.28); }
+        .stack-item:hover { transform: translateY(-3px); border-color: rgba(79,213,133,.28); scale: 1.02; }
         .stack-icon {
             font-size: 28px; margin-bottom: 8px;
             display: flex; align-items: center; justify-content: center;
@@ -601,7 +544,7 @@
 
         <div class="team-grid">
             <div class="team-card leader">
-                <div class="team-avatar">D</div>
+                <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/dzikri.jpg') }}'); color: transparent;">D</div>
                 <div class="team-name">Muhammad Dzikri Sagara</div>
                 <div class="team-role">PM · Backend · DevOps · Database</div>
                 <div class="team-npm">NPM: 20241320004</div>
@@ -615,7 +558,7 @@
                 </div>
             </div>
             <div class="team-card">
-                <div class="team-avatar">F</div>
+                <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/fakhri.jpeg') }}'); color: transparent;">F</div>
                 <div class="team-name">Fakhry Ahmad Fauzan</div>
                 <div class="team-role">Frontend Web · Flutter Mobile · API Integration</div>
                 <div class="team-npm">NPM: 20241320038</div>
@@ -629,7 +572,7 @@
                 </div>
             </div>
             <div class="team-card">
-                <div class="team-avatar">A</div>
+                <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/alam.jpg') }}'); color: transparent;">A</div>
                 <div class="team-name">Muhammad Alamsyah</div>
                 <div class="team-role">n8n · DevOps · QA Web · Diagram</div>
                 <div class="team-npm">NPM: 20241320030</div>
@@ -643,7 +586,7 @@
                 </div>
             </div>
             <div class="team-card">
-                <div class="team-avatar">D</div>
+                <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/difa.jpeg') }}'); color: transparent;">D</div>
                 <div class="team-name">Difa Nisa Lutfiah</div>
                 <div class="team-role">QA Web · Diagram · Dokumentasi</div>
                 <div class="team-npm">NPM: 20241320013</div>
@@ -655,7 +598,7 @@
                 </div>
             </div>
             <div class="team-card">
-                <div class="team-avatar">D</div>
+                <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/devina.jpg') }}'); color: transparent;">D</div>
                 <div class="team-name">Devina Ayuliani</div>
                 <div class="team-role">QA Mobile · ERD · Laporan</div>
                 <div class="team-npm">NPM: 20241320019</div>
@@ -666,7 +609,7 @@
                 </div>
             </div>
             <div class="team-card">
-                <div class="team-avatar">A</div>
+                <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/agusta.jpg') }}'); color: transparent;">A</div>
                 <div class="team-name">Agusta Firman Firdaus</div>
                 <div class="team-role">QA Mobile · Testing</div>
                 <div class="team-npm">NPM: 20241320016</div>
@@ -782,7 +725,7 @@
 
     <!-- BACK TO INTRO -->
     <div style="text-align:center; padding: 20px 0 60px;">
-        <a href="{{ route('intro') }}?skip_loader=1" class="back-btn">
+        <a href="javascript:void(0)" onclick="triggerBack()" class="back-btn">
             ← Kembali ke Beranda
         </a>
         <div style="margin-top:16px;">
@@ -796,33 +739,18 @@
 </div>
 
 <script>
-gsap.registerPlugin(ScrollTrigger);
-
-// Hero
-gsap.to('#hero', { opacity: 1, y: 0, duration: 1, delay: .3, ease: 'power3.out' });
-
-// Sections
-document.querySelectorAll('.section').forEach((el, i) => {
-    gsap.to(el, {
-        opacity: 1, y: 0, duration: .8,
-        ease: 'power3.out',
-        scrollTrigger: {
-            trigger: el,
-            start: 'top 85%',
-            once: true
-        },
-        delay: i * .05
+// CSS Scroll Animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-on-scroll');
+            observer.unobserve(entry.target);
+        }
     });
-});
+}, { threshold: 0.1 });
 
-// Cards hover glow
-document.querySelectorAll('.info-card, .team-card, .stack-item').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-        gsap.to(card, { scale: 1.02, duration: .2, ease: 'power2.out' });
-    });
-    card.addEventListener('mouseleave', () => {
-        gsap.to(card, { scale: 1, duration: .3, ease: 'power2.out' });
-    });
+document.querySelectorAll('.section, .info-card, .team-card, .stack-item, .timeline-item').forEach(el => {
+    observer.observe(el);
 });
 
 // Nav scroll effect & Auto redirect at top
@@ -831,33 +759,18 @@ let redirected = false;
 
 window.addEventListener('scroll', () => {
     const nav = document.querySelector('nav');
+    nav.classList.toggle('scrolled', window.scrollY > 50);
 
-    // Nav shrink effect
-    if (window.scrollY > 50) {
-        nav.classList.add('scrolled');
-    } else {
-        nav.classList.remove('scrolled');
-    }
-
-    // Auto redirect to intro when scrolling up at the very top
     if (!redirected && window.scrollY <= 0) {
-        // Detect additional upward scroll attempt
         window.addEventListener('wheel', (e) => {
-            if (!redirected && e.deltaY < -30 && window.scrollY <= 0) {
-                triggerBack();
-            }
+            if (!redirected && e.deltaY < -30 && window.scrollY <= 0) triggerBack();
         }, { passive: true });
 
-        // For touch devices
         let touchStart = 0;
-        window.addEventListener('touchstart', (e) => {
-            touchStart = e.touches[0].screenY;
-        }, { passive: true });
+        window.addEventListener('touchstart', (e) => { touchStart = e.touches[0].screenY; }, { passive: true });
         window.addEventListener('touchmove', (e) => {
             let touchEnd = e.touches[0].screenY;
-            if (!redirected && touchEnd > touchStart + 40 && window.scrollY <= 0) {
-                triggerBack();
-            }
+            if (!redirected && touchEnd > touchStart + 40 && window.scrollY <= 0) triggerBack();
         }, { passive: true });
     }
 });
@@ -865,25 +778,9 @@ window.addEventListener('scroll', () => {
 function triggerBack() {
     if (redirected) return;
     redirected = true;
-
     const overlay = document.getElementById('fade-overlay');
-    overlay.style.pointerEvents = 'all';
-
-    gsap.to('.wrapper, nav', {
-        filter: 'blur(12px)',
-        opacity: 0,
-        duration: 0.55,
-        ease: 'power2.inOut'
-    });
-
-    gsap.to(overlay, {
-        opacity: 1,
-        duration: 0.65,
-        ease: 'power2.inOut',
-        onComplete: () => {
-            window.location.href = introUrl;
-        }
-    });
+    overlay.classList.add('active');
+    setTimeout(() => { window.location.href = introUrl; }, 600);
 }
 
 const navToggle = document.getElementById('navToggle');
