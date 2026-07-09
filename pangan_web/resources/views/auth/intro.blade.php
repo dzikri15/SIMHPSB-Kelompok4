@@ -12,7 +12,7 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { cursor: none; }
+        body { cursor: default; }
         html, body {
             width: 100%; min-height: 100%;
             overflow-x: hidden; overflow-y: auto;
@@ -209,12 +209,7 @@
             letter-spacing: .04em; opacity: 0; transition: color .2s; white-space: nowrap;
         }
         #skip:hover { color: rgba(255,255,255,.45); }
-        .cursor-dot, .cursor-ring { position: fixed; top: 0; left: 0; pointer-events: none; transform: translate(-50%, -50%); opacity: 0; z-index: 10010; }
-        .cursor-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 0 20px rgba(255,255,255,.2); mix-blend-mode: screen; }
-        .cursor-ring { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid rgba(79,213,133,.65); transition: transform .25s ease, border-color .25s ease, background .25s ease; display: grid; place-items: center; }
-        .cursor-ring::after { content: attr(data-label); position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 11px; letter-spacing: .1em; opacity: 0; white-space: nowrap; pointer-events: none; transition: opacity .2s ease; }
-        .cursor-ring.cursor-hover { transform: translate(-50%, -50%) scale(1.35); border-color: rgba(126,232,161,.95); background: rgba(79,213,133,.08); }
-        .cursor-ring.cursor-hover::after { opacity: 1; }
+
         ::-webkit-scrollbar { width: 14px; height: 14px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(79, 213, 133, 0.4); border-radius: 8px; border: 3px solid transparent; background-clip: padding-box; transition: background .2s ease, box-shadow .2s ease; }
@@ -224,8 +219,7 @@
 </head>
 <body>
 
-<div class="cursor-dot" id="cursorDot"></div>
-<div class="cursor-ring" id="cursorRing" data-label=""></div>
+
 
 <nav id="mainNav">
     <a href="{{ route('intro') }}" class="nav-brand">
@@ -350,7 +344,7 @@ window.addEventListener('resize', resizeCanvas);
 
 function createOrbs() {
     orbs = [];
-    for (let i = 0; i < 56; i++) {
+    for (let i = 0; i < 15; i++) {
         orbs.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
@@ -385,70 +379,18 @@ function drawOrbs(ts) {
 }
 drawOrbs();
 
-const cursorDot = document.getElementById('cursorDot');
-const cursorRing = document.getElementById('cursorRing');
 
-function initCursor() {
-    document.body.addEventListener('mousemove', e => {
-        if (cursorDot) gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.14, ease: 'power3.out' });
-        if (cursorRing) gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.28, ease: 'power3.out' });
-    });
-
-    const interactions = document.querySelectorAll('.btn-primary, .feature-card, .module-item, #skip, .logo-wrap');
-    interactions.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            if (!cursorRing) return;
-            cursorRing.classList.add('cursor-hover');
-            if (el.id === 'skip') {
-                cursorRing.dataset.label = 'Lewati';
-            } else if (el.classList.contains('btn-primary')) {
-                cursorRing.dataset.label = 'Klik';
-            } else if (el.classList.contains('logo-wrap')) {
-                cursorRing.dataset.label = 'Explore';
-            } else {
-                cursorRing.dataset.label = 'Telusuri';
-            }
-        });
-        el.addEventListener('mouseleave', () => {
-            if (!cursorRing) return;
-            cursorRing.classList.remove('cursor-hover');
-            cursorRing.dataset.label = '';
-        });
-    });
-
-    document.querySelectorAll('.btn-primary').forEach(btn => {
-        btn.addEventListener('mousemove', e => {
-            const rect = btn.getBoundingClientRect();
-            const dx = (e.clientX - rect.left - rect.width / 2) / 6;
-            const dy = (e.clientY - rect.top - rect.height / 2) / 6;
-            gsap.to(btn, { x: dx, y: dy, duration: 0.25, ease: 'power2.out' });
-        });
-        btn.addEventListener('mouseleave', () => {
-            gsap.to(btn, { x: 0, y: 0, duration: 0.3, ease: 'power2.out' });
-        });
-    });
-}
 
 const tl = gsap.timeline({ defaults: { ease: 'power3.out' }, paused: true });
 
 function showPage() {
     gsap.timeline({ defaults: { ease: 'power3.out' } })
         .to('#page', { opacity: 1, y: 0, duration: 0.9 })
-        .call(() => {
-            if (cursorDot || cursorRing) gsap.to([cursorDot, cursorRing].filter(Boolean), { opacity: 1, duration: 0.4, ease: 'power1.out' });
-            if (tl) tl.play();
-        }, null, '-=0.2');
+        .call(() => { if (tl) tl.play(); }, null, '-=0.2');
 }
 
-window.addEventListener('load', () => {
-    initCursor();
-    showPage();
-});
-
-if (document.readyState === 'complete') {
-    initCursor();
-    showPage();
-}
+window.addEventListener('load', showPage);
+if (document.readyState === 'complete') showPage();
 
 try {
     gsap.registerPlugin(ScrollTrigger);
