@@ -7,8 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r155/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
@@ -113,13 +111,6 @@
             mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 20%, transparent 80%);
         }
         #dots-canvas { position: absolute; inset: 0; pointer-events: none; }
-        #threeSceneWrapper { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
-        #threeScene { width: 100%; height: 100%; display: block; }
-        .scene-overlay { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(6,15,9,0) 0%, rgba(6,15,9,.55) 55%, rgba(6,15,9,.95) 100%); }
-        .scene-layer { position: absolute; width: 280px; height: 280px; border-radius: 28px; background: radial-gradient(circle at 30% 30%, rgba(126,232,161,.35), transparent 55%); box-shadow: 0 0 80px rgba(79,213,133,.12); opacity: .6; transform-origin: center; }
-        .scene-layer-1 { top: 12%; left: 8%; transform: rotate(-12deg) scale(1.05); }
-        .scene-layer-2 { top: 8%; right: 8%; width: 340px; height: 220px; transform: rotate(8deg) scale(.96); }
-        .scene-layer-3 { bottom: 10%; left: 14%; width: 360px; height: 240px; transform: rotate(-6deg) scale(.88); }
         .content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 24px; }
         .badge {
             display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px 6px 8px;
@@ -248,13 +239,6 @@
     <div class="amb amb-2"></div>
     <div class="amb amb-3"></div>
     <div class="grid-lines"></div>
-    <div id="threeSceneWrapper">
-        <canvas id="threeScene"></canvas>
-        <div class="scene-overlay"></div>
-        <div class="scene-layer scene-layer-1"></div>
-        <div class="scene-layer scene-layer-2"></div>
-        <div class="scene-layer scene-layer-3"></div>
-    </div>
     <canvas id="dots-canvas"></canvas>
 
     <div class="corner corner-tl" id="cornerTl">
@@ -391,114 +375,6 @@ function showPage() {
 
 window.addEventListener('load', showPage);
 if (document.readyState === 'complete') showPage();
-
-try {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const threeCanvas = document.getElementById('threeScene');
-    const renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x060f09, 0);
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x060f09, 0.02);
-
-    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(0, 4, 38);
-    camera.lookAt(0, 0, 0);
-
-    const ambientLight = new THREE.AmbientLight(0x95ffb7, 0.78);
-    const directionalLight = new THREE.DirectionalLight(0xdbfdf0, 1.2);
-    directionalLight.position.set(12, 15, 8);
-    const pointGlow = new THREE.PointLight(0x7effab, 0.6, 90, 2);
-    pointGlow.position.set(-2, 3, 18);
-    scene.add(ambientLight, directionalLight, pointGlow);
-
-    const createLayer = (color, width, height, x, y, z, rotationZ, opacity) => {
-        const geometry = new THREE.PlaneGeometry(width, height);
-        const material = new THREE.MeshPhongMaterial({
-            color, emissive: 0x0b3219, emissiveIntensity: 0.16, transparent: true, opacity,
-            side: THREE.DoubleSide, shininess: 42, specular: 0x99ffb8
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(x, y, z);
-        mesh.rotation.set(-0.14, 0, rotationZ);
-        scene.add(mesh);
-        return mesh;
-    };
-
-    const planeA = createLayer(0x173422, 22, 12, -4, 0.8, -6, -0.12, 0.28);
-    const planeB = createLayer(0x225230, 18, 10, 3.5, 1.8, -3, 0.14, 0.2);
-    const planeC = createLayer(0x2f6b46, 14, 8, 0, -1.6, -1, -0.08, 0.14);
-
-    const grainGroup = new THREE.Group();
-    for (let i = 0; i < 40; i++) {
-        const grain = new THREE.Mesh(
-            new THREE.SphereGeometry(0.16, 8, 8),
-            new THREE.MeshStandardMaterial({ color: 0xd9e9b0, roughness: 0.45, metalness: 0.05 })
-        );
-        grain.position.set(
-            (Math.random() - 0.5) * 20,
-            (Math.random() - 0.5) * 7,
-            -Math.random() * 18
-        );
-        grain.rotation.set(Math.random() * 0.8, Math.random() * 0.8, Math.random() * 0.8);
-        grainGroup.add(grain);
-    }
-    scene.add(grainGroup);
-
-    const resizeThree = () => {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-    };
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        resizeThree();
-    });
-
-    const animateThree = () => {
-        grainGroup.rotation.y += 0.0008;
-        grainGroup.children.forEach((grain, index) => {
-            grain.position.x += Math.sin(index + performance.now() / 9000) * 0.0005;
-        });
-        renderer.render(scene, camera);
-        requestAnimationFrame(animateThree);
-    };
-    animateThree();
-
-    gsap.fromTo('#threeSceneWrapper',
-        { autoAlpha: 0, y: 30 },
-        { autoAlpha: 1, y: 0, duration: 1.4, ease: 'power3.out', delay: 0.2 }
-    );
-
-    gsap.to([document.querySelector('.scene-layer-1'), document.querySelector('.scene-layer-2'), document.querySelector('.scene-layer-3')], {
-        y: '+=12', x: '-=8', duration: 6, yoyo: true, repeat: -1, ease: 'sine.inOut'
-    });
-
-    const scrollScene = gsap.timeline({
-        scrollTrigger: { trigger: '#page', start: 'top top', end: '+=1200', scrub: 1, invalidateOnRefresh: true }
-    });
-
-    scrollScene
-        .to(camera.position, { z: 14, y: 5.4, x: -0.8, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(camera.rotation, { y: 0.24, x: -0.08, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeA.position, { x: -10.5, y: 2.4, z: -7.5, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeB.position, { x: 7.8, y: 3.8, z: -8.2, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeC.position, { x: 3.8, y: -0.2, z: -4.2, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeA.rotation, { z: -0.32, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeB.rotation, { z: 0.24, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeC.rotation, { z: -0.15, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeA.material, { opacity: 0.14, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeB.material, { opacity: 0.1, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(planeC.material, { opacity: 0.06, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(scene.fog, { density: 0.062, duration: 1, ease: 'power2.inOut' }, 0)
-        .to(grainGroup.rotation, { y: '+=0.38', duration: 1, ease: 'power2.inOut' }, 0);
-} catch (error) {
-    console.warn('3D scene initialization failed, continuing without Three.js:', error);
-}
 
 tl.to('nav',        { opacity: 1, y: 0, duration: 0.8 }, 0.1)
   .to('#badge',    { opacity: 1, y: 0, duration: .7 }, .2)
