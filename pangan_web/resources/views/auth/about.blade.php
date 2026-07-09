@@ -596,6 +596,8 @@
                     <span class="tag">Docker Setup</span>
                     <span class="tag">Redis</span>
                     <span class="tag">Migration</span>
+                    <span class="tag">Deploy Production</span>
+
                 </div>
             </div>
             <div class="team-card">
@@ -636,7 +638,7 @@
                 <div class="team-tags">
                     <span class="tag">n8n</span>
                     <span class="tag">Gemini AI</span>
-                    <span class="tag">DevOps</span>
+                    <span class="tag">Playwright</span>
                     <span class="tag">POSTMAN</span>
                     <span class="tag">Diagram</span>
                     <span class="tag">Final Report</span>
