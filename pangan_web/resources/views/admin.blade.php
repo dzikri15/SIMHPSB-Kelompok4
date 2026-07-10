@@ -1068,11 +1068,6 @@
         </div>
 
         <div class="topbar-actions">
-            <!-- Chatbot Toggle -->
-            <button class="topbar-btn" onclick="chatToggle()" title="Chat dengan HPSBBot" aria-label="Buka HPSBBot">
-                <i class="fas fa-robot"></i>
-            </button>
-
             <!-- Dark Mode Toggle -->
             <button id="darkModeToggle" class="dark-mode-toggle topbar-btn" title="Mode Gelap" aria-label="Toggle dark mode">
                 <i class="fas fa-sun icon-sun"></i>
