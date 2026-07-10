@@ -70,10 +70,21 @@ PROMPT;
             ]);
 
             if ($response->failed()) {
-                Log::error('Gemini API error: ' . $response->body());
-                return response()->json([
-                    'reply' => 'Maaf Kak, HPSBBot sedang gangguan. Coba lagi ya.',
-                ]);
+                $statusCode = $response->status();
+                $body       = $response->body();
+                Log::error("Gemini API error [{$statusCode}]: {$body}");
+
+                // Pesan debug sementara — hapus setelah masalah teridentifikasi
+                $errJson = $response->json();
+                $errMsg  = $errJson['error']['message'] ?? $body;
+
+                if ($statusCode === 429) {
+                    return response()->json(['reply' => 'Maaf Kak, kuota HPSBBot habis hari ini. Coba lagi besok ya.']);
+                }
+                if ($statusCode === 400) {
+                    return response()->json(['reply' => "Debug [400]: {$errMsg}"]);
+                }
+                return response()->json(['reply' => "Debug [{$statusCode}]: {$errMsg}"]);
             }
 
             $result = $response->json();
@@ -85,7 +96,7 @@ PROMPT;
         } catch (\Exception $e) {
             Log::error('ChatbotController error: ' . $e->getMessage());
             return response()->json([
-                'reply' => 'Maaf Kak, gagal menghubungi HPSBBot. Coba beberapa saat lagi.',
+                'reply' => 'Debug Exception: ' . $e->getMessage(),
             ]);
         }
     }
