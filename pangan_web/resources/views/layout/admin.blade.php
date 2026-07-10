@@ -1158,7 +1158,9 @@
 <!-- Dark Mode JS -->
 <script src="{{ asset('js/dark-mode.js') }}"></script>
 
-@include('chat-widget')
+@if(in_array($userRole ?? 'guest', ['admin', 'petugas']))
+    @include('chat-widget')
+@endif
 
 @stack('scripts')
 </body>
