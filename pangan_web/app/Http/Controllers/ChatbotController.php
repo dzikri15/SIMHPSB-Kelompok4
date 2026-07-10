@@ -79,12 +79,15 @@ PROMPT;
                 $errMsg  = $errJson['error']['message'] ?? $body;
 
                 if ($statusCode === 429) {
-                    return response()->json(['reply' => "Debug [429]: {$errMsg}"]);
+                    // Cek apakah retry hint ada (RPM) atau daily quota
+                    $isRpm = str_contains($errMsg, 'retry');
+                    $msg = $isRpm
+                        ? 'Maaf Kak, HPSBBot sedang sibuk. Tunggu sebentar dan coba lagi ya 😊'
+                        : 'Maaf Kak, kuota HPSBBot habis hari ini. Coba lagi besok ya.';
+                    return response()->json(['reply' => $msg]);
                 }
-                if ($statusCode === 400) {
-                    return response()->json(['reply' => "Debug [400]: {$errMsg}"]);
-                }
-                return response()->json(['reply' => "Debug [{$statusCode}]: {$errMsg}"]);
+                Log::error("Gemini API error [{$statusCode}]: {$body}");
+                return response()->json(['reply' => 'Maaf Kak, HPSBBot sedang gangguan. Coba lagi ya.']);
             }
 
             $result = $response->json();
