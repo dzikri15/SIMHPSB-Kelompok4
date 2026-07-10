@@ -10,6 +10,7 @@ use App\Models\Distribusi;
 use App\Models\Petani;
 use App\Models\KonfigurasiHarga;
 use App\Models\Stok;
+use App\Models\AlertConfiguration;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -61,6 +62,18 @@ $laporanData = $allStokData
     ->groupBy('komoditas')
     ->map(fn($items) => $items->sortByDesc('created_at')->first())
     ->values();
+            // Ambil batas minimum dari konfigurasi alert (bukan dari kolom stok_beras)
+            $alertConfig = AlertConfiguration::first();
+            $batasMinBeras = $alertConfig->batas_min_beras ?? 1000;
+            $batasMinGabah = $alertConfig->batas_min_gabah ?? 500;
+
+            // Inject batas_minimum yang benar ke setiap row
+            $laporanData = $laporanData->map(function($item) use ($batasMinBeras, $batasMinGabah) {
+                $komoditas = strtolower($item->komoditas ?? '');
+                $item->batas_minimum = str_contains($komoditas, 'gabah') ? $batasMinGabah : $batasMinBeras;
+                return $item;
+            });
+
             $totalStok = $laporanData->sum('jumlah_stok');
             $totalGudang = $laporanData->pluck('gudang.nama_gudang')->unique()->filter()->count();
             $lowStockCount = $laporanData->filter(function($item) {
@@ -179,6 +192,16 @@ $laporanData = $allStokData
     ->groupBy('komoditas')
     ->map(fn($g) => $g->sortByDesc('created_at')->first())
     ->values();
+
+            // Inject batas_minimum dari konfigurasi alert
+            $alertConfig = AlertConfiguration::first();
+            $batasMinBeras = $alertConfig->batas_min_beras ?? 1000;
+            $batasMinGabah = $alertConfig->batas_min_gabah ?? 500;
+            $items = $items->map(function($item) use ($batasMinBeras, $batasMinGabah) {
+                $komoditas = strtolower($item->komoditas ?? '');
+                $item->batas_minimum = str_contains($komoditas, 'gabah') ? $batasMinGabah : $batasMinBeras;
+                return $item;
+            });
         } else {
             
             $panenQuery = Panen::with(['petani','lahan'])->whereBetween('tanggal_panen', [$dari, $sampai]);
