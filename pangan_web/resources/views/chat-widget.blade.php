@@ -3,18 +3,6 @@
      Include di layout admin.blade.php sebelum </body>
 ==================================================== --}}
 
-{{-- Floating Chat Button --}}
-<div id="chat-fab" onclick="chatToggle()" title="Chat dengan HPSBBot" aria-label="Buka chat HPSBBot">
-    {{-- Icon chat (default) --}}
-    <svg id="chat-fab-icon-open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-    </svg>
-    {{-- Icon X (saat chat terbuka) --}}
-    <svg id="chat-fab-icon-close" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" style="display:none;">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
-</div>
 
 {{-- Chat Window --}}
 <div id="chat-window">
@@ -58,30 +46,6 @@
 </div>
 
 <style>
-/* ── FAB Button ── */
-#chat-fab {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #16a34a, #15803d);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(22,163,74,0.45);
-    z-index: 10000;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    user-select: none;
-}
-#chat-fab:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 24px rgba(22,163,74,0.6);
-}
-#chat-fab:active { transform: scale(0.95); }
-
 /* ── Chat Window ── */
 #chat-window {
     position: fixed;
@@ -232,21 +196,14 @@
 #chat-send-btn:hover { transform: scale(1.08); }
 #chat-send-btn:active { transform: scale(0.93); }
 
-/* ── Mobile responsive ── */
-@media (max-width: 480px) {
-    #chat-window {
-        width: calc(100vw - 24px);
-        right: 12px;
-        bottom: 82px;
-        height: min(460px, calc(100vh - 110px));
+    @media (max-width: 480px) {
+        #chat-window {
+            width: calc(100vw - 24px);
+            right: 12px;
+            bottom: 82px;
+            height: min(460px, calc(100vh - 110px));
+        }
     }
-    #chat-fab {
-        bottom: 16px;
-        right: 16px;
-        width: 52px;
-        height: 52px;
-    }
-}
 </style>
 
 <script>
@@ -254,20 +211,15 @@
     const CHAT_ENDPOINT = '{{ route("chatbot.prabowo") }}';
     const CSRF_TOKEN    = '{{ csrf_token() }}';
 
-    const fab       = document.getElementById('chat-fab');
     const win       = document.getElementById('chat-window');
     const messages  = document.getElementById('chat-messages');
     const input     = document.getElementById('chat-input');
-    const iconOpen  = document.getElementById('chat-fab-icon-open');
-    const iconClose = document.getElementById('chat-fab-icon-close');
 
     let isOpen = false;
 
     window.chatToggle = function () {
         isOpen = !isOpen;
         win.classList.toggle('open', isOpen);
-        iconOpen.style.display  = isOpen ? 'none'  : 'block';
-        iconClose.style.display = isOpen ? 'block' : 'none';
         if (isOpen) {
             setTimeout(() => input.focus(), 250);
         }

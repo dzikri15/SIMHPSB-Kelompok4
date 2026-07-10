@@ -1030,10 +1030,6 @@
                     @endif
                 </a>
 
-                <a href="javascript:void(0)" onclick="document.getElementById('prabowo-chat-button').click()" class="nav-item">
-                    <span class="icon"><i class="fas fa-robot"></i></span>
-                    Chatbot HPSBBot
-                </a>
             @endif
         @endif
     </nav>
@@ -1072,6 +1068,11 @@
         </div>
 
         <div class="topbar-actions">
+            <!-- Chatbot Toggle -->
+            <button class="topbar-btn" onclick="chatToggle()" title="Chat dengan HPSBBot" aria-label="Buka HPSBBot">
+                <i class="fas fa-robot"></i>
+            </button>
+
             <!-- Dark Mode Toggle -->
             <button id="darkModeToggle" class="dark-mode-toggle topbar-btn" title="Mode Gelap" aria-label="Toggle dark mode">
                 <i class="fas fa-sun icon-sun"></i>
