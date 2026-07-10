@@ -3,9 +3,20 @@
      Include di layout admin.blade.php sebelum </body>
 ==================================================== --}}
 
+{{-- Quick Ball / Thin Edge Handle --}}
+<div id="chat-edge-handle" onclick="expandFab()" title="Tampilkan HPSBBot">
+    <div class="handle-bar"></div>
+</div>
+
+{{-- Floating Chat Button --}}
+<div id="chat-fab" class="hidden" onclick="chatToggle()" title="Chat dengan HPSBBot">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+</div>
 
 {{-- Chat Window --}}
-<div id="chat-window">
+<div id="chat-window" class="hidden">
     {{-- Header --}}
     <div id="chat-header">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -15,7 +26,7 @@
                 <div style="color:rgba(255,255,255,0.75);font-size:11px;">Asisten AI SIMHP</div>
             </div>
         </div>
-        <button onclick="chatToggle()" id="chat-close-btn" title="Tutup chat" aria-label="Tutup chat">
+        <button onclick="closeChat()" id="chat-close-btn" title="Tutup chat">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
                 <line x1="18" y1="6" x2="6" y2="18"/>
                 <line x1="6" y1="6" x2="18" y2="18"/>
@@ -37,7 +48,7 @@
             autocomplete="off"
             onkeypress="if(event.key==='Enter')chatSend()"
         />
-        <button id="chat-send-btn" onclick="chatSend()" title="Kirim" aria-label="Kirim pesan">
+        <button id="chat-send-btn" onclick="chatSend()" title="Kirim">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
@@ -46,33 +57,99 @@
 </div>
 
 <style>
+/* ── Thin Edge Handle (Quick Ball Collapsed) ── */
+#chat-edge-handle {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 60px;
+    background: rgba(22, 163, 74, 0.4);
+    backdrop-filter: blur(4px);
+    border-radius: 12px 0 0 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(22, 163, 74, 0.2);
+    border-right: none;
+}
+#chat-edge-handle:hover {
+    background: rgba(22, 163, 74, 0.8);
+    width: 24px;
+}
+#chat-edge-handle .handle-bar {
+    width: 4px;
+    height: 24px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 4px;
+}
+#chat-edge-handle.hidden {
+    transform: translateY(-50%) translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── FAB Button (Quick Ball Expanded) ── */
+#chat-fab {
+    position: fixed;
+    top: 50%;
+    right: 24px;
+    transform: translateY(-50%) scale(1);
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(22,163,74,0.45);
+    z-index: 10000;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    user-select: none;
+    opacity: 1;
+}
+#chat-fab:hover {
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 6px 24px rgba(22,163,74,0.6);
+}
+#chat-fab:active { transform: translateY(-50%) scale(0.95); }
+
+#chat-fab.hidden {
+    transform: translateY(-50%) scale(0.5) translateX(100px);
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* ── Chat Window ── */
 #chat-window {
     position: fixed;
-    bottom: 90px;
+    bottom: 24px;
     right: 24px;
     width: 340px;
-    height: 460px;
-    max-height: calc(100vh - 110px);
+    height: 480px;
+    max-height: calc(100vh - 48px);
     background: #111827;
     border-radius: 18px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 9999;
+    z-index: 10001;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    /* Animation */
-    transform: scale(0.85) translateY(20px);
-    opacity: 0;
-    pointer-events: none;
-    transform-origin: bottom right;
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease;
-}
-#chat-window.open {
     transform: scale(1) translateY(0);
     opacity: 1;
-    pointer-events: all;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: bottom right;
+}
+#chat-window.hidden {
+    transform: scale(0.85) translateY(40px);
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* ── Header ── */
@@ -196,14 +273,14 @@
 #chat-send-btn:hover { transform: scale(1.08); }
 #chat-send-btn:active { transform: scale(0.93); }
 
-    @media (max-width: 480px) {
-        #chat-window {
-            width: calc(100vw - 24px);
-            right: 12px;
-            bottom: 82px;
-            height: min(460px, calc(100vh - 110px));
-        }
+@media (max-width: 480px) {
+    #chat-window {
+        width: calc(100vw - 24px);
+        right: 12px;
+        bottom: 12px;
+        height: calc(100vh - 24px);
     }
+}
 </style>
 
 <script>
@@ -211,18 +288,32 @@
     const CHAT_ENDPOINT = '{{ route("chatbot.prabowo") }}';
     const CSRF_TOKEN    = '{{ csrf_token() }}';
 
-    const win       = document.getElementById('chat-window');
-    const messages  = document.getElementById('chat-messages');
-    const input     = document.getElementById('chat-input');
+    const edgeHandle = document.getElementById('chat-edge-handle');
+    const fab        = document.getElementById('chat-fab');
+    const win        = document.getElementById('chat-window');
+    const messages   = document.getElementById('chat-messages');
+    const input      = document.getElementById('chat-input');
 
-    let isOpen = false;
+    // Default state: Only edge handle visible
+    // To make sure things align cleanly on load, we enforce the classes.
+
+    window.expandFab = function () {
+        // Hide edge handle, show FAB
+        edgeHandle.classList.add('hidden');
+        fab.classList.remove('hidden');
+    };
 
     window.chatToggle = function () {
-        isOpen = !isOpen;
-        win.classList.toggle('open', isOpen);
-        if (isOpen) {
-            setTimeout(() => input.focus(), 250);
-        }
+        // Hide FAB, show window
+        fab.classList.add('hidden');
+        win.classList.remove('hidden');
+        setTimeout(() => input.focus(), 300);
+    };
+
+    window.closeChat = function () {
+        // Hide window, show edge handle (reset to initial state)
+        win.classList.add('hidden');
+        edgeHandle.classList.remove('hidden');
     };
 
     function addBubble(text, type) {
