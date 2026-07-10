@@ -50,7 +50,7 @@ Route::middleware(['auth', 'role:petani'])->prefix('petani')->name('petani.')->g
 });
 
 // Chatbot Prabowo — proxy ke n8n, bisa diakses admin & petugas yang sudah login
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth:web,api'])->group(function () {
     Route::post('chatbot/prabowo', [ChatbotController::class, 'send'])->name('chatbot.prabowo');
 });
 
