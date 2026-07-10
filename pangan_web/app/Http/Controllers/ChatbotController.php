@@ -22,7 +22,7 @@ class ChatbotController extends Controller
         ]);
 
         $geminiKey   = config('services.gemini.api_key');
-        $geminiModel = 'gemini-2.0-flash'; // hardcoded — tidak dipengaruhi env Docker
+        $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
 
         if (empty($geminiKey)) {
             return response()->json([
@@ -79,15 +79,12 @@ PROMPT;
                 $errMsg  = $errJson['error']['message'] ?? $body;
 
                 if ($statusCode === 429) {
-                    // Cek apakah retry hint ada (RPM) atau daily quota
-                    $isRpm = str_contains($errMsg, 'retry');
-                    $msg = $isRpm
-                        ? 'Maaf Kak, HPSBBot sedang sibuk. Tunggu sebentar dan coba lagi ya 😊'
-                        : 'Maaf Kak, kuota HPSBBot habis hari ini. Coba lagi besok ya.';
-                    return response()->json(['reply' => $msg]);
+                    return response()->json(['reply' => "Debug [429]: {$errMsg}"]);
                 }
-                Log::error("Gemini API error [{$statusCode}]: {$body}");
-                return response()->json(['reply' => 'Maaf Kak, HPSBBot sedang gangguan. Coba lagi ya.']);
+                if ($statusCode === 400) {
+                    return response()->json(['reply' => "Debug [400]: {$errMsg}"]);
+                }
+                return response()->json(['reply' => "Debug [{$statusCode}]: {$errMsg}"]);
             }
 
             $result = $response->json();
