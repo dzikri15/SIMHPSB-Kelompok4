@@ -6,6 +6,7 @@ import 'screens/beranda_screen.dart';
 import 'screens/panen_screen.dart';
 import 'screens/gudang_screen.dart';
 import 'screens/distribusi_tujuan_screen.dart';
+import 'screens/chatbot_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';
 import 'widgets/app_bottom_nav.dart';
@@ -35,6 +36,8 @@ class _MainShellState extends State<MainShell> {
         return GudangScreen(onLogoutTap: _logout);
       case 3:
         return DistribusiTujuanScreen(onLogoutTap: _logout);
+      case 4:
+        return ChatbotScreen(onLogoutTap: _logout);
       default:
         return const SizedBox.shrink();
     }
@@ -96,6 +99,11 @@ class _MainShellState extends State<MainShell> {
             icon: Icons.location_on_outlined,
             iconFill: Icons.location_on_rounded,
             label: 'Distribusi',
+          ),
+          AppBottomNavItem(
+            icon: Icons.smart_toy_outlined,
+            iconFill: Icons.smart_toy_rounded,
+            label: 'HPSBBot',
           ),
         ],
       ),
