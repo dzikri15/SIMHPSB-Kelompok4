@@ -22,7 +22,7 @@ class ChatbotController extends Controller
         ]);
 
         $geminiKey   = config('services.gemini.api_key');
-        $geminiModel = config('services.gemini.model', 'gemini-1.5-flash');
+        $geminiModel = env('GEMINI_MODEL') ?: 'gemini-2.0-flash'; // fallback hardcoded
 
         if (empty($geminiKey)) {
             return response()->json([
