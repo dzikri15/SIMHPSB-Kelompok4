@@ -22,7 +22,7 @@ class ChatbotController extends Controller
         ]);
 
         $geminiKey   = config('services.gemini.api_key');
-        $geminiModel = env('GEMINI_MODEL') ?: 'gemini-2.0-flash'; // fallback hardcoded
+        $geminiModel = 'gemini-2.0-flash'; // hardcoded — tidak dipengaruhi env Docker
 
         if (empty($geminiKey)) {
             return response()->json([
