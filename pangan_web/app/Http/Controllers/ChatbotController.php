@@ -79,7 +79,7 @@ PROMPT;
                 $errMsg  = $errJson['error']['message'] ?? $body;
 
                 if ($statusCode === 429) {
-                    return response()->json(['reply' => 'Maaf Kak, kuota HPSBBot habis hari ini. Coba lagi besok ya.']);
+                    return response()->json(['reply' => "Debug [429]: {$errMsg}"]);
                 }
                 if ($statusCode === 400) {
                     return response()->json(['reply' => "Debug [400]: {$errMsg}"]);
