@@ -21,10 +21,10 @@ class ChatbotController extends Controller
             'message' => 'required|string|max:1000',
         ]);
 
-        $geminiKey   = config('services.gemini.api_key');
-        $geminiModel = config('services.gemini.model', 'gemini-2.0-flash');
+        $groqKey   = config('services.groq.api_key');
+        $groqModel = config('services.groq.model', 'llama-3.3-70b-versatile');
 
-        if (empty($geminiKey)) {
+        if (empty($groqKey)) {
             return response()->json([
                 'reply' => 'Maaf Kak, HPSBBot belum dikonfigurasi. Hubungi admin.',
             ]);
@@ -49,46 +49,36 @@ Aturan menjawab:
 - Panggil pengguna dengan "Kak".
 PROMPT;
 
-        // ── Kirim ke Gemini API ───────────────────────────────────────────────
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$geminiModel}:generateContent?key={$geminiKey}";
+        // ── Kirim ke Groq API (Llama 3.3) ─────────────────────────────────────
+        $url = "https://api.groq.com/openai/v1/chat/completions";
 
         try {
-            $response = Http::timeout(30)->post($url, [
-                'system_instruction' => [
-                    'parts' => [['text' => $systemPrompt]],
-                ],
-                'contents' => [
+            $response = Http::withToken($groqKey)->timeout(30)->post($url, [
+                'model' => $groqModel,
+                'messages' => [
                     [
-                        'role'  => 'user',
-                        'parts' => [['text' => $data['message']]],
+                        'role' => 'system',
+                        'content' => $systemPrompt,
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $data['message'],
                     ],
                 ],
-                'generationConfig' => [
-                    'temperature'     => 0.7,
-                    'maxOutputTokens' => 512,
-                ],
+                'temperature' => 0.7,
+                'max_completion_tokens' => 512,
             ]);
 
             if ($response->failed()) {
                 $statusCode = $response->status();
                 $body       = $response->body();
-                Log::error("Gemini API error [{$statusCode}]: {$body}");
+                Log::error("Groq API error [{$statusCode}]: {$body}");
 
-                // Pesan debug sementara — hapus setelah masalah teridentifikasi
-                $errJson = $response->json();
-                $errMsg  = $errJson['error']['message'] ?? $body;
-
-                if ($statusCode === 429) {
-                    return response()->json(['reply' => "Debug [429]: {$errMsg}"]);
-                }
-                if ($statusCode === 400) {
-                    return response()->json(['reply' => "Debug [400]: {$errMsg}"]);
-                }
-                return response()->json(['reply' => "Debug [{$statusCode}]: {$errMsg}"]);
+                return response()->json(['reply' => 'Maaf Kak, HPSBBot sedang gangguan. Coba lagi ya.']);
             }
 
             $result = $response->json();
-            $reply  = $result['candidates'][0]['content']['parts'][0]['text']
+            $reply  = $result['choices'][0]['message']['content']
                       ?? 'Maaf Kak, tidak ada respons dari HPSBBot.';
 
             return response()->json(['reply' => trim($reply)]);
