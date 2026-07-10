@@ -5,7 +5,9 @@
 
 {{-- Quick Ball / Thin Edge Handle --}}
 <div id="chat-edge-handle" onclick="expandFab()" title="Tampilkan HPSBBot">
-    <div class="handle-bar"></div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
 </div>
 
 {{-- Floating Chat Button --}}
@@ -63,29 +65,21 @@
     top: 50%;
     right: 0;
     transform: translateY(-50%);
-    width: 20px;
-    height: 60px;
-    background: rgba(22, 163, 74, 0.4);
-    backdrop-filter: blur(4px);
-    border-radius: 12px 0 0 12px;
+    width: 38px;
+    height: 48px;
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    border-radius: 24px 0 0 24px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(22, 163, 74, 0.2);
-    border-right: none;
+    transition: width 0.2s, background 0.2s;
+    box-shadow: -3px 0 12px rgba(0,0,0,0.4);
 }
 #chat-edge-handle:hover {
-    background: rgba(22, 163, 74, 0.8);
-    width: 24px;
-}
-#chat-edge-handle .handle-bar {
-    width: 4px;
-    height: 24px;
-    background: rgba(255,255,255,0.7);
-    border-radius: 4px;
+    width: 46px;
+    background: linear-gradient(135deg, #15803d, #16a34a);
 }
 #chat-edge-handle.hidden {
     transform: translateY(-50%) translateX(100%);
