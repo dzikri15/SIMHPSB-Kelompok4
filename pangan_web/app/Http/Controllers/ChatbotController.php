@@ -35,7 +35,7 @@ class ChatbotController extends Controller
 
         // ── Buat system prompt ────────────────────────────────────────────────
         $systemPrompt = <<<PROMPT
-Kamu adalah HPSBBot, asisten AI untuk Sistem Informasi Monitoring Harga Panen (SIMHP) Kelompok 4.
+Kamu adalah HPSBBot, asisten AI untuk Sistem Informasi Monitoring Hasil Panen (SIMHP) Kelompok 4.
 Tugasmu membantu admin dan petugas menjawab pertanyaan seputar stok beras dan harga pangan.
 
 Data terkini dari sistem:
