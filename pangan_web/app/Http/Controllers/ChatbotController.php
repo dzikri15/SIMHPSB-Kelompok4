@@ -117,21 +117,37 @@ PROMPT;
             $lines[] = "=== HARGA === Belum ada konfigurasi harga aktif.";
         }
 
+        // ── Total Stok Saat Ini ──────────────────────────────────────────────
+        $stokBeras = Stok::where('komoditas', 'Beras')
+            ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
+            ->latest('tanggal_update')
+            ->value('jumlah_stok') ?: 0;
+
+        $stokGabah = Stok::where('komoditas', 'Gabah')
+            ->where(function($q) { $q->where('status', 'aktif')->orWhereNull('status'); })
+            ->latest('tanggal_update')
+            ->value('jumlah_stok') ?: 0;
+
+        $lines[] = "";
+        $lines[] = "=== TOTAL STOK SAAT INI ===";
+        $lines[] = "Stok Beras : " . number_format($stokBeras, 0, ',', '.') . " kg";
+        $lines[] = "Stok Gabah : " . number_format($stokGabah, 0, ',', '.') . " kg";
+
         // ── Stok terbaru (5 transaksi terakhir) ──────────────────────────────
         $stoks = Stok::latest('tanggal_update')->take(5)->get();
 
         if ($stoks->isNotEmpty()) {
             $lines[] = "";
-            $lines[] = "=== STOK BERAS (5 TRANSAKSI TERAKHIR) ===";
+            $lines[] = "=== 5 TRANSAKSI TERAKHIR ===";
             foreach ($stoks as $s) {
                 $tgl    = optional($s->tanggal_update)->format('d M Y') ?? '-';
-                $jumlah = number_format($s->jumlah_stok ?? $s->jumlah, 0, ',', '.');
+                $jumlah = number_format($s->jumlah, 0, ',', '.'); // gunakan jumlah transaksinya saja
                 $jenis  = $s->jenis_transaksi ?? '-';
                 $lines[] = "- [{$tgl}] {$s->komoditas}: {$jumlah} kg ({$jenis})";
             }
         } else {
             $lines[] = "";
-            $lines[] = "=== STOK === Belum ada data stok.";
+            $lines[] = "=== TRANSAKSI === Belum ada data transaksi.";
         }
 
         return implode("\n", $lines);
