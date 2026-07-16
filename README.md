@@ -520,10 +520,8 @@ docker compose up -d --build app
 - Chatbot HPSBBot (n8n + Gemini 2.5 Flash) — web & mobile
 - Flutter Mobile App (Petugas & Petani)
 - Halaman About/Profile sistem
-
-### 🟡 Ongoing
 - Testing & QA menyeluruh
-- Deployment ke VPS production
+- Deployment ke VPS production — **live di [simhp.my.id](https://simhp.my.id)**
 
 ---
 
@@ -546,7 +544,8 @@ MIT License — See [LICENSE](./LICENSE) file for details.
 
 ---
 
-**Last Updated:** 3 Juli 2026
-**Version:** 2.0
-**Status:** 🟢 Production Ready
+**Last Updated:** 10 Juli 2026
+**Version:** 3.1
+**Status:** 🟢 Live in Production
+**Production URL:** https://simhp.my.id
 **Repository:** https://github.com/dzikri15/SIMHPSB-Kelompok4
