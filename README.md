@@ -133,36 +133,30 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 
 #### Halaman Landing & Login
 
-![Landing Page SIMHP](./web_foto/landing1.png)
-![Landing Page SIMHP](./web_foto/landing2.png)
-*Halaman landing SIMHP — dark theme dengan highlight fitur utama sistem*
-
-![Login Page SIMHP](./web_foto/login.png)
-*Halaman login web — mendukung login via email, username, atau nama petani*
-
----
-
-#### Dashboard Admin
-
-![Dashboard Admin](./web_foto/dashboard.png)
-*Dashboard utama — menampilkan stok real-time, alert aktif, grafik tren panen, dan target pasar*
-
-![Dashboard Admin 2](./web_foto/dashboard2.png)
-*Dashboard lanjutan — grafik stok vs target dan tren hasil panen per bulan*
-
----
-
-#### Manajemen Stok & Panen
-
 ![Stok Gudang](./web_foto/sg.png)
 *Halaman stok gudang — monitoring saldo gabah & beras dengan riwayat transaksi*
 
 ![Stok Gudang 2](./web_foto/sg2.png)
 *Detail transaksi stok — riwayat masuk/keluar disertai foto bukti*
 
-![Manajemen Panen](./web_foto/pp.png)
+![Pencatatan Panen](./web_foto/pp.png)
 *Pencatatan panen — form input dengan upload foto bukti wajib*
-*Riwayat panen — daftar semua transaksi panen*
+
+---
+
+#### Data Petani & Manajemen Pengguna
+
+![Data Petani](./web_foto/dp.png)
+*Data Petani — daftar petani mitra dan informasi kontak*
+
+![Detail Petani](./web_foto/dp2.png)
+*Detail Petani — riwayat panen dan total penghasilan gabah petani*
+
+![Manajemen Pengguna](./web_foto/mp.png)
+*Manajemen Pengguna — daftar akun aplikasi (Admin, Petugas, Petani)*
+
+![Manajemen Pengguna 2](./web_foto/mp2.png)
+*Manajemen Pengguna — form tambah/edit hak akses pengguna*
 
 ---
 
@@ -208,7 +202,7 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 
 | Beranda Petugas | Beranda Petani | Notifikasi |
 |:--------------:|:--------------:|:----------:|
-| ![Beranda Petugas](./mobile_foto/mobile%20(4).jpg) | ![Beranda Petani](./mobile_foto/mobile%20(5).jpg) | ![Notif](./mobile_foto/mobile%20(6).jpg) |
+| ![Beranda Petugas](./mobile_foto/mobile%20(4).jpg) | ![Beranda Petani](./mobile_foto/mobile%20(22).jpg) | ![Notif](./mobile_foto/mobile%20(19).jpg) |
 | *Dashboard petugas — ringkasan stok & aktivitas* | *Dashboard petani — harga gabah & riwayat panen* | *Notifikasi alert stok* |
 
 ---
@@ -217,12 +211,12 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 
 | Pencatatan Panen | Form Panen | Stok Gudang |
 |:---------------:|:----------:|:-----------:|
-| ![Panen](./mobile_foto/mobile%20(7).jpg) | ![Form Panen](./mobile_foto/mobile%20(8).jpg) | ![Gudang](./mobile_foto/mobile%20(9).jpg) |
+| ![Panen](./mobile_foto/mobile%20(8).jpg) | ![Form Panen](./mobile_foto/mobile%20(7).jpg) | ![Gudang](./mobile_foto/mobile%20(10).jpg) |
 | *Riwayat panen mobile* | *Form catat panen + foto bukti* | *Monitoring stok gudang* |
 
 | Catat Transaksi | Detail Transaksi | Foto Bukti |
 |:--------------:|:----------------:|:----------:|
-| ![Catat](./mobile_foto/mobile%20(10).jpg) | ![Detail](./mobile_foto/mobile%20(11).jpg) | ![Foto](./mobile_foto/mobile%20(12).jpg) |
+| ![Catat](./mobile_foto/mobile%20(12).jpg) | ![Detail](./mobile_foto/mobile%20(6).jpg) | ![Foto](./mobile_foto/mobile%20(14).jpg) |
 | *Dialog catat transaksi stok* | *Detail transaksi* | *Preview foto bukti transaksi* |
 
 ---
@@ -231,7 +225,7 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 
 | Distribusi | Profil Petani | Chatbot Mobile |
 |:----------:|:-------------:|:--------------:|
-| ![Distribusi](./mobile_foto/mobile%20(13).jpg) | ![Profil](./mobile_foto/mobile%20(14).jpg) | ![Chatbot](./mobile_foto/mobile%20(15).jpg) |
+| ![Distribusi](./mobile_foto/mobile%20(15).jpg) | ![Profil](./mobile_foto/mobile%20(24).jpg) | ![Chatbot](./mobile_foto/mobile%20(18).jpg) |
 | *Daftar tujuan distribusi* | *Profil & riwayat panen petani* | *HPSBBot chatbot di mobile* |
 
 ---
