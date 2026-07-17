@@ -956,21 +956,21 @@ curl -X POST https://simhp.my.id/api/auth/login \
 <table>
   <tr>
     <td align="center">
-      <img src="./tim_foto/dzikri.jpg" width="80" height="80" style="border-radius:50%;object-fit:cover;" /><br/>
+      <img src="./tim_foto/dzikri.jpg" width="100" style="border-radius:10%;" /><br/>
       <b>Muhammad Dzikri Sagara</b><br/>
       <a href="https://github.com/dzikri15">@dzikri15</a><br/>
       <em>PM · Backend · DevOps</em><br/>
       <small>Arsitektur backend, REST API,<br/>Docker, integrasi Groq AI, deployment</small>
     </td>
     <td align="center">
-      <img src="./tim_foto/fakhri.jpeg" width="80" height="80" style="border-radius:50%;object-fit:cover;" /><br/>
+      <img src="./tim_foto/fakhri.jpeg" width="100" style="border-radius:10%;" /><br/>
       <b>Fakhry Ahmad Fauzan</b><br/>
       <a href="https://github.com/NoahMikhailovna">@NoahMikhailovna</a><br/>
       <em>Frontend Web · Flutter Mobile</em><br/>
       <small>UI/UX web admin,<br/>Flutter mobile app, API integration</small>
     </td>
     <td align="center">
-      <img src="./tim_foto/alam.jpg" width="80" height="80" style="border-radius:50%;object-fit:cover;" /><br/>
+      <img src="./tim_foto/alam.jpg" width="100" style="border-radius:10%;" /><br/>
       <b>Muhammad Alamsyah</b><br/>
       <a href="https://github.com/L-6969">@L-6969</a><br/>
       <em>AI Integration · DevOps · QA Web</em><br/>
@@ -979,21 +979,21 @@ curl -X POST https://simhp.my.id/api/auth/login \
   </tr>
   <tr>
     <td align="center">
-      <img src="./tim_foto/difa.jpeg" width="80" height="80" style="border-radius:50%;object-fit:cover;" /><br/>
+      <img src="./tim_foto/difa.jpeg" width="100" style="border-radius:10%;" /><br/>
       <b>Difa Nisa Lutfiah</b><br/>
       <a href="https://github.com/difanisa">@difanisa</a><br/>
       <em>QA Web · Diagram · Dokumentasi</em><br/>
       <small>Diagram sistem, QA web,<br/>manual book, test case</small>
     </td>
     <td align="center">
-      <img src="./tim_foto/devina.jpg" width="80" height="80" style="border-radius:50%;object-fit:cover;" /><br/>
+      <img src="./tim_foto/devina.jpg" width="100" style="border-radius:10%;" /><br/>
       <b>Devina Ayuliani</b><br/>
       <a href="https://github.com/ayoel99">@ayoel99</a><br/>
       <em>QA Mobile · ERD · Final Report</em><br/>
       <small>ERD, QA mobile,<br/>panduan pengguna mobile</small>
     </td>
     <td align="center">
-      <img src="./tim_foto/agusta.jpg" width="80" height="80" style="border-radius:50%;object-fit:cover;" /><br/>
+      <img src="./tim_foto/agusta.jpg" width="100" style="border-radius:10%;" /><br/>
       <b>Agusta Firman Firdaus</b><br/>
       <a href="https://github.com/AgustaFirmanFirdaus">@AgustaFirmanFirdaus</a><br/>
       <em>QA Mobile · Testing</em><br/>
