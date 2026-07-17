@@ -134,6 +134,7 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 #### Halaman Landing & Login
 
 ![Landing Page SIMHP](./web_foto/landing1.png)
+![Landing Page SIMHP](./web_foto/landing2.png)
 *Halaman landing SIMHP — dark theme dengan highlight fitur utama sistem*
 
 ![Login Page SIMHP](./web_foto/login.png)
@@ -159,11 +160,9 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 ![Stok Gudang 2](./web_foto/sg2.png)
 *Detail transaksi stok — riwayat masuk/keluar disertai foto bukti*
 
-![Manajemen Panen](./web_foto/mp.png)
+![Manajemen Panen](./web_foto/pp.png)
 *Pencatatan panen — form input dengan upload foto bukti wajib*
-
-![Manajemen Panen 2](./web_foto/mp2.png)
-*Riwayat panen — daftar semua transaksi panen dengan snapshot harga*
+*Riwayat panen — daftar semua transaksi panen*
 
 ---
 
@@ -183,6 +182,8 @@ Sistem ini dikembangkan berdasarkan hasil **observasi lapangan** pada gudang pen
 
 ![Manajemen Harga](./web_foto/mh.png)
 *Konfigurasi harga gabah dan beras*
+![Manajemen Harga](./web_foto/mh2.png)
+*snapshot harga*
 
 ![Tujuan Distribusi](./web_foto/td.png)
 *Manajemen tujuan distribusi*
