@@ -486,7 +486,7 @@ docker compose up -d --build app
 - **[SRS_SIMHP_v3_0_Kelompok4.docx](./SRS_SIMHP_v3_0_Kelompok4.docx)** — Riwayat semua perubahan sistem
 - **[Database Schema](./Diagram/)** — Entity Relationship Diagram
 - **[Test Cases](./docs/testing/)** — QA test specifications
-- **[ManBook](./docs/Manual_Book_Web.docs)** — QA Buku Panduan
+- **[ManBook](./docs/)** — QA Buku Panduan
 ---
 
 ## 👥 Tim Pengembang
