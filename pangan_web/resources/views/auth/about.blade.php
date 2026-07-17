@@ -526,7 +526,7 @@
             </svg>
         </div>
         <h4>AI Terintegrasi</h4>
-        <p>Dilengkapi chatbot HPSBBot berbasis Google Gemini + n8n yang bisa menjawab pertanyaan stok dan harga secara real-time dari database.</p>
+        <p>Dilengkapi chatbot HPSBBot terintegrasi Groq API (Llama 3) yang bisa menjawab pertanyaan stok dan harga secara real-time dari database.</p>
     </div>
 </div>
 
@@ -557,12 +557,12 @@
             <div class="timeline-item">
                 <div class="timeline-date">Juni 2026</div>
                 <h4>Integrasi AI & DevOps</h4>
-                <p>Penambahan chatbot HPSBBot (n8n + Gemini 2.5 Flash), Docker deployment, dan finalisasi fitur foto bukti distribusi serta tujuan distribusi.</p>
+                <p>Penambahan chatbot HPSBBot (Groq API + Llama 3.3), Docker deployment, dan finalisasi fitur foto bukti distribusi serta tujuan distribusi.</p>
             </div>
             <div class="timeline-item">
                 <div class="timeline-date">Juni 2026 — Sekarang</div>
                 <h4>Production & Hosting</h4>
-                <p>Deployment ke VPS dengan Docker Compose — Laravel + MySQL + Redis + n8n + nginx dalam satu stack terintegrasi.</p>
+                <p>Deployment ke VPS dengan Docker Compose — Laravel + MySQL + Redis + nginx dalam satu stack terintegrasi.</p>
             </div>
         </div>
     </div>
@@ -625,7 +625,7 @@
             <div class="team-card">
                 <div class="team-avatar" style="background-image: url('{{ asset('foto/tim/alam.jpg') }}'); color: transparent;">A</div>
                 <div class="team-name">Muhammad Alamsyah</div>
-                <div class="team-role">n8n · DevOps · QA Web · Diagram</div>
+                <div class="team-role">AI Integration · DevOps · QA Web · Diagram</div>
                 <div class="team-npm">NPM: 20241320030</div>
                 <div class="team-social">
                     <a href="https://www.instagram.com/fvck.lam/" target="_blank" title="Instagram">
@@ -636,8 +636,8 @@
                     </a>
                 </div>
                 <div class="team-tags">
-                    <span class="tag">n8n</span>
-                    <span class="tag">Gemini AI</span>
+                    <span class="tag">Groq API</span>
+                    <span class="tag">Llama 3</span>
                     <span class="tag">Playwright</span>
                     <span class="tag">POSTMAN</span>
                     <span class="tag">Diagram</span>
@@ -771,16 +771,16 @@
             </div>
             <div class="stack-item">
                 <div class="stack-icon">
-                    <img src="https://cdn.simpleicons.org/n8n/EA4B71" alt="n8n" width="32" height="32">
+                    <img src="https://img.shields.io/badge/Groq_AI-F55036?style=flat&logo=groq&logoColor=white" alt="Groq" style="height: 24px; object-fit: contain;">
                 </div>
-                <div class="stack-name">n8n</div>
-                <div class="stack-desc">AI Workflow</div>
+                <div class="stack-name">Groq API</div>
+                <div class="stack-desc">Inference Engine</div>
             </div>
             <div class="stack-item">
                 <div class="stack-icon">
-                    <img src="https://cdn.simpleicons.org/googlegemini/8E75B2" alt="Gemini" width="32" height="32">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4fd585" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 4-3 5-3 9a3 3 0 0 0 6 0c0-4-3-5-3-9Z"/><path d="M12 11v11"/><path d="M8 14c-2 1-3 3-3 5"/><path d="M16 14c2 1 3 3 3 5"/></svg>
                 </div>
-                <div class="stack-name">Gemini 2.5</div>
+                <div class="stack-name">Llama 3.3</div>
                 <div class="stack-desc">AI Model</div>
             </div>
         </div>
