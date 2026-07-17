@@ -483,7 +483,7 @@ docker compose up -d --build app
 
 ## 📚 Documentation
 
-- **[CHANGELOG.md](./CHANGELOG.md)** — Riwayat semua perubahan sistem
+- **[SRS_SIMHP_v3_0_Kelompok4.docx](./SRS_SIMHP_v3_0_Kelompok4.docx)** — Riwayat semua perubahan sistem
 - **[Database Schema](./Diagram/ERD.drawio.xml)** — Entity Relationship Diagram
 - **[Test Cases](./docs/testing/)** — QA test specifications
 
